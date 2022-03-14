@@ -1,7 +1,7 @@
 package io.jcloud.utils;
 
-import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static org.junit.jupiter.api.Assertions.fail;
+import static java.nio.file.StandardOpenOption.APPEND;
+import static java.nio.file.StandardOpenOption.CREATE;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,9 +19,10 @@ public final class FileUtils {
 
     public static Path copyContentTo(String content, Path target) {
         try {
-            Files.writeString(target, content);
+            org.apache.commons.io.FileUtils.createParentDirectories(target.toFile());
+            Files.writeString(target, content, CREATE, APPEND);
         } catch (IOException e) {
-            fail("Failed when writing file " + target + ". Caused by " + e.getMessage());
+            throw new RuntimeException("Failed when writing file " + target, e);
         }
 
         return target;
@@ -31,10 +32,8 @@ public final class FileUtils {
         try {
             return org.apache.commons.io.FileUtils.readFileToString(file, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            fail("Could not load file " + file + " . Caused by " + e.getMessage());
+            throw new RuntimeException("Could not load file " + file, e);
         }
-
-        return null;
     }
 
     public static String loadFile(String file) {
@@ -43,10 +42,8 @@ public final class FileUtils {
                     FileUtils.class.getResourceAsStream(file),
                     StandardCharsets.UTF_8);
         } catch (IOException e) {
-            fail("Could not load file " + file + " . Caused by " + e.getMessage());
+            throw new RuntimeException("Could not load file " + file, e);
         }
-
-        return EMPTY;
     }
 
     public static void recreateDirectory(Path folder) {

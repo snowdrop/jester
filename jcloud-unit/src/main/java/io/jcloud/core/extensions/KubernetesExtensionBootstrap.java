@@ -41,13 +41,13 @@ public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
         // if deleteNamespace and ephemeral namespaces are disabled then we are in debug mode. This mode is going to keep
         // all scenario resources in order to allow you to debug by yourself
         context.setDebug(!DELETE_NAMESPACE_AFTER.getAsBoolean() && !ENABLED_EPHEMERAL_NAMESPACES.getAsBoolean());
-        client = KubectlClient.create(context.getId());
+        client = KubectlClient.create();
     }
 
     @Override
     public void afterAll(ScenarioContext context) {
         if (DELETE_NAMESPACE_AFTER.getAsBoolean()) {
-            client.deleteNamespace();
+            client.deleteNamespace(context.getId());
         }
     }
 

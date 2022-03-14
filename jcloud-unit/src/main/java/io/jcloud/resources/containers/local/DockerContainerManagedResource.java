@@ -1,6 +1,6 @@
 package io.jcloud.resources.containers.local;
 
-import static io.jcloud.utils.PropertiesUtils.RESOURCE_PREFIX;
+import static com.sun.jna.Platform.RESOURCE_PREFIX;
 import static io.jcloud.utils.PropertiesUtils.SECRET_PREFIX;
 
 import java.nio.file.Files;
@@ -86,7 +86,7 @@ public class DockerContainerManagedResource extends ManagedResource {
 
     @Override
     public String getHost() {
-        return "http://" + innerContainer.getHost();
+        return innerContainer.getHost();
     }
 
     @Override
@@ -138,7 +138,6 @@ public class DockerContainerManagedResource extends ManagedResource {
 
             throw ex;
         }
-
     }
 
     private Map<String, String> resolveProperties() {

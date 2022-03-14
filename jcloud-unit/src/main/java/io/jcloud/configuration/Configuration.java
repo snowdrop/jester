@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -78,38 +79,29 @@ public final class Configuration {
     }
 
     public List<String> getAsList(String property) {
-        String value = get(property);
-        if (StringUtils.isEmpty(value)) {
-            return Collections.emptyList();
-        }
-
-        return Stream.of(value.split(",")).collect(Collectors.toList());
+        return get(property).filter(StringUtils::isNotEmpty)
+                .map(value -> Stream.of(value.split(",")).collect(Collectors.toList()))
+                .orElseGet(() -> Collections.emptyList());
     }
 
     public Duration getAsDuration(String property, Duration defaultValue) {
-        String value = get(property);
-        if (StringUtils.isEmpty(value)) {
-            return defaultValue;
-        }
+        return get(property).filter(StringUtils::isNotEmpty)
+                .map(value -> {
+                    if (Character.isDigit(value.charAt(0))) {
+                        value = "PT" + value;
+                    }
 
-        if (Character.isDigit(value.charAt(0))) {
-            value = "PT" + value;
-        }
-
-        return Duration.parse(value);
+                    return Duration.parse(value);
+                }).orElse(defaultValue);
     }
 
     public Double getAsDouble(String property, double defaultValue) {
-        String value = get(property);
-        if (StringUtils.isEmpty(value)) {
-            return defaultValue;
-        }
-
-        return Double.parseDouble(value);
+        return get(property).filter(StringUtils::isNotEmpty).map(Double::parseDouble)
+                .orElse(defaultValue);
     }
 
-    public String get(String property) {
-        return properties.get(property);
+    public Optional<String> get(String property) {
+        return Optional.ofNullable(properties.get(property));
     }
 
     public String getOrDefault(String property, String defaultValue) {

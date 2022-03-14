@@ -42,15 +42,27 @@ jobs:
             ${{ runner.os }}-maven-
       - name: Reclaim Disk Space
         run: .github/ci-prerequisites.sh
+      - name: Kubernetes KinD Cluster
+        uses: container-tools/kind-action@v1
+        with:
+          version: v0.11.1
+          registry: true
       - name: Install JDK {{ matrix.java }}
         uses: joschi/setup-jdk@e87a7cec853d2dd7066adf837fe12bf0f3d45e52
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.java }}
           check-latest: true
-      - name: Build in JVM mode
+      - name: Generate Samples images
         run: |
-          mvn -fae -s .github/mvn-settings.xml clean install -Pframework -Dvalidate-format
+          cd samples
+          mvn clean install -Dsamples.container-image.registry=$KIND_REGISTRY -Dsamples.container-image.push=true
+      - name: Build
+        run: |
+          mvn -fae -s .github/mvn-settings.xml clean install -Dcoverage -Dvalidate-format \
+            -Dsamples.container-image.registry=$KIND_REGISTRY \
+            -Dts.container.registry-url=${{ secrets.CI_REGISTRY }} \
+            -Dexclude.kubernetes.tests=no
       - name: Zip Artifacts
         run: |
           zip -R artifacts-linux-jvm${{ matrix.java }}.zip '*-reports/*'
@@ -80,18 +92,10 @@ jobs:
           distribution: 'temurin'
           java-version: ${{ matrix.java }}
           check-latest: true
-      - name: Download Maven Repo
-        uses: actions/download-artifact@v1
-        with:
-          name: maven-repo
-          path: .
-      - name: Extract Maven Repo
-        shell: bash
-        run: tar -xzf maven-repo.tgz -C ~
-      - name: Build in JVM mode
+      - name: Build
         shell: bash
         run: |
-          mvn -fae -s .github/mvn-settings.xml clean install -Pframework
+          mvn -fae -s .github/mvn-settings.xml clean install -DskipTests=true
       - name: Zip Artifacts
         shell: bash
         if: failure()

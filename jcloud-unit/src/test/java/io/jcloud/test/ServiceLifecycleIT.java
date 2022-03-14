@@ -5,6 +5,7 @@ import static io.jcloud.test.samples.ContainerSamples.QUARKUS_REST_IMAGE;
 import static io.jcloud.test.samples.ContainerSamples.QUARKUS_REST_PATH;
 import static io.jcloud.test.samples.ContainerSamples.QUARKUS_REST_PATH_OUTPUT;
 import static io.jcloud.test.samples.ContainerSamples.QUARKUS_REST_PORT;
+import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.http.HttpStatus;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -39,9 +41,16 @@ public class ServiceLifecycleIT {
             .onPreStart((s) -> PRE_START_COUNTER.incrementAndGet())
             .onPostStart((s) -> POST_START_COUNTER.incrementAndGet());
 
+    @AfterAll
+    public static void resetCounters() {
+        PRE_START_COUNTER.set(0);
+        POST_START_COUNTER.set(0);
+    }
+
     @Test
     public void testServiceIsUpAndRunning() {
         greetings.given().get(QUARKUS_REST_PATH).then().statusCode(HttpStatus.SC_OK).body(is(QUARKUS_REST_PATH_OUTPUT));
+        given().get(QUARKUS_REST_PATH).then().statusCode(HttpStatus.SC_OK).body(is(QUARKUS_REST_PATH_OUTPUT));
     }
 
     @Test
@@ -73,9 +82,11 @@ public class ServiceLifecycleIT {
     @Test
     @Order(2)
     public void testRestart() {
+        PRE_START_COUNTER.set(0);
+        POST_START_COUNTER.set(0);
         greetings.restart();
-        assertEquals(2, PRE_START_COUNTER.get(), "service.onPreStart() is not working!");
-        assertEquals(2, POST_START_COUNTER.get(), "service.onPostStart() is not working!");
+        assertEquals(1, PRE_START_COUNTER.get(), "service.onPreStart() is not working!");
+        assertEquals(1, POST_START_COUNTER.get(), "service.onPostStart() is not working!");
     }
 
     @Test

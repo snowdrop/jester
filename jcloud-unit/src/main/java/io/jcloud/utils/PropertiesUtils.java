@@ -13,10 +13,11 @@ import org.apache.commons.lang3.StringUtils;
 
 public final class PropertiesUtils {
 
-    public static final String RESOURCE_PREFIX = "resource::/";
-    public static final String SECRET_PREFIX = "secret::/";
     public static final Path TARGET = Path.of("target");
     public static final String SLASH = "/";
+
+    public static final String RESOURCE_PREFIX = "resource::/";
+    public static final String SECRET_PREFIX = "secret::/";
 
     private static final String PROPERTY_START_TAG = "${";
     private static final String PROPERTY_END_TAG = "}";
