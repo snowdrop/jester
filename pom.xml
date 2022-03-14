@@ -53,7 +53,7 @@
     <slf4j-jboss-logmanager.version>1.1.0.Final</slf4j-jboss-logmanager.version>
     <jboss-logmanager.version>1.0.9</jboss-logmanager.version>
     <apache.commons-io.version>2.11.0</apache.commons-io.version>
-    <jakarta.inject-api.version>1.0</jakarta.inject-api.version>
+    <javax.inject>1</javax.inject>
     <testcontainers.version>1.16.3</testcontainers.version>
     <kubernetes-client.version>5.12.1</kubernetes-client.version>
     <jackson-annotations.version>2.13.2</jackson-annotations.version>
@@ -123,9 +123,9 @@
         <version>${apache.commons-io.version}</version>
       </dependency>
       <dependency>
-        <groupId>jakarta.inject</groupId>
-        <artifactId>jakarta.inject-api</artifactId>
-        <version>${jakarta.inject-api.version}</version>
+        <groupId>javax.inject</groupId>
+        <artifactId>javax.inject</artifactId>
+        <version>${javax.inject.version}</version>
       </dependency>
       <dependency>
         <groupId>org.testcontainers</groupId>
