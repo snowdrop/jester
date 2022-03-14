@@ -3,8 +3,8 @@
         <img src="https://img.shields.io/github/contributors/snowdrop/jcloud-unit"/></a>
     <a href="https://github.com/snowdrop/jcloud-unit/pulse" alt="Activity">
         <img src="https://img.shields.io/github/commit-activity/m/snowdrop/jcloud-unit"/></a>
-    <a href="https://github.com/snowdrop/jcloud-unit/actions/workflows/daily.yaml" alt="Build Status">
-        <img src="https://github.com/snowdrop/jcloud-unit/actions/workflows/daily.yaml/badge.svg"></a>
+    <a href="https://github.com/snowdrop/jcloud-unit/actions/workflows/push.yaml" alt="Build Status">
+        <img src="https://github.com/snowdrop/jcloud-unit/actions/workflows/push.yaml/badge.svg"></a>
     <a href="https://github.com/snowdrop/jcloud-unit" alt="Top Language">
         <img src="https://img.shields.io/github/languages/top/snowdrop/jcloud-unit"></a>
     <a href="https://github.com/snowdrop/jcloud-unit" alt="Coverage">

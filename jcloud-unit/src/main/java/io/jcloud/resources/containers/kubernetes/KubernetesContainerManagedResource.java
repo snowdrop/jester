@@ -24,7 +24,6 @@ import io.jcloud.utils.PropertiesUtils;
 public class KubernetesContainerManagedResource extends ManagedResource {
 
     private static final String DEPLOYMENT_TEMPLATE_PROPERTY = "kubernetes.template";
-    private static final String USE_INTERNAL_SERVICE_AS_URL_PROPERTY = "kubernetes.use-internal-service-as-url";
 
     private static final String DEPLOYMENT = "kubernetes.yml";
 
@@ -88,19 +87,11 @@ public class KubernetesContainerManagedResource extends ManagedResource {
 
     @Override
     public String getHost() {
-        if (useInternalServiceAsUrl()) {
-            return context.getName();
-        }
-
         return client.host(context.getOwner());
     }
 
     @Override
     public int getMappedPort(int port) {
-        if (useInternalServiceAsUrl()) {
-            return port;
-        }
-
         return client.port(context.getOwner(), port);
     }
 
@@ -176,11 +167,6 @@ public class KubernetesContainerManagedResource extends ManagedResource {
         if (deployment.getSpec().getTemplate().getSpec().getContainers().isEmpty()) {
             deployment.getSpec().getTemplate().getSpec().getContainers().add(new Container());
         }
-    }
-
-    private boolean useInternalServiceAsUrl() {
-        return Boolean.TRUE.toString()
-                .equals(context.getOwner().getConfiguration().get(USE_INTERNAL_SERVICE_AS_URL_PROPERTY));
     }
 
 }

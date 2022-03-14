@@ -1,6 +1,6 @@
 package io.jcloud.resources.containers.local;
 
-import static com.sun.jna.Platform.RESOURCE_PREFIX;
+import static io.jcloud.utils.PropertiesUtils.RESOURCE_PREFIX;
 import static io.jcloud.utils.PropertiesUtils.SECRET_PREFIX;
 
 import java.nio.file.Files;
@@ -28,12 +28,14 @@ public class DockerContainerManagedResource extends ManagedResource {
     private static final String DELETE_IMAGE_ON_STOP_PROPERTY = "container.delete.image.on.stop";
     private static final String PRIVILEGED_MODE = "container.privileged-mode";
     private static final String TARGET = "target";
+    private static final String SCENARIO_NETWORK = "internal.container.network";
 
     private final String image;
     private final String expectedLog;
     private final String[] command;
     private final Integer[] ports;
 
+    private DockerScenarioNetwork network;
     private GenericContainer<?> innerContainer;
     private LoggingHandler loggingHandler;
 
@@ -50,7 +52,13 @@ public class DockerContainerManagedResource extends ManagedResource {
             return;
         }
 
+        network = context.getScenarioContext().getTestStore()
+                .getOrComputeIfAbsent(SCENARIO_NETWORK, k -> new DockerScenarioNetwork(context.getScenarioContext()),
+                        DockerScenarioNetwork.class);
+
         innerContainer = initContainer();
+        innerContainer.withNetwork(network);
+        innerContainer.withNetworkAliases(context.getName());
         innerContainer.withStartupTimeout(context.getOwner().getConfiguration()
                 .getAsDuration(SERVICE_STARTUP_TIMEOUT, SERVICE_STARTUP_TIMEOUT_DEFAULT));
         innerContainer.withEnv(resolveProperties());
@@ -120,7 +128,6 @@ public class DockerContainerManagedResource extends ManagedResource {
             container.setPrivilegedMode(true);
         }
 
-        container.withCreateContainerCmdModifier(cmd -> cmd.withName(DockerUtils.generateDockerContainerName()));
         container.withExposedPorts(ports);
 
         return container;

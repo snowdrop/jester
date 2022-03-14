@@ -1,8 +1,5 @@
 package io.jcloud.utils;
 
-import java.util.Objects;
-import java.util.Random;
-
 import org.testcontainers.shaded.com.github.dockerjava.core.DefaultDockerClientConfig;
 import org.testcontainers.shaded.com.github.dockerjava.core.DockerClientImpl;
 
@@ -11,9 +8,7 @@ import com.github.dockerjava.zerodep.ZerodepDockerHttpClient;
 
 public final class DockerUtils {
 
-    private static final String CONTAINER_PREFIX = "ts.global.docker-container-prefix";
     private static final Object LOCK = new Object();
-    private static final Random RANDOM = new Random();
 
     private static DockerClient dockerClientInstance;
 
@@ -28,21 +23,6 @@ public final class DockerUtils {
      */
     public static void removeImageById(String imageId) {
         dockerClient().removeImageCmd(imageId).withForce(true).exec();
-    }
-
-    /**
-     * Generate a docker container name following the standard container naming rules.
-     *
-     * @return the generated docker container name.
-     */
-    public static String generateDockerContainerName() {
-        String containerName = "" + (RANDOM.nextInt() & Integer.MAX_VALUE);
-        String dockerContainerPrefix = System.getProperty(CONTAINER_PREFIX);
-        if (Objects.nonNull(dockerContainerPrefix)) {
-            containerName = dockerContainerPrefix + "-" + containerName;
-        }
-
-        return containerName;
     }
 
     private static DockerClient dockerClient() {

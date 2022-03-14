@@ -77,7 +77,7 @@ public class JCloudExtension
         scenario.setMethodTestContext(context);
         extensions.forEach(ext -> ext.beforeEach(scenario));
         services.forEach(service -> {
-            if (service.isAutoStart()) {
+            if (service.isAutoStart() && !service.isRunning()) {
                 service.start();
             }
         });

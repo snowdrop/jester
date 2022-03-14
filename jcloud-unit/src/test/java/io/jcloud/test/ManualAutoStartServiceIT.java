@@ -1,10 +1,10 @@
 package io.jcloud.test;
 
-import static io.jcloud.test.samples.ContainerSamples.QUARKUS_REST_EXPECTED_LOG;
 import static io.jcloud.test.samples.ContainerSamples.QUARKUS_REST_IMAGE;
-import static io.jcloud.test.samples.ContainerSamples.QUARKUS_REST_PATH;
-import static io.jcloud.test.samples.ContainerSamples.QUARKUS_REST_PATH_OUTPUT;
-import static io.jcloud.test.samples.ContainerSamples.QUARKUS_REST_PORT;
+import static io.jcloud.test.samples.ContainerSamples.QUARKUS_STARTUP_EXPECTED_LOG;
+import static io.jcloud.test.samples.ContainerSamples.SAMPLES_DEFAULT_PORT;
+import static io.jcloud.test.samples.ContainerSamples.SAMPLES_DEFAULT_REST_PATH;
+import static io.jcloud.test.samples.ContainerSamples.SAMPLES_DEFAULT_REST_PATH_OUTPUT;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -24,7 +24,7 @@ public class ManualAutoStartServiceIT {
 
     private static final AtomicInteger PRE_START_COUNTER = new AtomicInteger(0);
 
-    @Container(image = QUARKUS_REST_IMAGE, ports = QUARKUS_REST_PORT, expectedLog = QUARKUS_REST_EXPECTED_LOG)
+    @Container(image = QUARKUS_REST_IMAGE, ports = SAMPLES_DEFAULT_PORT, expectedLog = QUARKUS_STARTUP_EXPECTED_LOG)
     static RestService greetings = new RestService()
             .setAutoStart(false)
             .onPreStart((s) -> PRE_START_COUNTER.incrementAndGet());
@@ -35,6 +35,7 @@ public class ManualAutoStartServiceIT {
         assertFalse(greetings.isRunning(), "Service was up and running!");
         greetings.start();
         assertTrue(greetings.isRunning(), "Service was not up and running!");
-        greetings.given().get(QUARKUS_REST_PATH).then().statusCode(HttpStatus.SC_OK).body(is(QUARKUS_REST_PATH_OUTPUT));
+        greetings.given().get(SAMPLES_DEFAULT_REST_PATH).then().statusCode(HttpStatus.SC_OK).body(is(
+                SAMPLES_DEFAULT_REST_PATH_OUTPUT));
     }
 }

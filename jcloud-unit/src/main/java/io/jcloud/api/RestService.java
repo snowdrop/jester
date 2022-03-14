@@ -1,6 +1,7 @@
 package io.jcloud.api;
 
 import io.jcloud.core.BaseService;
+import io.jcloud.logging.Log;
 import io.restassured.RestAssured;
 import io.restassured.specification.RequestSpecification;
 
@@ -33,6 +34,8 @@ public class RestService extends BaseService<RestService> {
         RestAssured.baseURI = HTTP + getHost();
         RestAssured.basePath = basePath;
         RestAssured.port = getMappedPort(httpPort);
+
+        Log.debug(this, "REST service running at " + HTTP + getHost() + ":" + getMappedPort(httpPort));
     }
 
     @Override

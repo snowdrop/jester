@@ -67,6 +67,7 @@
     <!-- Samples -->
     <samples.container-image.registry>server.io</samples.container-image.registry>
     <!-- Testing -->
+    <keycloak-authz-client.version>17.0.0</keycloak-authz-client.version>
     <include.tests>**/*IT.java</include.tests>
     <exclude.openshift.tests>**/OpenShift*IT.java</exclude.openshift.tests>
     <exclude.kubernetes.tests>**/Kubernetes*IT.java</exclude.kubernetes.tests>
@@ -146,6 +147,14 @@
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-annotations</artifactId>
         <version>${jackson-annotations.version}</version>
+      </dependency>
+
+      <!-- Test dependencies -->
+      <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-authz-client</artifactId>
+        <scope>test</scope>
+        <version>${keycloak-authz-client.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -239,6 +248,10 @@
         <version>${surefire-plugin.version}</version>
         <configuration>
           <argLine>${jacoco.agent.argLine}</argLine>
+          <failIfNoTests>false</failIfNoTests>
+          <includes>
+            <include>*Test.java</include>
+          </includes>
         </configuration>
       </plugin>
       <plugin>
@@ -254,6 +267,7 @@
             <configuration>
               <argLine>${jacoco.agent.argLine}</argLine>
               <excludedGroups>${exclude.tests.with.tags}</excludedGroups>
+              <failIfNoTests>false</failIfNoTests>
               <includes>
                 <include>${include.tests}</include>
               </includes>
@@ -265,6 +279,8 @@
                 <!-- Samples mapping -->
                 <sample.quarkus-rest.image>${samples.container-image.registry}/test/quarkus-rest:latest
                 </sample.quarkus-rest.image>
+                <sample.quarkus-secured.image>${samples.container-image.registry}/test/quarkus-secured:latest
+                </sample.quarkus-secured.image>
               </systemProperties>
             </configuration>
           </execution>

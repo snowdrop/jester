@@ -109,13 +109,10 @@ public class BaseService<T extends Service> implements Service {
 
     @Override
     public boolean isRunning() {
-        Log.debug(this, "Checking if resource is running");
         if (managedResource == null) {
-            Log.debug(this, "Resource is not running");
             return false;
         }
 
-        Log.debug(this, "Resource is running");
         return managedResource.isRunning();
     }
 
