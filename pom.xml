@@ -39,8 +39,8 @@
     <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
-    <failsafe-plugin.version>3.0.0-M5</failsafe-plugin.version>
+    <surefire-plugin.version>2.22.2</surefire-plugin.version>
+    <failsafe-plugin.version>2.22.2</failsafe-plugin.version>
     <jacoco-maven-plugin.version>0.8.7</jacoco-maven-plugin.version>
     <maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>
     <formatter-maven-plugin.version>2.18.0</formatter-maven-plugin.version>
@@ -82,24 +82,43 @@
     </repository>
   </distributionManagement>
   <modules>
-    <module>jcloud-unit</module>
+    <module>jcloud-core</module>
+    <module>jcloud-containers</module>
   </modules>
   <dependencyManagement>
     <dependencies>
+      <!-- Project Dependencies -->
       <dependency>
         <groupId>io.jcloud</groupId>
-        <artifactId>jcloud</artifactId>
+        <artifactId>jcloud-core</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>io.rest-assured</groupId>
-        <artifactId>rest-assured</artifactId>
-        <version>${rest-assured.version}</version>
+        <groupId>io.jcloud</groupId>
+        <artifactId>jcloud-containers</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <!-- Declared Dependencies -->
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${junit.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-api</artifactId>
-        <version>${junit.version}</version>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>testcontainers-bom</artifactId>
+        <version>${testcontainers.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.rest-assured</groupId>
+        <artifactId>rest-assured-bom</artifactId>
+        <version>${rest-assured.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>org.awaitility</groupId>
@@ -125,11 +144,6 @@
         <groupId>javax.inject</groupId>
         <artifactId>javax.inject</artifactId>
         <version>${javax.inject.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.testcontainers</groupId>
-        <artifactId>testcontainers</artifactId>
-        <version>${testcontainers.version}</version>
       </dependency>
       <dependency>
         <groupId>io.fabric8</groupId>
