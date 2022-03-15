@@ -50,13 +50,12 @@
     <junit.version>5.8.2</junit.version>
     <rest-assured.version>4.5.1</rest-assured.version>
     <awaitility.version>4.2.0</awaitility.version>
-    <slf4j-jboss-logmanager.version>1.1.0.Final</slf4j-jboss-logmanager.version>
-    <jboss-logmanager.version>1.0.9</jboss-logmanager.version>
     <apache.commons-io.version>2.11.0</apache.commons-io.version>
     <javax.xml.bind.version>2.4.0-b180830.0359</javax.xml.bind.version>
     <javax.inject.version>1</javax.inject.version>
     <kubernetes-client.version>5.12.1</kubernetes-client.version>
     <jackson-annotations.version>2.13.2</jackson-annotations.version>
+    <slf4j.version>1.7.36</slf4j.version>
     <!-- Format Settings -->
     <src.format.goal>format</src.format.goal>
     <src.sort.goal>sort</src.sort.goal>
@@ -123,16 +122,6 @@
         <groupId>org.awaitility</groupId>
         <artifactId>awaitility</artifactId>
         <version>${awaitility.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.slf4j</groupId>
-        <artifactId>slf4j-jboss-logmanager</artifactId>
-        <version>${slf4j-jboss-logmanager.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.logmanager</groupId>
-        <artifactId>jboss-logmanager-embedded</artifactId>
-        <version>${jboss-logmanager.version}</version>
       </dependency>
       <dependency>
         <groupId>commons-io</groupId>

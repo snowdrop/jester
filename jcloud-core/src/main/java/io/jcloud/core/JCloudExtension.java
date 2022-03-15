@@ -43,7 +43,7 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
     public void beforeAll(ExtensionContext context) {
         // Init scenario context
         scenario = new ScenarioContext(context);
-        Log.configure(scenario);
+        Log.configure();
         Log.debug("Scenario ID: '%s'", scenario.getId());
 
         // Init extensions
