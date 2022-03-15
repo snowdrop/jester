@@ -25,8 +25,7 @@ public class ManualAutoStartServiceIT {
     private static final AtomicInteger PRE_START_COUNTER = new AtomicInteger(0);
 
     @Container(image = QUARKUS_REST_IMAGE, ports = SAMPLES_DEFAULT_PORT, expectedLog = QUARKUS_STARTUP_EXPECTED_LOG)
-    static RestService greetings = new RestService()
-            .setAutoStart(false)
+    static RestService greetings = new RestService().setAutoStart(false)
             .onPreStart((s) -> PRE_START_COUNTER.incrementAndGet());
 
     @Test
@@ -35,7 +34,7 @@ public class ManualAutoStartServiceIT {
         assertFalse(greetings.isRunning(), "Service was up and running!");
         greetings.start();
         assertTrue(greetings.isRunning(), "Service was not up and running!");
-        greetings.given().get(SAMPLES_DEFAULT_REST_PATH).then().statusCode(HttpStatus.SC_OK).body(is(
-                SAMPLES_DEFAULT_REST_PATH_OUTPUT));
+        greetings.given().get(SAMPLES_DEFAULT_REST_PATH).then().statusCode(HttpStatus.SC_OK)
+                .body(is(SAMPLES_DEFAULT_REST_PATH_OUTPUT));
     }
 }

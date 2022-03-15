@@ -3,7 +3,7 @@ rm -r target/classes src/main/java
 mkdir -p target/classes
 mkdir -p src/main/java
 
-for j in '../jcloud-unit'; do
+for j in '../jcloud-core' '../jcloud-containers' '../jcloud-quarkus' '../examples'; do
   for i in $(find $j -regex .*target/classes); do
     cp -r $i/* target/classes/
   done

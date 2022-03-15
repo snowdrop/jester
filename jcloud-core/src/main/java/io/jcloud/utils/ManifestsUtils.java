@@ -129,8 +129,8 @@ public final class ManifestsUtils {
                 }));
     }
 
-    private static Map<String, String> enrichProperties(NamespacedKubernetesClient client, Map<String, String> properties,
-            Deployment deployment) {
+    private static Map<String, String> enrichProperties(NamespacedKubernetesClient client,
+            Map<String, String> properties, Deployment deployment) {
         // mount path x volume
         Map<String, Volume> volumes = new HashMap<>();
 
@@ -148,10 +148,8 @@ public final class ManifestsUtils {
 
                 // Add the volume
                 if (!volumes.containsKey(mountPath)) {
-                    Volume volume = new VolumeBuilder()
-                            .withName(configMapName)
-                            .withConfigMap(new ConfigMapVolumeSourceBuilder().withName(configMapName).build())
-                            .build();
+                    Volume volume = new VolumeBuilder().withName(configMapName)
+                            .withConfigMap(new ConfigMapVolumeSourceBuilder().withName(configMapName).build()).build();
                     volumes.put(mountPath, volume);
                 }
 
@@ -166,12 +164,8 @@ public final class ManifestsUtils {
                 doCreateSecretFromFile(client, secretName, getFilePath(path));
 
                 // Add the volume
-                Volume volume = new VolumeBuilder()
-                        .withName(secretName)
-                        .withSecret(new SecretVolumeSourceBuilder()
-                                .withSecretName(secretName)
-                                .build())
-                        .build();
+                Volume volume = new VolumeBuilder().withName(secretName)
+                        .withSecret(new SecretVolumeSourceBuilder().withSecretName(secretName).build()).build();
                 volumes.put(mountPath, volume);
 
                 value = mountPath + SLASH + filename;
@@ -186,15 +180,16 @@ public final class ManifestsUtils {
             // Configure all the containers to map the volume
             deployment.getSpec().getTemplate().getSpec().getContainers()
                     .forEach(container -> container.getVolumeMounts()
-                            .add(new VolumeMountBuilder().withName(volume.getValue().getName())
-                                    .withReadOnly(true).withMountPath(volume.getKey()).build()));
+                            .add(new VolumeMountBuilder().withName(volume.getValue().getName()).withReadOnly(true)
+                                    .withMountPath(volume.getKey()).build()));
         }
 
         return output;
     }
 
     private static EnvVar getEnvVarByKey(String key, Container container) {
-        return container.getEnv().stream().filter(env -> StringUtils.equals(key, env.getName())).findFirst().orElse(null);
+        return container.getEnv().stream().filter(env -> StringUtils.equals(key, env.getName())).findFirst()
+                .orElse(null);
     }
 
     private static String getMountPath(String path) {
@@ -230,9 +225,8 @@ public final class ManifestsUtils {
     }
 
     private static String getFilePath(String path) {
-        try (Stream<Path> binariesFound = Files
-                .find(TARGET, Integer.MAX_VALUE,
-                        (file, basicFileAttributes) -> file.toString().contains(path))) {
+        try (Stream<Path> binariesFound = Files.find(TARGET, Integer.MAX_VALUE,
+                (file, basicFileAttributes) -> file.toString().contains(path))) {
             return binariesFound.map(Path::toString).findFirst().orElse(path);
         } catch (IOException ex) {
             // ignored
@@ -250,26 +244,21 @@ public final class ManifestsUtils {
     }
 
     private static String normalizeName(String name) {
-        return StringUtils.removeStart(name, SLASH)
-                .replaceAll(Pattern.quote("."), "-")
-                .replaceAll(SLASH, "-");
+        return StringUtils.removeStart(name, SLASH).replaceAll(Pattern.quote("."), "-").replaceAll(SLASH, "-");
     }
 
     private static void createOrUpdateConfigMap(NamespacedKubernetesClient client, String configMapName, String key,
             String value) {
         if (client.configMaps().withName(configMapName).get() != null) {
             // update existing config map by adding new file
-            client.configMaps().withName(configMapName)
-                    .edit(configMap -> {
-                        configMap.getData().put(key, value);
-                        return configMap;
-                    });
+            client.configMaps().withName(configMapName).edit(configMap -> {
+                configMap.getData().put(key, value);
+                return configMap;
+            });
         } else {
             // create new one
-            client.configMaps().createOrReplace(new ConfigMapBuilder()
-                    .withNewMetadata().withName(configMapName).endMetadata()
-                    .addToData(key, value)
-                    .build());
+            client.configMaps().createOrReplace(new ConfigMapBuilder().withNewMetadata().withName(configMapName)
+                    .endMetadata().addToData(key, value).build());
         }
     }
 

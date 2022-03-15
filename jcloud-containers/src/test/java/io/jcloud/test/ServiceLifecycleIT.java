@@ -37,8 +37,7 @@ public class ServiceLifecycleIT {
     private static final String MY_PROPERTY_EXPECTED_VALUE = "this is a custom property";
 
     @Container(image = QUARKUS_REST_IMAGE, ports = SAMPLES_DEFAULT_PORT, expectedLog = QUARKUS_STARTUP_EXPECTED_LOG)
-    static RestService greetings = new RestService()
-            .withProperty(MY_PROPERTY, MY_PROPERTY_EXPECTED_VALUE)
+    static RestService greetings = new RestService().withProperty(MY_PROPERTY, MY_PROPERTY_EXPECTED_VALUE)
             .onPreStart((s) -> PRE_START_COUNTER.incrementAndGet())
             .onPostStart((s) -> POST_START_COUNTER.incrementAndGet());
 
@@ -101,6 +100,7 @@ public class ServiceLifecycleIT {
     }
 
     private void thenServiceIsUpAndRunning(RequestSpecification given) {
-        given.get(SAMPLES_DEFAULT_REST_PATH).then().statusCode(HttpStatus.SC_OK).body(is(SAMPLES_DEFAULT_REST_PATH_OUTPUT));
+        given.get(SAMPLES_DEFAULT_REST_PATH).then().statusCode(HttpStatus.SC_OK)
+                .body(is(SAMPLES_DEFAULT_REST_PATH_OUTPUT));
     }
 }

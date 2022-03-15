@@ -82,10 +82,10 @@ public final class KubectlClient {
      */
     public void apply(Service service, Path file) {
         try {
-            new Command(KUBECTL, "apply", "-f", file.toAbsolutePath().toString(), "-n", currentNamespace)
-                    .runAndWait();
+            new Command(KUBECTL, "apply", "-f", file.toAbsolutePath().toString(), "-n", currentNamespace).runAndWait();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to apply resource " + file.toAbsolutePath() + " for " + service.getName(), e);
+            throw new RuntimeException(
+                    "Failed to apply resource " + file.toAbsolutePath() + " for " + service.getName(), e);
         }
     }
 
@@ -97,8 +97,8 @@ public final class KubectlClient {
      */
     public void expose(Service service, Integer port) {
         try {
-            new Command(KUBECTL, "expose", "deployment", service.getName(), "--port=" + port, "--name=" + service.getName(),
-                    "-n", currentNamespace).runAndWait();
+            new Command(KUBECTL, "expose", "deployment", service.getName(), "--port=" + port,
+                    "--name=" + service.getName(), "-n", currentNamespace).runAndWait();
         } catch (Exception e) {
             throw new RuntimeException("Service failed to be exposed.", e);
         }
@@ -112,8 +112,8 @@ public final class KubectlClient {
      */
     public void scaleTo(Service service, int replicas) {
         try {
-            new Command(KUBECTL, "scale", "deployment/" + service.getName(), "--replicas=" + replicas, "-n", currentNamespace)
-                    .runAndWait();
+            new Command(KUBECTL, "scale", "deployment/" + service.getName(), "--replicas=" + replicas, "-n",
+                    currentNamespace).runAndWait();
         } catch (Exception e) {
             throw new RuntimeException("Service failed to be scaled.", e);
         }
@@ -145,6 +145,7 @@ public final class KubectlClient {
      * Get all the logs for all the pods within one service.
      *
      * @param service
+     *
      * @return
      */
     public Map<String, String> logs(Service service) {
@@ -163,13 +164,13 @@ public final class KubectlClient {
      * Resolve the url by the service.
      *
      * @param service
+     *
      * @return
      */
     public String host(Service service) {
         String serviceName = service.getName();
         io.fabric8.kubernetes.api.model.Service serviceModel = client.services().withName(serviceName).get();
-        if (serviceModel == null
-                || serviceModel.getStatus() == null
+        if (serviceModel == null || serviceModel.getStatus() == null
                 || serviceModel.getStatus().getLoadBalancer() == null
                 || serviceModel.getStatus().getLoadBalancer().getIngress() == null) {
             return PORT_FORWARD_HOST;
@@ -180,8 +181,7 @@ public final class KubectlClient {
         // 2.- Try Ingress Hostname
         Optional<String> ip = serviceModel.getStatus().getLoadBalancer().getIngress().stream()
                 .map(ingress -> StringUtils.defaultIfBlank(ingress.getIp(), ingress.getHostname()))
-                .filter(StringUtils::isNotEmpty)
-                .findFirst();
+                .filter(StringUtils::isNotEmpty).findFirst();
 
         if (ip.isEmpty()) {
             return PORT_FORWARD_HOST;
@@ -194,6 +194,7 @@ public final class KubectlClient {
      * Resolve the port by the service.
      *
      * @param service
+     *
      * @return
      */
     public int port(Service service, int port) {
@@ -206,18 +207,16 @@ public final class KubectlClient {
         if (PORT_FORWARD_HOST.equalsIgnoreCase(host(service))) {
             LocalPortForward portForward = portForwardsByService.get(serviceName);
             if (portForward == null || !portForward.isAlive()) {
-                portForward = client.services().withName(serviceName).portForward(port, SocketUtils.findAvailablePort());
+                portForward = client.services().withName(serviceName).portForward(port,
+                        SocketUtils.findAvailablePort());
                 portForwardsByService.put(serviceName, portForward);
             }
 
             return portForward.getLocalPort();
         }
 
-        return serviceModel.getSpec().getPorts().stream()
-                .filter(Objects::nonNull)
-                .filter(s -> s.getTargetPort().getIntVal() == port)
-                .map(ServicePort::getPort)
-                .findFirst()
+        return serviceModel.getSpec().getPorts().stream().filter(Objects::nonNull)
+                .filter(s -> s.getTargetPort().getIntVal() == port).map(ServicePort::getPort).findFirst()
                 .orElse(HTTP_PORT_DEFAULT);
     }
 
@@ -296,7 +295,8 @@ public final class KubectlClient {
             new Command(KUBECTL, "create", "namespace", namespaceName).runAndWait();
             created = true;
         } catch (Exception e) {
-            Log.warn("Namespace " + namespaceName + " failed to be created. Caused by: " + e.getMessage() + ". Trying again.");
+            Log.warn("Namespace " + namespaceName + " failed to be created. Caused by: " + e.getMessage()
+                    + ". Trying again.");
         }
 
         return created;
@@ -318,8 +318,7 @@ public final class KubectlClient {
 
     private void printServiceInfo(Service service) {
         try {
-            new Command(KUBECTL, "get", "svc", service.getName(), "-n", currentNamespace)
-                    .outputToConsole()
+            new Command(KUBECTL, "get", "svc", service.getName(), "-n", currentNamespace).outputToConsole()
                     .runAndWait();
         } catch (Exception ignored) {
         }

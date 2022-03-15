@@ -11,7 +11,8 @@ public final class SocketUtils {
 
     private static final PropertyLookup PORT_RANGE_MIN_PROPERTY = new PropertyLookup("port.range.min", "1100");
     private static final PropertyLookup PORT_RANGE_MAX_PROPERTY = new PropertyLookup("port.range.max", "49151");
-    private static final PropertyLookup PORT_RESOLUTION_STRATEGY_PROPERTY = new PropertyLookup("port.resolution.strategy");
+    private static final PropertyLookup PORT_RESOLUTION_STRATEGY_PROPERTY = new PropertyLookup(
+            "port.resolution.strategy");
 
     private static final int PORT_RANGE_MIN = PORT_RANGE_MIN_PROPERTY.getAsInteger();
     private static final int PORT_RANGE_MAX = PORT_RANGE_MAX_PROPERTY.getAsInteger();

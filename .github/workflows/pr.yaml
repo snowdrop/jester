@@ -24,7 +24,7 @@ jobs:
           check-latest: true
       - name: Build with Maven
         run: |
-          mvn -V -B -s .github/mvn-settings.xml verify -Pframework -Dvalidate-format -DskipTests -DskipITs
+          mvn -V -B -s .github/mvn-settings.xml verify -Dvalidate-format -DskipTests -DskipITs
   linux-build-jvm:
     name: PR - Linux - JVM build
     runs-on: ubuntu-latest
@@ -59,7 +59,7 @@ jobs:
           mvn clean install -Dsamples.container-image.registry=$KIND_REGISTRY -Dsamples.container-image.push=true
       - name: Build
         run: |
-          mvn -fae -s .github/mvn-settings.xml clean install -Dcoverage -Dvalidate-format \
+          mvn -fae -s .github/mvn-settings.xml clean install -Dexamples -Dcoverage -Dvalidate-format \
             -Dsamples.container-image.registry=$KIND_REGISTRY \
             -Dts.container.registry-url=${{ secrets.CI_REGISTRY }} \
             -Dexclude.kubernetes.tests=no

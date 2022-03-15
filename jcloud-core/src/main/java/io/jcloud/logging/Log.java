@@ -105,17 +105,14 @@ public final class Log {
         logger.setLevel(level);
 
         // - Console
-        ConsoleHandler console = new ConsoleHandler(
-                ConsoleHandler.Target.SYSTEM_OUT,
+        ConsoleHandler console = new ConsoleHandler(ConsoleHandler.Target.SYSTEM_OUT,
                 LOG_NO_COLOR.getAsBoolean() ? new PatternFormatter(logPattern) : new ColorPatternFormatter(logPattern));
         console.setLevel(level);
         logger.addHandler(console);
 
         // - File
         try {
-            FileHandler file = new FileHandler(
-                    new PatternFormatter(logPattern),
-                    scenario.getLogFile().toFile());
+            FileHandler file = new FileHandler(new PatternFormatter(logPattern), scenario.getLogFile().toFile());
             file.setLevel(level);
             logger.addHandler(file);
         } catch (Exception ex) {

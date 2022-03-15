@@ -29,14 +29,13 @@ import io.jcloud.api.extensions.ExtensionBootstrap;
 import io.jcloud.logging.Log;
 import io.jcloud.utils.ReflectionUtils;
 
-public class JCloudExtension
-        implements BeforeAllCallback, AfterAllCallback, BeforeEachCallback, AfterEachCallback,
+public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, BeforeEachCallback, AfterEachCallback,
         ParameterResolver, LifecycleMethodExecutionExceptionHandler, TestWatcher {
 
     private final ServiceLoader<AnnotationBinding> bindingsRegistry = ServiceLoader.load(AnnotationBinding.class);
     private final ServiceLoader<ExtensionBootstrap> extensionsRegistry = ServiceLoader.load(ExtensionBootstrap.class);
 
-    private List<Service> services = new ArrayList<>();
+    private List<ServiceContext> services = new ArrayList<>();
     private ScenarioContext scenario;
     private List<ExtensionBootstrap> extensions;
 
@@ -52,18 +51,22 @@ public class JCloudExtension
         extensions.forEach(ext -> ext.beforeAll(scenario));
 
         // Init services from test fields
-        ReflectionUtils.findAllFields(context.getRequiredTestClass()).forEach(field -> initResourceFromField(context, field));
+        ReflectionUtils.findAllFields(context.getRequiredTestClass())
+                .forEach(field -> initResourceFromField(context, field));
 
         // Launch services
-        services.forEach(service -> launchService(service));
+        services.forEach(service -> {
+            extensions.forEach(ext -> ext.updateServiceContext(service));
+            launchService(service.getOwner());
+        });
     }
 
     @Override
     public void afterAll(ExtensionContext context) {
         try {
-            List<Service> servicesToFinish = new ArrayList<>(services);
+            List<ServiceContext> servicesToFinish = new ArrayList<>(services);
             Collections.reverse(servicesToFinish);
-            servicesToFinish.forEach(Service::close);
+            servicesToFinish.forEach(s -> s.getOwner().close());
             deleteLogIfScenarioPassed();
         } finally {
             extensions.forEach(ext -> ext.afterAll(scenario));
@@ -72,13 +75,13 @@ public class JCloudExtension
 
     @Override
     public void beforeEach(ExtensionContext context) {
-        Log.info("## Running test " + context.getParent().map(ctx -> ctx.getDisplayName() + ".").orElse("") + context
-                .getDisplayName());
+        Log.info("## Running test " + context.getParent().map(ctx -> ctx.getDisplayName() + ".").orElse("")
+                + context.getDisplayName());
         scenario.setMethodTestContext(context);
         extensions.forEach(ext -> ext.beforeEach(scenario));
         services.forEach(service -> {
-            if (service.isAutoStart() && !service.isRunning()) {
-                service.start();
+            if (service.getOwner().isAutoStart() && !service.getOwner().isRunning()) {
+                service.getOwner().start();
             }
         });
     }
@@ -90,7 +93,8 @@ public class JCloudExtension
 
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
-        return extensions.stream().anyMatch(ext -> ext.getParameter(parameterContext.getParameter().getType()).isPresent());
+        return extensions.stream()
+                .anyMatch(ext -> ext.getParameter(parameterContext.getParameter().getType()).isPresent());
     }
 
     @Override
@@ -192,9 +196,8 @@ public class JCloudExtension
 
         // Initialize it
         ServiceContext serviceContext = service.register(field.getName(), scenario);
-        extensions.forEach(ext -> ext.updateServiceContext(serviceContext));
         service.init(resource);
-        services.add(service);
+        services.add(serviceContext);
         return service;
     }
 
@@ -210,8 +213,7 @@ public class JCloudExtension
     }
 
     private void initLookupService(ExtensionContext context, Field fieldToInject) {
-        Optional<Field> fieldService = ReflectionUtils.findAllFields(context.getRequiredTestClass())
-                .stream()
+        Optional<Field> fieldService = ReflectionUtils.findAllFields(context.getRequiredTestClass()).stream()
                 .filter(field -> field.getName().equals(fieldToInject.getName())
                         && !field.isAnnotationPresent(LookupService.class))
                 .findAny();
@@ -224,11 +226,8 @@ public class JCloudExtension
     }
 
     private Object getParameter(String name, Class<?> clazz) {
-        Optional<Object> parameter = extensions.stream()
-                .map(ext -> ext.getParameter(clazz))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .findFirst();
+        Optional<Object> parameter = extensions.stream().map(ext -> ext.getParameter(clazz)).filter(Optional::isPresent)
+                .map(Optional::get).findFirst();
 
         if (!parameter.isPresent()) {
             fail("Failed to inject: " + name);

@@ -9,6 +9,7 @@ import io.jcloud.core.ManagedResource;
 public interface ContainerManagedResourceBinding {
     /**
      * @param context
+     *
      * @return if the current managed resource applies for the current context.
      */
     boolean appliesFor(ExtensionContext context);
@@ -17,6 +18,7 @@ public interface ContainerManagedResourceBinding {
      * Init and return the managed resource for the current context.
      *
      * @param field
+     *
      * @return
      */
     ManagedResource init(Field field);

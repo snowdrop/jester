@@ -50,15 +50,14 @@ public class DockerContainerManagedResource extends ManagedResource {
             return;
         }
 
-        network = context.getScenarioContext().getTestStore()
-                .getOrComputeIfAbsent(SCENARIO_NETWORK, k -> new DockerScenarioNetwork(context.getScenarioContext()),
-                        DockerScenarioNetwork.class);
+        network = context.getScenarioContext().getTestStore().getOrComputeIfAbsent(SCENARIO_NETWORK,
+                k -> new DockerScenarioNetwork(context.getScenarioContext()), DockerScenarioNetwork.class);
 
         innerContainer = initContainer();
         innerContainer.withNetwork(network);
         innerContainer.withNetworkAliases(context.getName());
-        innerContainer.withStartupTimeout(context.getOwner().getConfiguration()
-                .getAsDuration(SERVICE_STARTUP_TIMEOUT, SERVICE_STARTUP_TIMEOUT_DEFAULT));
+        innerContainer.withStartupTimeout(context.getOwner().getConfiguration().getAsDuration(SERVICE_STARTUP_TIMEOUT,
+                SERVICE_STARTUP_TIMEOUT_DEFAULT));
         innerContainer.withEnv(resolveProperties());
 
         loggingHandler = new TestContainersLoggingHandler(context.getOwner(), innerContainer);

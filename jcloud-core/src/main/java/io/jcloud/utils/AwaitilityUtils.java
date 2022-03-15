@@ -35,7 +35,8 @@ public final class AwaitilityUtils {
     /**
      * Wait until supplier returns false.
      *
-     * @param supplier method to return the instance.
+     * @param supplier
+     *            method to return the instance.
      */
     @SuppressWarnings("unchecked")
     public static void untilIsFalse(Callable<Boolean> supplier) {
@@ -45,7 +46,8 @@ public final class AwaitilityUtils {
     /**
      * Wait until supplier returns false.
      *
-     * @param supplier method to return the instance.
+     * @param supplier
+     *            method to return the instance.
      */
     @SuppressWarnings("unchecked")
     public static void untilIsFalse(Callable<Boolean> supplier, AwaitilitySettings settings) {
@@ -55,7 +57,8 @@ public final class AwaitilityUtils {
     /**
      * Wait until supplier returns true.
      *
-     * @param supplier method to return the instance.
+     * @param supplier
+     *            method to return the instance.
      */
     @SuppressWarnings("unchecked")
     public static void untilIsTrue(Callable<Boolean> supplier) {
@@ -65,7 +68,8 @@ public final class AwaitilityUtils {
     /**
      * Wait until supplier returns true.
      *
-     * @param supplier method to return the instance.
+     * @param supplier
+     *            method to return the instance.
      */
     @SuppressWarnings("unchecked")
     public static void untilIsTrue(Callable<Boolean> supplier, AwaitilitySettings settings) {
@@ -75,7 +79,9 @@ public final class AwaitilityUtils {
     /**
      * Wait until supplier returns a not null instance.
      *
-     * @param supplier method to return the instance.
+     * @param supplier
+     *            method to return the instance.
+     *
      * @return the non null instance.
      */
     @SuppressWarnings("unchecked")
@@ -86,8 +92,11 @@ public final class AwaitilityUtils {
     /**
      * Wait until supplier returns a not null instance.
      *
-     * @param supplier method to return the instance.
-     * @param settings Awaitility Settings
+     * @param supplier
+     *            method to return the instance.
+     * @param settings
+     *            Awaitility Settings
+     *
      * @return the non null instance.
      */
     @SuppressWarnings("unchecked")
@@ -98,7 +107,9 @@ public final class AwaitilityUtils {
     /**
      * Wait until supplier returns a not empty array.
      *
-     * @param supplier method to return the instance.
+     * @param supplier
+     *            method to return the instance.
+     *
      * @return the non empty array.
      */
     public static <T> T[] untilIsNotEmpty(Supplier<T[]> supplier) {
@@ -108,8 +119,10 @@ public final class AwaitilityUtils {
     /**
      * Wait until the supplier returns an instance that satisfies the asserts.
      *
-     * @param supplier method to return the instance.
-     * @param asserts custom assertions that the instance must satisfy.
+     * @param supplier
+     *            method to return the instance.
+     * @param asserts
+     *            custom assertions that the instance must satisfy.
      */
     public static <T> void untilAsserted(Supplier<T> supplier, Consumer<T> asserts) {
         awaits().untilAsserted(() -> asserts.accept(get(supplier).call()));
@@ -118,7 +131,8 @@ public final class AwaitilityUtils {
     /**
      * Wait until the assertions are satified.
      *
-     * @param assertion custom assertions that the instance must satisfy.
+     * @param assertion
+     *            custom assertions that the instance must satisfy.
      */
     public static void untilAsserted(ThrowingRunnable assertion) {
         untilAsserted(assertion, AwaitilitySettings.defaults());
@@ -127,8 +141,10 @@ public final class AwaitilityUtils {
     /**
      * Wait until the assertions are satified.
      *
-     * @param assertion custom assertions that the instance must satisfy.
-     * @param settings Awaitility Settings
+     * @param assertion
+     *            custom assertions that the instance must satisfy.
+     * @param settings
+     *            Awaitility Settings
      */
     public static void untilAsserted(ThrowingRunnable assertion, AwaitilitySettings settings) {
         awaits(settings).untilAsserted(assertion);
@@ -155,8 +171,7 @@ public final class AwaitilityUtils {
     }
 
     private static ConditionFactory awaits(AwaitilitySettings settings) {
-        ConditionFactory factory = Awaitility.await()
-                .pollInterval(settings.interval.toSeconds(), TimeUnit.SECONDS)
+        ConditionFactory factory = Awaitility.await().pollInterval(settings.interval.toSeconds(), TimeUnit.SECONDS)
                 .atMost(timeoutInSeconds(settings), TimeUnit.SECONDS);
 
         if (!settings.doNotIgnoreExceptions) {

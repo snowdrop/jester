@@ -25,7 +25,8 @@ public abstract class ManagedResource {
     /**
      * Start the resource. If the resource is already started, it will do nothing.
      *
-     * @throws RuntimeException when application errors at startup.
+     * @throws RuntimeException
+     *             when application errors at startup.
      */
     public abstract void start();
 
@@ -48,6 +49,11 @@ public abstract class ManagedResource {
      * @return if the resource is running.
      */
     public abstract boolean isRunning();
+
+    /**
+     * @return the logging handler associated with the managed resource.
+     */
+    protected abstract LoggingHandler getLoggingHandler();
 
     /**
      * @return if the resource has failed.
@@ -74,8 +80,6 @@ public abstract class ManagedResource {
 
     }
 
-    protected abstract LoggingHandler getLoggingHandler();
-
     protected void init(ServiceContext context) {
         this.context = context;
     }
@@ -83,13 +87,12 @@ public abstract class ManagedResource {
     protected void waitUntilResourceIsStarted() {
         Duration startupCheckInterval = context.getOwner().getConfiguration()
                 .getAsDuration(SERVICE_STARTUP_CHECK_POLL_INTERVAL, SERVICE_STARTUP_CHECK_POLL_INTERVAL_DEFAULT);
-        Duration startupTimeout = context.getOwner().getConfiguration()
-                .getAsDuration(SERVICE_STARTUP_TIMEOUT, SERVICE_STARTUP_TIMEOUT_DEFAULT);
-        untilIsTrue(this::isRunningOrFailed, AwaitilityUtils.AwaitilitySettings
-                .using(startupCheckInterval, startupTimeout)
-                .doNotIgnoreExceptions()
-                .withService(context.getOwner())
-                .timeoutMessage("Service didn't start in %s minutes", startupTimeout));
+        Duration startupTimeout = context.getOwner().getConfiguration().getAsDuration(SERVICE_STARTUP_TIMEOUT,
+                SERVICE_STARTUP_TIMEOUT_DEFAULT);
+        untilIsTrue(this::isRunningOrFailed,
+                AwaitilityUtils.AwaitilitySettings.using(startupCheckInterval, startupTimeout).doNotIgnoreExceptions()
+                        .withService(context.getOwner())
+                        .timeoutMessage("Service didn't start in %s minutes", startupTimeout));
         getLoggingHandler().flush();
     }
 

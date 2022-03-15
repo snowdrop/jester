@@ -1,8 +1,8 @@
 package io.jcloud.test.samples;
 
 /**
- * Sources of samples in <a href="https://github.com/snowdrop/jcloud-unit/samples">here</a>
- * If you don't have installed the samples in your local machine, execute: `mvn clean install` at ../samples.
+ * Sources of samples in <a href="https://github.com/snowdrop/jcloud-unit/samples">here</a> If you don't have installed
+ * the samples in your local machine, execute: `mvn clean install` at ../samples.
  */
 public final class ContainerSamples {
     public static final String QUARKUS_REST_IMAGE = "${sample.quarkus-rest.image:server.io/test/quarkus-rest:latest}";

@@ -10,6 +10,10 @@
   </parent>
   <artifactId>jcloud-containers</artifactId>
   <name>jCloud - Containers</name>
+  <properties>
+    <!-- Declared Dependencies -->
+    <testcontainers.version>1.16.3</testcontainers.version>
+  </properties>
   <dependencies>
     <dependency>
       <groupId>io.jcloud</groupId>
@@ -18,11 +22,9 @@
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>testcontainers</artifactId>
+      <version>${testcontainers.version}</version>
     </dependency>
-    <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>kubernetes-client</artifactId>
-    </dependency>
+    <!-- Test Dependencies -->
     <dependency>
       <groupId>org.keycloak</groupId>
       <artifactId>keycloak-authz-client</artifactId>

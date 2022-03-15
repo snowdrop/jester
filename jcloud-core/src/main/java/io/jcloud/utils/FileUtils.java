@@ -8,10 +8,14 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
 
 public final class FileUtils {
+
+    private static final int NO_RECURSIVE = 1;
 
     private FileUtils() {
 
@@ -28,6 +32,14 @@ public final class FileUtils {
         return target;
     }
 
+    public static void copyFileTo(File file, Path target) {
+        try {
+            org.apache.commons.io.FileUtils.copyFileToDirectory(file, target.toFile());
+        } catch (IOException e) {
+            throw new RuntimeException("Could not copy project.", e);
+        }
+    }
+
     public static String loadFile(File file) {
         try {
             return org.apache.commons.io.FileUtils.readFileToString(file, StandardCharsets.UTF_8);
@@ -38,9 +50,7 @@ public final class FileUtils {
 
     public static String loadFile(String file) {
         try {
-            return IOUtils.toString(
-                    FileUtils.class.getResourceAsStream(file),
-                    StandardCharsets.UTF_8);
+            return IOUtils.toString(FileUtils.class.getResourceAsStream(file), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException("Could not load file " + file, e);
         }
@@ -71,6 +81,17 @@ public final class FileUtils {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    public static Optional<String> findFile(Path basePath, String endsWith) {
+        try (Stream<Path> binariesFound = Files.find(basePath, NO_RECURSIVE,
+                (path, basicFileAttributes) -> path.toFile().getName().endsWith(endsWith))) {
+            return binariesFound.map(path -> path.normalize().toString()).findFirst();
+        } catch (IOException ex) {
+            // ignored
+        }
+
+        return Optional.empty();
     }
 
 }

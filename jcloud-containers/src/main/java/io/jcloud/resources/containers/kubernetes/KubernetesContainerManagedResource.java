@@ -14,7 +14,6 @@ import io.fabric8.kubernetes.api.model.apps.DeploymentSpec;
 import io.fabric8.kubernetes.client.utils.Serialization;
 import io.jcloud.api.clients.KubectlClient;
 import io.jcloud.core.ManagedResource;
-import io.jcloud.core.ServiceContext;
 import io.jcloud.core.extensions.KubernetesExtensionBootstrap;
 import io.jcloud.logging.KubernetesLoggingHandler;
 import io.jcloud.logging.LoggingHandler;
@@ -42,12 +41,6 @@ public class KubernetesContainerManagedResource extends ManagedResource {
         this.command = command;
         this.expectedLog = PropertiesUtils.resolveProperty(expectedLog);
         this.ports = Arrays.stream(ports).boxed().toArray(Integer[]::new);
-    }
-
-    @Override
-    protected void init(ServiceContext context) {
-        super.init(context);
-        this.client = context.get(KubernetesExtensionBootstrap.CLIENT);
     }
 
     @Override
@@ -111,6 +104,8 @@ public class KubernetesContainerManagedResource extends ManagedResource {
     }
 
     private void doInit() {
+        this.client = context.get(KubernetesExtensionBootstrap.CLIENT);
+
         applyDeployment();
 
         for (int port : ports) {
@@ -124,8 +119,7 @@ public class KubernetesContainerManagedResource extends ManagedResource {
 
     private void applyDeployment() {
         Deployment deployment = context.getOwner().getConfiguration().get(DEPLOYMENT_TEMPLATE_PROPERTY)
-                .map(f -> Serialization.unmarshal(f, Deployment.class))
-                .orElseGet(Deployment::new);
+                .map(f -> Serialization.unmarshal(f, Deployment.class)).orElseGet(Deployment::new);
 
         // Set service data
         initDeployment(deployment);
@@ -137,9 +131,8 @@ public class KubernetesContainerManagedResource extends ManagedResource {
         }
 
         for (int port : ports) {
-            container.getPorts().add(new ContainerPortBuilder()
-                    .withName("port-" + port)
-                    .withContainerPort(port).build());
+            container.getPorts()
+                    .add(new ContainerPortBuilder().withName("port-" + port).withContainerPort(port).build());
         }
 
         // Enrich it

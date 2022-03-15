@@ -1,0 +1,72 @@
+package io.jcloud.utils;
+
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+
+import io.jcloud.configuration.PropertyLookup;
+import io.jcloud.core.ServiceContext;
+import io.quarkus.builder.Version;
+
+public final class QuarkusUtils {
+
+    public static final PropertyLookup PLATFORM_GROUP_ID = new PropertyLookup("quarkus.platform.group-id",
+            "io.quarkus");
+    public static final PropertyLookup PLATFORM_VERSION = new PropertyLookup("quarkus.platform.version");
+    public static final PropertyLookup PLUGIN_VERSION = new PropertyLookup("quarkus-plugin.version");
+    public static final String PACKAGE_TYPE_NAME = "quarkus.package.type";
+    public static final String MUTABLE_JAR = "mutable-jar";
+    public static final PropertyLookup PACKAGE_TYPE = new PropertyLookup(PACKAGE_TYPE_NAME);
+    public static final List<String> PACKAGE_TYPE_NATIVE_VALUES = Arrays.asList("native", "native-sources");
+    public static final List<String> PACKAGE_TYPE_LEGACY_JAR_VALUES = Arrays.asList("legacy-jar", "uber-jar",
+            "mutable-jar");
+    public static final List<String> PACKAGE_TYPE_JVM_VALUES = Arrays.asList("fast-jar", "jar");
+    public static final String QUARKUS_HTTP_PORT_PROPERTY = "quarkus.http.port";
+    public static final PropertyLookup QUARKUS_JVM_S2I = new PropertyLookup("quarkus.s2i.base-jvm-image",
+            "registry.access.redhat.com/ubi8/openjdk-11:latest");
+    public static final PropertyLookup QUARKUS_NATIVE_S2I = new PropertyLookup("quarkus.s2i.base-native-image",
+            "quay.io/quarkus/ubi-quarkus-native-binary-s2i:1.0");
+
+    private QuarkusUtils() {
+
+    }
+
+    public static String getVersion() {
+        return defaultVersionIfEmpty(PLATFORM_VERSION.get());
+    }
+
+    public static String getPluginVersion() {
+        return defaultVersionIfEmpty(PLUGIN_VERSION.get());
+    }
+
+    public static boolean isNativePackageType() {
+        return PACKAGE_TYPE_NATIVE_VALUES.contains(PACKAGE_TYPE.get());
+    }
+
+    public static boolean isNativePackageType(ServiceContext context) {
+        return PACKAGE_TYPE_NATIVE_VALUES.contains(PACKAGE_TYPE.get(context));
+    }
+
+    public static boolean isLegacyJarPackageType(ServiceContext context) {
+        return PACKAGE_TYPE_LEGACY_JAR_VALUES.contains(PACKAGE_TYPE.get(context));
+    }
+
+    public static boolean isJvmPackageType(ServiceContext context) {
+        return PACKAGE_TYPE_JVM_VALUES.contains(PACKAGE_TYPE.get(context));
+    }
+
+    public static boolean isQuarkusVersion2Dot3OrAbove() {
+        String quarkusVersion = getVersion();
+        return !quarkusVersion.startsWith("2.2.") && !quarkusVersion.startsWith("2.1.")
+                && !quarkusVersion.startsWith("2.0.") && !quarkusVersion.startsWith("1.");
+    }
+
+    private static String defaultVersionIfEmpty(String version) {
+        if (StringUtils.isEmpty(version)) {
+            version = Version.getVersion();
+        }
+
+        return version;
+    }
+}

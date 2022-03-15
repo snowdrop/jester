@@ -79,8 +79,7 @@ public class BaseService<T extends Service> implements Service {
     }
 
     /**
-     * The runtime configuration property to be used if the built artifact is
-     * configured to be run.
+     * The runtime configuration property to be used if the built artifact is configured to be run.
      */
     public T withProperties(String... propertiesFiles) {
         properties.clear();
@@ -89,8 +88,7 @@ public class BaseService<T extends Service> implements Service {
     }
 
     /**
-     * The runtime configuration property to be used if the built artifact is
-     * configured to be run.
+     * The runtime configuration property to be used if the built artifact is configured to be run.
      */
     @Override
     public T withProperty(String key, String value) {
@@ -99,8 +97,7 @@ public class BaseService<T extends Service> implements Service {
     }
 
     /**
-     * The runtime configuration property to be used if the built artifact is
-     * configured to be run.
+     * The runtime configuration property to be used if the built artifact is configured to be run.
      */
     public T withProperty(String key, Supplier<String> value) {
         futureProperties.add(() -> properties.put(key, value.get()));
@@ -152,10 +149,10 @@ public class BaseService<T extends Service> implements Service {
     }
 
     /**
-     * Start the managed resource. If the managed resource is running, it does
-     * nothing.
+     * Start the managed resource. If the managed resource is running, it does nothing.
      *
-     * @throws RuntimeException when application errors at startup.
+     * @throws RuntimeException
+     *             when application errors at startup.
      */
     @Override
     public void start() {

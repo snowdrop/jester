@@ -19,8 +19,8 @@ import io.jcloud.utils.FileUtils;
 public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
     public static final String CLIENT = "kubectl-client";
 
-    private static final PropertyLookup DELETE_NAMESPACE_AFTER = new PropertyLookup("ts.kubernetes.delete.namespace.after.all",
-            Boolean.TRUE.toString());
+    private static final PropertyLookup DELETE_NAMESPACE_AFTER = new PropertyLookup(
+            "ts.kubernetes.delete.namespace.after.all", Boolean.TRUE.toString());
 
     private KubectlClient client;
 
@@ -38,7 +38,8 @@ public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
 
     @Override
     public void beforeAll(ScenarioContext context) {
-        // if deleteNamespace and ephemeral namespaces are disabled then we are in debug mode. This mode is going to keep
+        // if deleteNamespace and ephemeral namespaces are disabled then we are in debug mode. This mode is going to
+        // keep
         // all scenario resources in order to allow you to debug by yourself
         context.setDebug(!DELETE_NAMESPACE_AFTER.getAsBoolean() && !ENABLED_EPHEMERAL_NAMESPACES.getAsBoolean());
         client = KubectlClient.create();
@@ -69,7 +70,8 @@ public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
     public void onError(ScenarioContext context, Throwable throwable) {
         Map<String, String> logs = client.logs();
         for (Entry<String, String> podLog : logs.entrySet()) {
-            FileUtils.copyContentTo(podLog.getValue(), logsTestFolder(context).resolve(podLog.getKey() + Log.LOG_SUFFIX));
+            FileUtils.copyContentTo(podLog.getValue(),
+                    logsTestFolder(context).resolve(podLog.getKey() + Log.LOG_SUFFIX));
         }
     }
 

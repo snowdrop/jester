@@ -16,7 +16,8 @@ import org.apache.commons.lang3.StringUtils;
 
 public final class Configuration {
 
-    private static final String GLOBAL_PROPERTIES = System.getProperty("ts.test.resources.file.location", "global.properties");
+    private static final String GLOBAL_PROPERTIES = System.getProperty("ts.test.resources.file.location",
+            "global.properties");
     private static final String TEST_PROPERTIES = "test.properties";
     private static final String PREFIX_TEMPLATE = "ts.%s.";
     private static final String GLOBAL_SCOPE = "global";
@@ -85,19 +86,17 @@ public final class Configuration {
     }
 
     public Duration getAsDuration(String property, Duration defaultValue) {
-        return get(property).filter(StringUtils::isNotEmpty)
-                .map(value -> {
-                    if (Character.isDigit(value.charAt(0))) {
-                        value = "PT" + value;
-                    }
+        return get(property).filter(StringUtils::isNotEmpty).map(value -> {
+            if (Character.isDigit(value.charAt(0))) {
+                value = "PT" + value;
+            }
 
-                    return Duration.parse(value);
-                }).orElse(defaultValue);
+            return Duration.parse(value);
+        }).orElse(defaultValue);
     }
 
     public Double getAsDouble(String property, double defaultValue) {
-        return get(property).filter(StringUtils::isNotEmpty).map(Double::parseDouble)
-                .orElse(defaultValue);
+        return get(property).filter(StringUtils::isNotEmpty).map(Double::parseDouble).orElse(defaultValue);
     }
 
     public Optional<String> get(String property) {
