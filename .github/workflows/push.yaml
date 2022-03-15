@@ -40,7 +40,7 @@ jobs:
         run: |
           mvn -fae -s .github/mvn-settings.xml clean install -Dexamples -Dcoverage -Dvalidate-format \
             -Dsamples.container-image.registry=$KIND_REGISTRY \
-            -Dts.container.registry-url=${{ secrets.CI_REGISTRY }} \
+            -Dts.container.registry-url=$KIND_REGISTRY \
             -Dexclude.kubernetes.tests=no
       - name: Generate Jacoco Report
         run: |

@@ -5,11 +5,11 @@ import java.util.List;
 
 import io.jcloud.api.model.QuarkusLaunchMode;
 import io.jcloud.configuration.PropertyLookup;
-import io.jcloud.core.ManagedResource;
 import io.jcloud.core.ServiceContext;
+import io.jcloud.logging.LoggingHandler;
 import io.jcloud.utils.QuarkusUtils;
 
-public abstract class QuarkusManagedResource extends ManagedResource {
+public class QuarkusProxy {
     private static final String EXPECTED_OUTPUT_DEFAULT = "Installed features";
     private static final PropertyLookup EXPECTED_OUTPUT = new PropertyLookup("quarkus.expected.log",
             EXPECTED_OUTPUT_DEFAULT);
@@ -20,28 +20,38 @@ public abstract class QuarkusManagedResource extends ManagedResource {
             "Attempting to start live reload endpoint to recover from previous Quarkus startup failure",
             "Dev mode process did not complete successfully");
 
-    protected QuarkusLaunchMode launchMode;
+    protected final ServiceContext context;
+    private final QuarkusLaunchMode launchMode;
 
-    @Override
+    public QuarkusProxy(ServiceContext context) {
+        this.context = context;
+        this.launchMode = detectLaunchMode(context);
+
+        configureLogging();
+    }
+
     public String getDisplayName() {
         return String.format("Quarkus %s mode", launchMode);
     }
 
-    @Override
-    public boolean isRunning() {
-        return getLoggingHandler() != null && getLoggingHandler().logsContains(EXPECTED_OUTPUT.get(context));
+    public boolean isRunning(LoggingHandler loggingHandler) {
+        return loggingHandler != null && loggingHandler.logsContains(getExpectedLog());
     }
 
-    @Override
-    public boolean isFailed() {
-        return getLoggingHandler() != null
-                && ERRORS.stream().anyMatch(error -> getLoggingHandler().logsContains(error));
+    public boolean isFailed(LoggingHandler loggingHandler) {
+        return loggingHandler != null && ERRORS.stream().anyMatch(error -> loggingHandler.logsContains(error));
     }
 
-    @Override
-    protected void init(ServiceContext context) {
-        super.init(context);
-        this.launchMode = detectLaunchMode(context);
+    public QuarkusLaunchMode getLaunchMode() {
+        return launchMode;
+    }
+
+    public String getExpectedLog() {
+        return EXPECTED_OUTPUT.get(context);
+    }
+
+    private void configureLogging() {
+        context.getOwner().withProperty("quarkus.log.console.format", "%d{HH:mm:ss,SSS} %s%e%n");
     }
 
     private static QuarkusLaunchMode detectLaunchMode(ServiceContext serviceContext) {

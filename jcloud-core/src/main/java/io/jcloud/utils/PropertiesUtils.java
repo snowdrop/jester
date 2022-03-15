@@ -15,6 +15,7 @@ public final class PropertiesUtils {
     public static final Path TARGET = Path.of("target");
     public static final String SLASH = "/";
 
+    public static final String CONTAINER_REGISTRY_URL_PROPERTY = "ts.container.registry-url";
     public static final String RESOURCE_PREFIX = "resource::/";
     public static final String SECRET_PREFIX = "secret::/";
 
@@ -25,6 +26,12 @@ public final class PropertiesUtils {
 
     private PropertiesUtils() {
 
+    }
+
+    public static void validateContainerRegistry() {
+        if (StringUtils.isEmpty(System.getProperty(CONTAINER_REGISTRY_URL_PROPERTY))) {
+            throw new RuntimeException("Container Registry URL is not provided, use -Dts.container.registry-url=XXX");
+        }
     }
 
     /**
