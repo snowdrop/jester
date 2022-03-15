@@ -57,7 +57,6 @@
     <testcontainers.version>1.16.3</testcontainers.version>
     <kubernetes-client.version>5.12.1</kubernetes-client.version>
     <jackson-annotations.version>2.13.2</jackson-annotations.version>
-    <docker-java.version>3.2.13</docker-java.version>
     <!-- Format Settings -->
     <src.format.goal>format</src.format.goal>
     <src.sort.goal>sort</src.sort.goal>
@@ -131,11 +130,6 @@
         <groupId>org.testcontainers</groupId>
         <artifactId>testcontainers</artifactId>
         <version>${testcontainers.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.github.docker-java</groupId>
-        <artifactId>docker-java-transport-zerodep</artifactId>
-        <version>${docker-java.version}</version>
       </dependency>
       <dependency>
         <groupId>io.fabric8</groupId>

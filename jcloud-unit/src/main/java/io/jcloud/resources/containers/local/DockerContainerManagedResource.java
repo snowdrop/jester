@@ -20,12 +20,10 @@ import io.jcloud.core.ManagedResource;
 import io.jcloud.logging.Log;
 import io.jcloud.logging.LoggingHandler;
 import io.jcloud.logging.TestContainersLoggingHandler;
-import io.jcloud.utils.DockerUtils;
 import io.jcloud.utils.PropertiesUtils;
 
 public class DockerContainerManagedResource extends ManagedResource {
 
-    private static final String DELETE_IMAGE_ON_STOP_PROPERTY = "container.delete.image.on.stop";
     private static final String PRIVILEGED_MODE = "container.privileged-mode";
     private static final String TARGET = "target";
     private static final String SCENARIO_NETWORK = "internal.container.network";
@@ -75,15 +73,9 @@ public class DockerContainerManagedResource extends ManagedResource {
             loggingHandler.stopWatching();
         }
 
-        String image = innerContainer.getImage().get();
-
         if (isRunning()) {
             innerContainer.stop();
             innerContainer = null;
-        }
-
-        if (context.getOwner().getConfiguration().isTrue(DELETE_IMAGE_ON_STOP_PROPERTY)) {
-            DockerUtils.removeImageById(image);
         }
     }
 

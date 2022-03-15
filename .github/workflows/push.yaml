@@ -50,7 +50,6 @@ jobs:
         id: jacoco
         uses: cicirello/jacoco-badge-generator@v2
         with:
-          generate-branches-badge: true
           jacoco-csv-file: coverage-report/target/site/jacoco/jacoco.csv
       - name: Coverage Preparation
         id: coverage
