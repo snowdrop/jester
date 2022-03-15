@@ -54,6 +54,7 @@ public class DockerContainerManagedResource extends ManagedResource {
                 k -> new DockerScenarioNetwork(context.getScenarioContext()), DockerScenarioNetwork.class);
 
         innerContainer = initContainer();
+        network.attachService(context);
         innerContainer.withNetwork(network);
         innerContainer.withNetworkAliases(context.getName());
         innerContainer.withStartupTimeout(context.getOwner().getConfiguration().getAsDuration(SERVICE_STARTUP_TIMEOUT,
