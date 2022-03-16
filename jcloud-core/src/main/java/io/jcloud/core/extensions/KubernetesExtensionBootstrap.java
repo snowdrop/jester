@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
-import io.jcloud.api.KubernetesScenario;
+import io.jcloud.api.RunOnKubernetes;
 import io.jcloud.api.clients.KubectlClient;
 import io.jcloud.api.extensions.ExtensionBootstrap;
 import io.jcloud.configuration.PropertyLookup;
@@ -26,7 +26,7 @@ public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
 
     @Override
     public boolean appliesFor(ScenarioContext context) {
-        boolean isValidConfig = context.isAnnotationPresent(KubernetesScenario.class);
+        boolean isValidConfig = context.isAnnotationPresent(RunOnKubernetes.class);
         if (isValidConfig && !DELETE_NAMESPACE_AFTER.getAsBoolean() && ENABLED_EPHEMERAL_NAMESPACES.getAsBoolean()) {
             Log.error("-Dts.kubernetes.delete.project.after.all=false is only supported with"
                     + " -Dts.kubernetes.ephemeral.namespaces.enabled=false");

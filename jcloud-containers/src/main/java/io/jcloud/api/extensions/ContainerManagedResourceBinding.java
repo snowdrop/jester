@@ -1,9 +1,8 @@
 package io.jcloud.api.extensions;
 
-import java.lang.reflect.Field;
-
 import org.junit.jupiter.api.extension.ExtensionContext;
 
+import io.jcloud.api.Container;
 import io.jcloud.core.ManagedResource;
 
 public interface ContainerManagedResourceBinding {
@@ -17,9 +16,9 @@ public interface ContainerManagedResourceBinding {
     /**
      * Init and return the managed resource for the current context.
      *
-     * @param field
+     * @param metadata
      *
      * @return
      */
-    ManagedResource init(Field field);
+    ManagedResource init(Container metadata);
 }

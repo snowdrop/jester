@@ -2,6 +2,7 @@ package io.jcloud.core;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.jupiter.api.extension.TestWatcher;
 
 import io.jcloud.api.LookupService;
+import io.jcloud.api.RestService;
 import io.jcloud.api.Service;
 import io.jcloud.api.extensions.AnnotationBinding;
 import io.jcloud.api.extensions.ExtensionBootstrap;
@@ -53,6 +55,10 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
         // Init services from test fields
         ReflectionUtils.findAllFields(context.getRequiredTestClass())
                 .forEach(field -> initResourceFromField(context, field));
+
+        // Init services from class annotations
+        ReflectionUtils.findAllAnnotations(context.getRequiredTestClass())
+                .forEach(annotation -> initServiceFromAnnotation(context, annotation));
 
         // Launch services
         services.forEach(service -> {
@@ -164,9 +170,20 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
         if (field.isAnnotationPresent(LookupService.class)) {
             initLookupService(context, field);
         } else if (Service.class.isAssignableFrom(field.getType())) {
-            initService(context, field);
+            Service service = ReflectionUtils.getStaticFieldValue(field);
+            initService(context, service, field.getName(), field.getAnnotations());
         } else if (field.isAnnotationPresent(Inject.class)) {
             injectDependency(field);
+        }
+    }
+
+    private void initServiceFromAnnotation(ExtensionContext context, Annotation annotation) {
+        Optional<AnnotationBinding> binding = getAnnotationBinding(annotation);
+        if (binding.isPresent()) {
+            // by default, it will be a rest service
+            Service service = new RestService();
+            initService(context, service, annotation.annotationType().getSimpleName().toLowerCase(), binding.get(),
+                    annotation);
         }
     }
 
@@ -181,34 +198,40 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
         ReflectionUtils.setStaticFieldValue(field, fieldValue);
     }
 
-    private Service initService(ExtensionContext context, Field field) {
-        // Get Service from field
-        Service service = ReflectionUtils.getStaticFieldValue(field);
+    private void initService(ExtensionContext context, Service service, String name, Annotation... annotations) {
+        AnnotationBinding binding = getAnnotationBinding(annotations)
+                .orElseThrow(() -> new RuntimeException("Unknown annotation for service"));
+        initService(context, service, name, binding, annotations);
+    }
+
+    private void initService(ExtensionContext context, Service service, String name, AnnotationBinding binding,
+            Annotation... annotations) {
         if (service.isRunning()) {
-            return service;
+            return;
         }
 
         // Validate
-        service.validate(field);
+        service.validate(binding, annotations);
 
         // Resolve managed resource
-        ManagedResource resource = getManagedResource(context, field);
+        ManagedResource resource = getManagedResource(context, name, binding, annotations);
 
         // Initialize it
-        ServiceContext serviceContext = service.register(field.getName(), scenario);
+        ServiceContext serviceContext = service.register(name, scenario);
         service.init(resource);
         services.add(serviceContext);
-        return service;
     }
 
-    private ManagedResource getManagedResource(ExtensionContext context, Field field) {
-        AnnotationBinding binding = bindingsRegistry.stream().map(Provider::get).filter(b -> b.isFor(field)).findFirst()
-                .orElseThrow(() -> new RuntimeException("Unknown annotation for service"));
+    private Optional<AnnotationBinding> getAnnotationBinding(Annotation... annotations) {
+        return bindingsRegistry.stream().map(Provider::get).filter(b -> b.isFor(annotations)).findFirst();
+    }
 
+    private ManagedResource getManagedResource(ExtensionContext context, String name, AnnotationBinding binding,
+            Annotation... annotations) {
         try {
-            return binding.getManagedResource(context, field);
+            return binding.getManagedResource(context, annotations);
         } catch (Exception ex) {
-            throw new RuntimeException("Could not create the Managed Resource for " + field.getName(), ex);
+            throw new RuntimeException("Could not create the Managed Resource for " + name, ex);
         }
     }
 
@@ -221,7 +244,9 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
             fail("Could not lookup service with name " + fieldToInject.getName());
         }
 
-        Service service = initService(context, fieldService.get());
+        Field field = fieldService.get();
+        Service service = ReflectionUtils.getStaticFieldValue(field);
+        initService(context, service, field.getName(), field.getAnnotations());
         ReflectionUtils.setStaticFieldValue(fieldToInject, service);
     }
 

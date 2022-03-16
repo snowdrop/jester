@@ -1,12 +1,13 @@
 package io.jcloud.api;
 
-import java.lang.reflect.Field;
+import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
 
+import io.jcloud.api.extensions.AnnotationBinding;
 import io.jcloud.configuration.Configuration;
 import io.jcloud.core.ManagedResource;
 import io.jcloud.core.ScenarioContext;
@@ -63,7 +64,7 @@ public interface Service extends ExtensionContext.Store.CloseableResource {
         start();
     }
 
-    default void validate(Field field) {
+    default void validate(AnnotationBinding binding, Annotation[] annotations) {
 
     }
 }

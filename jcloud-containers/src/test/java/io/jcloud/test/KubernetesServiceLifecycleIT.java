@@ -6,10 +6,10 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
-import io.jcloud.api.KubernetesScenario;
+import io.jcloud.api.RunOnKubernetes;
 import io.jcloud.api.clients.KubectlClient;
 
-@KubernetesScenario
+@RunOnKubernetes
 public class KubernetesServiceLifecycleIT extends ServiceLifecycleIT {
 
     @Inject
