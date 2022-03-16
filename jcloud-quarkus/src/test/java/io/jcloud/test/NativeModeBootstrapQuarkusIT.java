@@ -2,6 +2,7 @@ package io.jcloud.test;
 
 import static org.hamcrest.Matchers.is;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import io.jcloud.api.Dependency;
@@ -10,6 +11,7 @@ import io.jcloud.api.RestService;
 import io.jcloud.api.Scenario;
 import io.jcloud.test.samples.QuarkusPingApplication;
 
+@Tag("native")
 @Scenario
 public class NativeModeBootstrapQuarkusIT {
     @Quarkus(dependencies = @Dependency(artifactId = "quarkus-resteasy"), classes = QuarkusPingApplication.class)

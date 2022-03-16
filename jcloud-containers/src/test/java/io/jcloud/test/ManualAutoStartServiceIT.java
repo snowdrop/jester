@@ -13,12 +13,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.http.HttpStatus;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import io.jcloud.api.Container;
 import io.jcloud.api.RestService;
 import io.jcloud.api.Scenario;
 
+@Tag("containers")
 @Scenario
 public class ManualAutoStartServiceIT {
 
