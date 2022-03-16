@@ -26,6 +26,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import io.jcloud.api.Container;
 import io.jcloud.api.RestService;
 import io.jcloud.api.Scenario;
+import io.jcloud.utils.AwaitilityUtils;
 import io.restassured.config.ConnectionConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.specification.RequestSpecification;
@@ -104,9 +105,10 @@ public class ServiceLifecycleIT {
     }
 
     private void thenServiceIsUpAndRunning(RequestSpecification given) {
-        given.config(RestAssuredConfig.config()
-                .connectionConfig(ConnectionConfig.connectionConfig().closeIdleConnectionsAfterEachResponse()))
+        AwaitilityUtils.untilAsserted(() -> given
+                .config(RestAssuredConfig.config()
+                        .connectionConfig(ConnectionConfig.connectionConfig().closeIdleConnectionsAfterEachResponse()))
                 .get(SAMPLES_DEFAULT_REST_PATH).then().statusCode(HttpStatus.SC_OK)
-                .body(is(SAMPLES_DEFAULT_REST_PATH_OUTPUT));
+                .body(is(SAMPLES_DEFAULT_REST_PATH_OUTPUT)));
     }
 }
