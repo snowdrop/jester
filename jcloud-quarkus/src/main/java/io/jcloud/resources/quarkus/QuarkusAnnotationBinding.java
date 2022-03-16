@@ -1,6 +1,6 @@
 package io.jcloud.resources.quarkus;
 
-import java.lang.reflect.Field;
+import java.lang.annotation.Annotation;
 import java.util.ServiceLoader;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -17,17 +17,17 @@ public class QuarkusAnnotationBinding implements AnnotationBinding {
             .load(QuarkusManagedResourceBinding.class);
 
     @Override
-    public boolean isFor(Field field) {
-        return field.isAnnotationPresent(Quarkus.class);
+    public boolean isFor(Annotation... annotations) {
+        return findAnnotation(annotations, Quarkus.class).isPresent();
     }
 
     @Override
-    public ManagedResource getManagedResource(ExtensionContext context, Field field) {
-        Quarkus metadata = field.getAnnotation(Quarkus.class);
+    public ManagedResource getManagedResource(ExtensionContext context, Annotation... annotations) {
+        Quarkus metadata = findAnnotation(annotations, Quarkus.class).get();
 
         for (QuarkusManagedResourceBinding binding : customBindings) {
             if (binding.appliesFor(context)) {
-                return binding.init(field);
+                return binding.init(metadata);
             }
         }
 

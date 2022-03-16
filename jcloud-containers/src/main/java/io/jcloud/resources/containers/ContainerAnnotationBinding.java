@@ -1,6 +1,6 @@
 package io.jcloud.resources.containers;
 
-import java.lang.reflect.Field;
+import java.lang.annotation.Annotation;
 import java.util.ServiceLoader;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -17,17 +17,17 @@ public class ContainerAnnotationBinding implements AnnotationBinding {
             .load(ContainerManagedResourceBinding.class);
 
     @Override
-    public boolean isFor(Field field) {
-        return field.isAnnotationPresent(Container.class);
+    public boolean isFor(Annotation... annotations) {
+        return findAnnotation(annotations, Container.class).isPresent();
     }
 
     @Override
-    public ManagedResource getManagedResource(ExtensionContext context, Field field) {
-        Container metadata = field.getAnnotation(Container.class);
+    public ManagedResource getManagedResource(ExtensionContext context, Annotation... annotations) {
+        Container metadata = findAnnotation(annotations, Container.class).get();
 
         for (ContainerManagedResourceBinding binding : containerBindings) {
             if (binding.appliesFor(context)) {
-                return binding.init(field);
+                return binding.init(metadata);
             }
         }
 

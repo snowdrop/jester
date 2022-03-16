@@ -3,7 +3,6 @@ package io.jcloud.api.clients;
 import static io.jcloud.utils.ManifestsUtils.LABEL_SCENARIO_ID;
 import static io.jcloud.utils.ManifestsUtils.LABEL_TO_WATCH_FOR_LOGS;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -25,6 +24,7 @@ import io.fabric8.kubernetes.client.NamespacedKubernetesClient;
 import io.jcloud.api.Service;
 import io.jcloud.configuration.PropertyLookup;
 import io.jcloud.logging.Log;
+import io.jcloud.utils.AwaitilityUtils;
 import io.jcloud.utils.Command;
 import io.jcloud.utils.SocketUtils;
 
@@ -224,7 +224,7 @@ public final class KubectlClient {
      * Delete the namespace and all the resources.
      */
     public void deleteNamespace(String scenarioId) {
-        portForwardsByService.values().forEach(this::forceClose);
+        portForwardsByService.values().forEach(this::closePortForward);
 
         if (ENABLED_EPHEMERAL_NAMESPACES.getAsBoolean()) {
             try {
@@ -245,7 +245,7 @@ public final class KubectlClient {
      * @param service
      */
     public void stopService(Service service) {
-        Optional.ofNullable(portForwardsByService.remove(service.getName())).ifPresent(this::forceClose);
+        Optional.ofNullable(portForwardsByService.remove(service.getName())).ifPresent(this::closePortForward);
         scaleTo(service, 0);
     }
 
@@ -308,11 +308,13 @@ public final class KubectlClient {
                 .toString();
     }
 
-    private void forceClose(Closeable closeable) {
+    private void closePortForward(LocalPortForward portForward) {
+        int localPort = portForward.getLocalPort();
         try {
-            closeable.close();
-        } catch (IOException ignored) {
-            // ignored
+            portForward.close();
+            AwaitilityUtils.untilIsFalse(portForward::isAlive);
+        } catch (IOException ex) {
+            Log.warn("Failed to close port forward " + localPort, ex);
         }
     }
 

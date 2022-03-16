@@ -15,4 +15,5 @@ import io.jcloud.core.JCloudExtension;
 @ExtendWith(JCloudExtension.class)
 @Inherited
 public @interface Scenario {
+
 }

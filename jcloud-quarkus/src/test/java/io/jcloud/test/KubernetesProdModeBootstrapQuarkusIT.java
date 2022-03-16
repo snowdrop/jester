@@ -1,7 +1,7 @@
 package io.jcloud.test;
 
-import io.jcloud.api.KubernetesScenario;
+import io.jcloud.api.RunOnKubernetes;
 
-@KubernetesScenario
+@RunOnKubernetes
 public class KubernetesProdModeBootstrapQuarkusIT extends ProdModeBootstrapQuarkusIT {
 }

@@ -55,7 +55,6 @@
     <javax.inject.version>1</javax.inject.version>
     <kubernetes-client.version>5.12.1</kubernetes-client.version>
     <jackson-annotations.version>2.13.2</jackson-annotations.version>
-    <slf4j.version>1.7.36</slf4j.version>
     <!-- Format Settings -->
     <src.format.goal>format</src.format.goal>
     <src.sort.goal>sort</src.sort.goal>
