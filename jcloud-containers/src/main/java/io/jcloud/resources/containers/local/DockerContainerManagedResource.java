@@ -52,9 +52,24 @@ public class DockerContainerManagedResource extends ManagedResource {
 
         network = context.getScenarioContext().getTestStore().getOrComputeIfAbsent(SCENARIO_NETWORK,
                 k -> new DockerScenarioNetwork(context.getScenarioContext()), DockerScenarioNetwork.class);
-
-        innerContainer = initContainer();
         network.attachService(context);
+
+        innerContainer = new GenericContainer<>(image);
+
+        if (StringUtils.isNotBlank(expectedLog)) {
+            innerContainer.waitingFor(new LogMessageWaitStrategy().withRegEx(".*" + expectedLog + ".*\\s"));
+        }
+
+        if (command != null && command.length > 0) {
+            innerContainer.withCommand(command);
+        }
+
+        if (isPrivileged()) {
+            Log.info(context.getOwner(), "Running container on Privileged mode");
+            innerContainer.setPrivilegedMode(true);
+        }
+
+        innerContainer.withExposedPorts(ports);
         innerContainer.withNetwork(network);
         innerContainer.withNetworkAliases(context.getName());
         innerContainer.withStartupTimeout(context.getOwner().getConfiguration().getAsDuration(SERVICE_STARTUP_TIMEOUT,
@@ -102,27 +117,6 @@ public class DockerContainerManagedResource extends ManagedResource {
     @Override
     protected LoggingHandler getLoggingHandler() {
         return loggingHandler;
-    }
-
-    protected GenericContainer<?> initContainer() {
-        GenericContainer<?> container = new GenericContainer<>(image);
-
-        if (StringUtils.isNotBlank(expectedLog)) {
-            container.waitingFor(new LogMessageWaitStrategy().withRegEx(".*" + expectedLog + ".*\\s"));
-        }
-
-        if (command != null && command.length > 0) {
-            container.withCommand(command);
-        }
-
-        if (isPrivileged()) {
-            Log.info(context.getOwner(), "Running container on Privileged mode");
-            container.setPrivilegedMode(true);
-        }
-
-        container.withExposedPorts(ports);
-
-        return container;
     }
 
     private boolean isPrivileged() {

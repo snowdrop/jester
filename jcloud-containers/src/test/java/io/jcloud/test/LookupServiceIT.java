@@ -8,6 +8,7 @@ import static io.jcloud.test.samples.ContainerSamples.SAMPLES_DEFAULT_REST_PATH_
 import static org.hamcrest.Matchers.is;
 
 import org.apache.http.HttpStatus;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import io.jcloud.api.Container;
@@ -15,6 +16,7 @@ import io.jcloud.api.LookupService;
 import io.jcloud.api.RestService;
 import io.jcloud.api.Scenario;
 
+@Tag("containers")
 @Scenario
 public class LookupServiceIT extends BaseLookupServiceIT {
 

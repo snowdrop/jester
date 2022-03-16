@@ -12,6 +12,7 @@ import java.util.Collections;
 import org.apache.http.HttpStatus;
 import org.apache.http.impl.client.HttpClients;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.keycloak.authorization.client.AuthzClient;
 import org.keycloak.authorization.client.Configuration;
@@ -21,9 +22,7 @@ import io.jcloud.api.DefaultService;
 import io.jcloud.api.RestService;
 import io.jcloud.api.Scenario;
 
-/**
- * We'll use the quarkus-secured example and integrate it with a Keycloak service.
- */
+@Tag("containers")
 @Scenario
 public class ExternalResourceIT {
 

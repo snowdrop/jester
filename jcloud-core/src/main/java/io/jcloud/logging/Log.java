@@ -9,21 +9,18 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Random;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import org.jboss.logmanager.formatters.ColorPatternFormatter;
-import org.jboss.logmanager.formatters.PatternFormatter;
-import org.jboss.logmanager.handlers.ConsoleHandler;
-import org.jboss.logmanager.handlers.FileHandler;
+import org.apache.commons.lang3.StringUtils;
 
 import io.jcloud.api.Service;
 import io.jcloud.configuration.PropertyLookup;
 import io.jcloud.core.JCloudExtension;
-import io.jcloud.core.ScenarioContext;
 
 public final class Log {
     public static final PropertyLookup LOG_LEVEL = new PropertyLookup("log.level");
@@ -89,7 +86,7 @@ public final class Log {
         log(NO_SERVICE, Level.SEVERE, msg, args);
     }
 
-    public static void configure(ScenarioContext scenario) {
+    public static void configure() {
         // Configure Log Manager
         try (InputStream in = JCloudExtension.class.getResourceAsStream("/logging.properties")) {
             LogManager.getLogManager().readConfiguration(in);
@@ -105,14 +102,15 @@ public final class Log {
         logger.setLevel(level);
 
         // - Console
-        ConsoleHandler console = new ConsoleHandler(ConsoleHandler.Target.SYSTEM_OUT,
-                LOG_NO_COLOR.getAsBoolean() ? new PatternFormatter(logPattern) : new ColorPatternFormatter(logPattern));
+        ConsoleHandler console = new ConsoleHandler();
+        console.setFormatter(new PatternSimpleFormatter(logPattern));
         console.setLevel(level);
         logger.addHandler(console);
 
         // - File
         try {
-            FileHandler file = new FileHandler(new PatternFormatter(logPattern), scenario.getLogFile().toFile());
+            FileHandler file = new FileHandler();
+            file.setFormatter(new PatternSimpleFormatter(logPattern));
             file.setLevel(level);
             logger.addHandler(file);
         } catch (Exception ex) {
@@ -121,30 +119,32 @@ public final class Log {
     }
 
     private static void log(Service service, Level level, String msg, Object... args) {
-        if (isServiceLogLevelAllowed(service, level)) {
-            String textColor = findColorForText(level, service);
-            String logMessage = msg;
-            if (args != null && args.length > 0) {
-                logMessage = String.format(msg, args);
-            }
-
-            if (LOG_NO_COLOR.getAsBoolean()) {
-                LOG.log(level, inBrackets(service) + logMessage);
-            } else {
-                LOG.log(level, textColor + inBrackets(service) + logMessage + COLOR_RESET);
-            }
+        Level logLevel = level;
+        if (service != null && isServiceLogLevelAllowed(service, level)) {
+            logLevel = new ForceLogLevel(level.getName());
         }
+
+        String textColor = findColorForText(level, service);
+        String logMessage = msg;
+        if (args != null && args.length > 0) {
+            logMessage = String.format(msg, args);
+        }
+
+        String message = inBrackets(service) + logMessage;
+        if (!LOG_NO_COLOR.getAsBoolean()) {
+            message = textColor + message + COLOR_RESET;
+        }
+
+        LOG.log(logLevel, message);
     }
 
     private static boolean isServiceLogLevelAllowed(Service service, Level level) {
-        boolean enabled = true;
-        if (Objects.nonNull(service) && Objects.nonNull(service.getConfiguration())) {
-            String serviceLogLevel = service.getConfiguration().getOrDefault(LOG_LEVEL_NAME, EMPTY);
-            if (!serviceLogLevel.isEmpty()) {
-                enabled = Level.parse(serviceLogLevel).intValue() <= level.intValue();
-            }
+        if (service == null || service.getConfiguration() == null) {
+            return false;
         }
-        return enabled;
+
+        return service.getConfiguration().get(LOG_LEVEL_NAME).filter(StringUtils::isNotEmpty).map(Level::parse)
+                .map(configLevel -> configLevel.intValue() <= level.intValue()).orElse(false);
     }
 
     private static synchronized String findColorForText(Level level, Service service) {
@@ -183,11 +183,18 @@ public final class Log {
     }
 
     private static String inBrackets(Service service) {
-        if (service == null) {
+        if (service == null || StringUtils.isEmpty(service.getName())) {
             return EMPTY;
         }
 
         return String.format("[%s] ", service.getName());
+    }
+
+    private static class ForceLogLevel extends Level {
+
+        protected ForceLogLevel(String realLevelName) {
+            super(realLevelName, Integer.MAX_VALUE);
+        }
     }
 
 }

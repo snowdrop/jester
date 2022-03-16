@@ -19,14 +19,18 @@ import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import io.jcloud.api.Container;
 import io.jcloud.api.RestService;
 import io.jcloud.api.Scenario;
+import io.restassured.config.ConnectionConfig;
+import io.restassured.config.RestAssuredConfig;
 import io.restassured.specification.RequestSpecification;
 
+@Tag("containers")
 @Scenario
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ServiceLifecycleIT {
@@ -100,7 +104,9 @@ public class ServiceLifecycleIT {
     }
 
     private void thenServiceIsUpAndRunning(RequestSpecification given) {
-        given.get(SAMPLES_DEFAULT_REST_PATH).then().statusCode(HttpStatus.SC_OK)
+        given.config(RestAssuredConfig.config()
+                .connectionConfig(ConnectionConfig.connectionConfig().closeIdleConnectionsAfterEachResponse()))
+                .get(SAMPLES_DEFAULT_REST_PATH).then().statusCode(HttpStatus.SC_OK)
                 .body(is(SAMPLES_DEFAULT_REST_PATH_OUTPUT));
     }
 }
