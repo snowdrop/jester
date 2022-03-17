@@ -14,7 +14,7 @@
     <!-- Declared Dependencies -->
     <shrinkwrap-depchain.version>2.0.0-beta-1</shrinkwrap-depchain.version>
     <!-- Provided Dependencies -->
-    <quarkus.platform.version>2.7.4.Final</quarkus.platform.version>
+    <quarkus.platform.version>2.7.5.Final</quarkus.platform.version>
     <!-- Test Dependencies -->
     <jboss-jaxrs-api_2.1_spec.version>2.0.2.Final</jboss-jaxrs-api_2.1_spec.version>
   </properties>
