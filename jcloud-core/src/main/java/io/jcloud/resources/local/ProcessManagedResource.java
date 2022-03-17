@@ -138,6 +138,6 @@ public abstract class ProcessManagedResource extends ManagedResource {
 
     private int getOrAssignPortByProperty(String property) {
         return context.getOwner().getProperty(property).filter(StringUtils::isNotEmpty).map(Integer::parseInt)
-                .orElseGet(SocketUtils::findAvailablePort);
+                .orElseGet(() -> SocketUtils.findAvailablePort(context.getOwner()));
     }
 }

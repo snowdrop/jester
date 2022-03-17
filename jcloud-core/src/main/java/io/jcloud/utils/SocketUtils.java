@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.jcloud.api.Service;
 import io.jcloud.configuration.PropertyLookup;
 
 public final class SocketUtils {
@@ -25,8 +26,8 @@ public final class SocketUtils {
 
     }
 
-    public static synchronized int findAvailablePort() {
-        if (PORT_RESOLUTION_RANDOM_STRATEGY.equals(PORT_RESOLUTION_STRATEGY_PROPERTY.get())) {
+    public static synchronized int findAvailablePort(Service service) {
+        if (PORT_RESOLUTION_RANDOM_STRATEGY.equals(PORT_RESOLUTION_STRATEGY_PROPERTY.get(service))) {
             return findRandomAvailablePort();
         }
 

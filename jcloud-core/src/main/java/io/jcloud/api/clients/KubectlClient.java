@@ -208,7 +208,7 @@ public final class KubectlClient {
             LocalPortForward portForward = portForwardsByService.get(serviceName);
             if (portForward == null || !portForward.isAlive()) {
                 portForward = client.services().withName(serviceName).portForward(port,
-                        SocketUtils.findAvailablePort());
+                        SocketUtils.findAvailablePort(service));
                 portForwardsByService.put(serviceName, portForward);
             }
 
