@@ -122,8 +122,9 @@ After the build was successful, the artifacts are available in your local Maven 
 
 ### Test Coverage
 
-jCloudUnit uses JaCoCo to generate test coverage. If you would like to generate the report run `mvn install -Dcoverage`, then
-change into the `coverage-report` directory and run `mvn package`. The code coverage report will be generated in
+jCloudUnit uses JaCoCo to generate test coverage. If you would like to generate the report
+run `mvn install -Pframework,examples,coverage`, then change into the `coverage-report` directory and run `mvn package`. The
+code coverage report will be generated in
 `target/site/jacoco/`.
 
 This currently does not work on Windows as it uses a shell script to copy all the classes and files into the code coverage
