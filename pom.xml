@@ -64,7 +64,6 @@
     <!-- Samples -->
     <samples.container-image.registry>server.io</samples.container-image.registry>
     <!-- Testing -->
-    <keycloak-authz-client.version>17.0.0</keycloak-authz-client.version>
     <include.tests>**/*IT.java</include.tests>
     <exclude.openshift.tests>**/OpenShift*IT.java</exclude.openshift.tests>
     <exclude.kubernetes.tests>**/Kubernetes*IT.java</exclude.kubernetes.tests>
@@ -79,12 +78,6 @@
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
-  <modules>
-    <module>jcloud-core</module>
-    <module>jcloud-containers</module>
-    <module>jcloud-quarkus</module>
-    <module>jcloud-spring</module>
-  </modules>
   <dependencyManagement>
     <dependencies>
       <!-- Project Dependencies -->
@@ -153,14 +146,6 @@
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-annotations</artifactId>
         <version>${jackson-annotations.version}</version>
-      </dependency>
-
-      <!-- Test dependencies -->
-      <dependency>
-        <groupId>org.keycloak</groupId>
-        <artifactId>keycloak-authz-client</artifactId>
-        <scope>test</scope>
-        <version>${keycloak-authz-client.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -295,6 +280,21 @@
   </build>
   <profiles>
     <profile>
+      <id>framework</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+        <property>
+          <name>framework</name>
+        </property>
+      </activation>
+      <modules>
+        <module>jcloud-core</module>
+        <module>jcloud-containers</module>
+        <module>jcloud-quarkus</module>
+        <module>jcloud-spring</module>
+      </modules>
+    </profile>
+    <profile>
       <id>examples</id>
       <activation>
         <activeByDefault>true</activeByDefault>
@@ -304,6 +304,7 @@
       </activation>
       <modules>
         <module>examples/quarkus-greetings</module>
+        <module>examples/quarkus-oidc</module>
         <module>examples/spring-greetings</module>
       </modules>
     </profile>

@@ -6,7 +6,6 @@ package io.jcloud.test.samples;
  */
 public final class ContainerSamples {
     public static final String QUARKUS_REST_IMAGE = "${sample.quarkus-rest.image:server.io/test/quarkus-rest:latest}";
-    public static final String QUARKUS_SECURED_IMAGE = "${sample.quarkus-secured.image:server.io/test/quarkus-secured:latest}";
 
     public static final int SAMPLES_DEFAULT_PORT = 8080;
     public static final String QUARKUS_STARTUP_EXPECTED_LOG = "Installed features";

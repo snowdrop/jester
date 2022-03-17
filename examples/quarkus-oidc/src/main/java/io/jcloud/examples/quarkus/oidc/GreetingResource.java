@@ -1,4 +1,4 @@
-package io.jcloud.sample;
+package io.jcloud.examples.quarkus.oidc;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
