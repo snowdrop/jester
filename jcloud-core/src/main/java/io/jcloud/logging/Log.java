@@ -98,7 +98,7 @@ public final class Log {
         Level level = Level.parse(LOG_LEVEL.get());
 
         // Configure logger handlers
-        Logger logger = LogManager.getLogManager().getLogger("");
+        Logger logger = LogManager.getLogManager().getLogger(Log.class.getName());
         logger.setLevel(level);
 
         // - Console

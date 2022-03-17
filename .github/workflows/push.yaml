@@ -38,7 +38,7 @@ jobs:
           mvn clean install -Dsamples.container-image.registry=$KIND_REGISTRY -Dsamples.container-image.push=true
       - name: Build
         run: |
-          mvn -fae -s .github/mvn-settings.xml clean install -Dexamples -Dcoverage -Dvalidate-format \
+          mvn -s .github/mvn-settings.xml clean install -Dexamples -Dcoverage -Dvalidate-format \
             -Dsamples.container-image.registry=$KIND_REGISTRY \
             -Dts.container.registry-url=$KIND_REGISTRY \
             -Dexclude.kubernetes.tests=no

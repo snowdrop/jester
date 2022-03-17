@@ -83,6 +83,7 @@
     <module>jcloud-core</module>
     <module>jcloud-containers</module>
     <module>jcloud-quarkus</module>
+    <module>jcloud-spring</module>
   </modules>
   <dependencyManagement>
     <dependencies>
@@ -100,6 +101,11 @@
       <dependency>
         <groupId>io.jcloud</groupId>
         <artifactId>jcloud-quarkus</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.jcloud</groupId>
+        <artifactId>jcloud-spring</artifactId>
         <version>${project.version}</version>
       </dependency>
       <!-- Declared Dependencies -->
@@ -298,6 +304,7 @@
       </activation>
       <modules>
         <module>examples/quarkus-greetings</module>
+        <module>examples/spring-greetings</module>
       </modules>
     </profile>
     <profile>

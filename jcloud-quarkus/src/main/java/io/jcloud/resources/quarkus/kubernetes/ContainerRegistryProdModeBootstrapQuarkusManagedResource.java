@@ -6,28 +6,27 @@ import static io.jcloud.utils.QuarkusUtils.QUARKUS_HTTP_PORT_PROPERTY;
 import io.jcloud.api.Dependency;
 import io.jcloud.core.ServiceContext;
 import io.jcloud.resources.kubernetes.KubernetesManagedResource;
-import io.jcloud.resources.quarkus.BootstrapQuarkusProxy;
+import io.jcloud.resources.quarkus.common.BootstrapQuarkusResource;
+import io.jcloud.utils.DockerUtils;
 import io.jcloud.utils.QuarkusUtils;
 
 public class ContainerRegistryProdModeBootstrapQuarkusManagedResource extends KubernetesManagedResource {
 
-    private final String propertiesFile;
     private final Class<?>[] classes;
     private final Dependency[] forcedDependencies;
 
-    private BootstrapQuarkusProxy proxy;
+    private BootstrapQuarkusResource resource;
     private String image;
 
-    public ContainerRegistryProdModeBootstrapQuarkusManagedResource(String propertiesFile, Class<?>[] classes,
+    public ContainerRegistryProdModeBootstrapQuarkusManagedResource(Class<?>[] classes,
             Dependency[] forcedDependencies) {
-        this.propertiesFile = propertiesFile;
         this.classes = classes;
         this.forcedDependencies = forcedDependencies;
     }
 
     @Override
     public String getDisplayName() {
-        return proxy.getDisplayName();
+        return resource.getDisplayName();
     }
 
     @Override
@@ -37,7 +36,7 @@ public class ContainerRegistryProdModeBootstrapQuarkusManagedResource extends Ku
 
     @Override
     protected String getExpectedLog() {
-        return proxy.getExpectedLog();
+        return resource.getExpectedLog();
     }
 
     @Override
@@ -50,12 +49,13 @@ public class ContainerRegistryProdModeBootstrapQuarkusManagedResource extends Ku
     protected void init(ServiceContext context) {
         super.init(context);
 
-        proxy = new BootstrapQuarkusProxy(context, propertiesFile, classes, forcedDependencies);
+        resource = new BootstrapQuarkusResource(context, classes, forcedDependencies);
         image = createImageAndPush();
     }
 
     private String createImageAndPush() {
-        return QuarkusUtils.createImageAndPush(context, proxy.getLaunchMode(), proxy.getArtifact());
+        String dockerFile = QuarkusUtils.getDockerfile(resource.getLaunchMode());
+        return DockerUtils.createImageAndPush(context, dockerFile, resource.getRunner());
     }
 
 }

@@ -1,8 +1,5 @@
 package io.jcloud.utils;
 
-import static io.jcloud.utils.PropertiesUtils.CONTAINER_REGISTRY_URL_PROPERTY;
-import static io.jcloud.utils.PropertiesUtils.validateContainerRegistry;
-import static java.util.regex.Pattern.quote;
 import static java.util.stream.Collectors.toSet;
 
 import java.nio.file.Path;
@@ -43,8 +40,6 @@ public final class QuarkusUtils {
     public static final String BUILD_TIME_PROPERTIES = "/build-time-list";
     public static final Set<String> BUILD_PROPERTIES = FileUtils.loadFile(BUILD_TIME_PROPERTIES).lines()
             .collect(toSet());
-    private static final String DOCKER = "docker";
-    private static final String DOCKERFILE = "Dockerfile";
     private static final String DOCKERFILE_TEMPLATE = "/Dockerfile.%s";
 
     private QuarkusUtils() {
@@ -87,20 +82,6 @@ public final class QuarkusUtils {
                 || name.equals(build)); // or it's equal to
     }
 
-    public static String createImageAndPush(ServiceContext service, QuarkusLaunchMode mode, Path artifact) {
-        validateContainerRegistry();
-
-        Path target = getTargetFolder(mode, artifact);
-
-        String dockerfileContent = FileUtils.loadFile(getDockerfile(mode)).replaceAll(quote("${ARTIFACT_PARENT}"),
-                target.toString());
-
-        Path dockerfilePath = FileUtils.copyContentTo(dockerfileContent,
-                service.getServiceFolder().resolve(DOCKERFILE));
-        buildService(service, dockerfilePath);
-        return pushToContainerRegistryUrl(service);
-    }
-
     private static String defaultVersionIfEmpty(String version) {
         if (StringUtils.isEmpty(version)) {
             version = Version.getVersion();
@@ -109,43 +90,7 @@ public final class QuarkusUtils {
         return version;
     }
 
-    private static void buildService(ServiceContext service, Path dockerFile) {
-        try {
-            new Command(DOCKER, "build", "-f", dockerFile.toString(), "-t", getUniqueName(service), ".").runAndWait();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to build image " + service.getServiceFolder().toAbsolutePath(), e);
-        }
-    }
-
-    private static String pushToContainerRegistryUrl(ServiceContext service) {
-        String containerRegistryUrl = System.getProperty(CONTAINER_REGISTRY_URL_PROPERTY);
-        try {
-            String targetImage = containerRegistryUrl + "/" + getUniqueName(service);
-            new Command(DOCKER, "tag", getUniqueName(service), targetImage).runAndWait();
-            new Command(DOCKER, "push", targetImage).runAndWait();
-            return targetImage;
-        } catch (Exception e) {
-            throw new RuntimeException(
-                    "Failed to push image " + service.getOwner().getName() + " into " + containerRegistryUrl, e);
-        }
-    }
-
-    private static String getUniqueName(ServiceContext service) {
-        String uniqueName = service.getTestContext().getRequiredTestClass().getName() + "." + service.getName();
-        return uniqueName.toLowerCase();
-    }
-
-    private static String getDockerfile(QuarkusLaunchMode mode) {
+    public static String getDockerfile(QuarkusLaunchMode mode) {
         return String.format(DOCKERFILE_TEMPLATE, mode.getName());
-    }
-
-    private static Path getTargetFolder(QuarkusLaunchMode mode, Path artifact) {
-        Path target = artifact.getParent();
-        if (mode == QuarkusLaunchMode.JVM) {
-            // remove quarkus-app path
-            target = target.getParent();
-        }
-
-        return target;
     }
 }
