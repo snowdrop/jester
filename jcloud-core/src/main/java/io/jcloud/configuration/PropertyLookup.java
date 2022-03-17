@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 
+import io.jcloud.api.Service;
 import io.jcloud.core.ServiceContext;
 
 public class PropertyLookup {
@@ -36,14 +37,19 @@ public class PropertyLookup {
             return value;
         }
 
-        // Or from test.properties
-        value = service.getOwner().getConfiguration().getOrDefault(propertyKey, null);
+        // Or from service
+        return get(service.getOwner());
+    }
+
+    public String get(Service service) {
+        // from test.properties
+        String value = service.getConfiguration().getOrDefault(propertyKey, null);
         if (StringUtils.isNotBlank(value)) {
             return value;
         }
 
         // Or from service properties
-        return service.getOwner().getProperty(propertyKey)
+        return service.getProperty(propertyKey)
                 // Or from system properties
                 .orElseGet(this::get);
     }
