@@ -93,7 +93,9 @@ public abstract class ManagedResource {
                 AwaitilityUtils.AwaitilitySettings.using(startupCheckInterval, startupTimeout).doNotIgnoreExceptions()
                         .withService(context.getOwner())
                         .timeoutMessage("Service didn't start in %s minutes", startupTimeout));
-        getLoggingHandler().flush();
+        if (getLoggingHandler() != null) {
+            getLoggingHandler().flush();
+        }
     }
 
     private boolean isRunningOrFailed() {

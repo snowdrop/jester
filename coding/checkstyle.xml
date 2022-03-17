@@ -41,6 +41,7 @@
   <!-- Checks for whitespace                               -->
   <!-- See https://checkstyle.org/config_whitespace.html -->
   <module name="FileTabCharacter"/>
+  <module name="SuppressWarningsFilter"/>
   <!-- Miscellaneous other checks.                   -->
   <!-- See https://checkstyle.org/config_misc.html -->
   <!-- Checks for Headers                                -->
@@ -50,6 +51,7 @@
   <!--   <property name="fileExtensions" value="java"/> -->
   <!-- </module> -->
   <module name="TreeWalker">
+    <module name="SuppressWarningsHolder"/>
     <!-- Checks for Javadoc comments.                     -->
     <!-- See https://checkstyle.org/config_javadoc.html -->
     <module name="InvalidJavadocPosition"/>
