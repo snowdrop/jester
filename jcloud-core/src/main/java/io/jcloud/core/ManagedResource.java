@@ -10,11 +10,6 @@ import io.jcloud.utils.AwaitilityUtils;
 
 public abstract class ManagedResource {
 
-    protected static final String SERVICE_STARTUP_TIMEOUT = "startup.timeout";
-    protected static final Duration SERVICE_STARTUP_TIMEOUT_DEFAULT = Duration.ofMinutes(5);
-    private static final String SERVICE_STARTUP_CHECK_POLL_INTERVAL = "startup.check-poll-interval";
-    private static final Duration SERVICE_STARTUP_CHECK_POLL_INTERVAL_DEFAULT = Duration.ofSeconds(2);
-
     protected ServiceContext context;
 
     /**
@@ -85,10 +80,8 @@ public abstract class ManagedResource {
     }
 
     protected void waitUntilResourceIsStarted() {
-        Duration startupCheckInterval = context.getOwner().getConfiguration()
-                .getAsDuration(SERVICE_STARTUP_CHECK_POLL_INTERVAL, SERVICE_STARTUP_CHECK_POLL_INTERVAL_DEFAULT);
-        Duration startupTimeout = context.getOwner().getConfiguration().getAsDuration(SERVICE_STARTUP_TIMEOUT,
-                SERVICE_STARTUP_TIMEOUT_DEFAULT);
+        Duration startupCheckInterval = context.getConfiguration().getStartupCheckPollInterval();
+        Duration startupTimeout = context.getConfiguration().getStartupTimeout();
         untilIsTrue(this::isRunningOrFailed,
                 AwaitilityUtils.AwaitilitySettings.using(startupCheckInterval, startupTimeout).doNotIgnoreExceptions()
                         .withService(context.getOwner())

@@ -4,15 +4,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import io.jcloud.api.model.QuarkusLaunchMode;
-import io.jcloud.configuration.PropertyLookup;
+import io.jcloud.configuration.QuarkusServiceConfiguration;
+import io.jcloud.configuration.QuarkusServiceConfigurationBuilder;
 import io.jcloud.core.ServiceContext;
 import io.jcloud.logging.LoggingHandler;
 import io.jcloud.utils.QuarkusUtils;
 
 public class QuarkusResource {
-    private static final String EXPECTED_OUTPUT_DEFAULT = "Installed features";
-    private static final PropertyLookup EXPECTED_OUTPUT = new PropertyLookup("quarkus.expected.log",
-            EXPECTED_OUTPUT_DEFAULT);
     private static final List<String> ERRORS = Arrays.asList("Failed to start application",
             "Failed to load config value of type class",
             "Quarkus may already be running or the port is used by another application",
@@ -26,6 +24,7 @@ public class QuarkusResource {
     public QuarkusResource(ServiceContext context) {
         this.context = context;
         this.launchMode = detectLaunchMode(context);
+        context.loadCustomConfiguration(QuarkusServiceConfiguration.class, new QuarkusServiceConfigurationBuilder());
     }
 
     public String getDisplayName() {
@@ -45,14 +44,14 @@ public class QuarkusResource {
     }
 
     public String getExpectedLog() {
-        return EXPECTED_OUTPUT.get(context);
+        return context.getConfigurationAs(QuarkusServiceConfiguration.class).getExpectedLog();
     }
 
-    private static QuarkusLaunchMode detectLaunchMode(ServiceContext serviceContext) {
+    private static QuarkusLaunchMode detectLaunchMode(ServiceContext context) {
         QuarkusLaunchMode launchMode = QuarkusLaunchMode.JVM;
-        if (QuarkusUtils.isNativePackageType(serviceContext)) {
+        if (QuarkusUtils.isNativePackageType(context.getOwner())) {
             launchMode = QuarkusLaunchMode.NATIVE;
-        } else if (QuarkusUtils.isLegacyJarPackageType(serviceContext)) {
+        } else if (QuarkusUtils.isLegacyJarPackageType(context.getOwner())) {
             launchMode = QuarkusLaunchMode.LEGACY_JAR;
         }
 

@@ -45,6 +45,10 @@ public interface ExtensionBootstrap {
 
     }
 
+    default void updateScenarioContext(ScenarioContext scenario) {
+
+    }
+
     default void updateServiceContext(ServiceContext context) {
 
     }

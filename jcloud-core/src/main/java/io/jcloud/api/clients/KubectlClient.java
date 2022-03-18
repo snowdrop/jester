@@ -22,7 +22,6 @@ import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.LocalPortForward;
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient;
 import io.jcloud.api.Service;
-import io.jcloud.configuration.PropertyLookup;
 import io.jcloud.logging.Log;
 import io.jcloud.utils.AwaitilityUtils;
 import io.jcloud.utils.Command;
@@ -30,8 +29,8 @@ import io.jcloud.utils.SocketUtils;
 
 public final class KubectlClient {
 
-    public static final PropertyLookup ENABLED_EPHEMERAL_NAMESPACES = new PropertyLookup(
-            "ts.kubernetes.ephemeral.namespaces.enabled", Boolean.TRUE.toString());
+    public static final boolean ENABLED_EPHEMERAL_NAMESPACES = Boolean
+            .parseBoolean(System.getProperty("ts.kubernetes.ephemeral.namespaces.enabled", Boolean.TRUE.toString()));
 
     private static final int NAMESPACE_NAME_SIZE = 10;
     private static final int NAMESPACE_CREATION_RETRIES = 5;
@@ -46,7 +45,7 @@ public final class KubectlClient {
     private final Map<String, LocalPortForward> portForwardsByService = new HashMap<>();
 
     private KubectlClient() {
-        if (ENABLED_EPHEMERAL_NAMESPACES.getAsBoolean()) {
+        if (ENABLED_EPHEMERAL_NAMESPACES) {
             currentNamespace = createNamespace();
         } else {
             currentNamespace = new DefaultKubernetesClient().getNamespace();
@@ -226,7 +225,7 @@ public final class KubectlClient {
     public void deleteNamespace(String scenarioId) {
         portForwardsByService.values().forEach(this::closePortForward);
 
-        if (ENABLED_EPHEMERAL_NAMESPACES.getAsBoolean()) {
+        if (ENABLED_EPHEMERAL_NAMESPACES) {
             try {
                 new Command(KUBECTL, "delete", "namespace", currentNamespace).runAndWait();
             } catch (Exception e) {

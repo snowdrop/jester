@@ -17,7 +17,7 @@ public abstract class ServiceLoggingHandler extends LoggingHandler {
 
     @Override
     protected boolean isLogEnabled() {
-        return service.getConfiguration().isTrue("log.enable");
+        return service.getConfiguration().isLogEnabled();
     }
 
 }

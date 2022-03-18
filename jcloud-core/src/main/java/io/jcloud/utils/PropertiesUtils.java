@@ -5,8 +5,13 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -24,6 +29,27 @@ public final class PropertiesUtils {
 
     private PropertiesUtils() {
 
+    }
+
+    public static Optional<List<String>> getAsList(Map<String, String> properties, String property) {
+        return get(properties, property).filter(StringUtils::isNotEmpty)
+                .map(value -> Stream.of(value.split(",")).collect(Collectors.toList()));
+    }
+
+    public static Optional<Duration> getAsDuration(Map<String, String> properties, String property) {
+        return get(properties, property).filter(StringUtils::isNotEmpty).map(DurationUtils::parse);
+    }
+
+    public static Optional<Double> getAsDouble(Map<String, String> properties, String property) {
+        return get(properties, property).filter(StringUtils::isNotEmpty).map(Double::parseDouble);
+    }
+
+    public static Optional<Boolean> getAsBoolean(Map<String, String> properties, String property) {
+        return get(properties, property).map(Boolean::parseBoolean);
+    }
+
+    public static Optional<String> get(Map<String, String> properties, String property) {
+        return Optional.ofNullable(properties.get(property));
     }
 
     /**

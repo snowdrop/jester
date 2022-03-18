@@ -6,13 +6,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.junit.jupiter.api.extension.ExtendWith;
-
-import io.jcloud.core.JCloudExtension;
-
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@ExtendWith(JCloudExtension.class)
 @Inherited
-public @interface Scenario {
+public @interface SpringServiceConfigurations {
+    SpringServiceConfiguration[] value();
 }

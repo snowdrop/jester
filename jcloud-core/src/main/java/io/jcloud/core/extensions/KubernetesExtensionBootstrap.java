@@ -17,7 +17,6 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.jcloud.api.RunOnKubernetes;
 import io.jcloud.api.clients.KubectlClient;
 import io.jcloud.api.extensions.ExtensionBootstrap;
-import io.jcloud.configuration.PropertyLookup;
 import io.jcloud.core.DependencyContext;
 import io.jcloud.core.ScenarioContext;
 import io.jcloud.core.ServiceContext;
@@ -27,35 +26,27 @@ import io.jcloud.utils.FileUtils;
 public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
     public static final String CLIENT = "kubectl-client";
 
-    private static final PropertyLookup DELETE_NAMESPACE_AFTER = new PropertyLookup(
-            "ts.kubernetes.delete.namespace.after.all", Boolean.TRUE.toString());
+    private static final boolean DELETE_NAMESPACE_AFTER = Boolean
+            .parseBoolean(System.getProperty("ts.kubernetes.delete.namespace.after.all", Boolean.TRUE.toString()));
 
     private KubectlClient client;
 
     @Override
     public boolean appliesFor(ScenarioContext context) {
-        boolean isValidConfig = context.isAnnotationPresent(RunOnKubernetes.class);
-        if (isValidConfig && !DELETE_NAMESPACE_AFTER.getAsBoolean() && ENABLED_EPHEMERAL_NAMESPACES.getAsBoolean()) {
-            Log.error("-Dts.kubernetes.delete.project.after.all=false is only supported with"
-                    + " -Dts.kubernetes.ephemeral.namespaces.enabled=false");
-            isValidConfig = false;
-        }
-
-        return isValidConfig;
+        return context.isAnnotationPresent(RunOnKubernetes.class);
     }
 
     @Override
     public void beforeAll(ScenarioContext context) {
         // if deleteNamespace and ephemeral namespaces are disabled then we are in debug mode. This mode is going to
-        // keep
-        // all scenario resources in order to allow you to debug by yourself
-        context.setDebug(!DELETE_NAMESPACE_AFTER.getAsBoolean() && !ENABLED_EPHEMERAL_NAMESPACES.getAsBoolean());
+        // keep all scenario resources in order to allow you to debug by yourself
+        context.setDebug(!DELETE_NAMESPACE_AFTER && !ENABLED_EPHEMERAL_NAMESPACES);
         client = KubectlClient.create();
     }
 
     @Override
     public void afterAll(ScenarioContext context) {
-        if (DELETE_NAMESPACE_AFTER.getAsBoolean()) {
+        if (DELETE_NAMESPACE_AFTER) {
             client.deleteNamespace(context.getId());
         }
     }

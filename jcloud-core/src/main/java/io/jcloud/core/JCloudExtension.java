@@ -288,6 +288,7 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
         List<ExtensionBootstrap> list = new ArrayList<>();
         for (ExtensionBootstrap binding : extensionsRegistry) {
             if (binding.appliesFor(scenario)) {
+                binding.updateScenarioContext(scenario);
                 list.add(binding);
             }
         }
