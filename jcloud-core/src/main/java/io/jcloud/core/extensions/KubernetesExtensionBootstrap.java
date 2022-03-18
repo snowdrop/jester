@@ -3,14 +3,22 @@ package io.jcloud.core.extensions;
 import static io.jcloud.api.clients.KubectlClient.ENABLED_EPHEMERAL_NAMESPACES;
 
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
+import javax.inject.Named;
+
+import io.fabric8.kubernetes.api.model.apps.Deployment;
+import io.fabric8.kubernetes.api.model.networking.v1.Ingress;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.jcloud.api.RunOnKubernetes;
 import io.jcloud.api.clients.KubectlClient;
 import io.jcloud.api.extensions.ExtensionBootstrap;
 import io.jcloud.configuration.PropertyLookup;
+import io.jcloud.core.DependencyContext;
 import io.jcloud.core.ScenarioContext;
 import io.jcloud.core.ServiceContext;
 import io.jcloud.logging.Log;
@@ -58,9 +66,30 @@ public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
     }
 
     @Override
-    public Optional<Object> getParameter(Class<?> clazz) {
-        if (clazz == KubectlClient.class) {
+    public List<Class<?>> supportedParameters() {
+        return Arrays.asList(KubectlClient.class, KubernetesClient.class, Deployment.class,
+                io.fabric8.kubernetes.api.model.Service.class, Ingress.class);
+    }
+
+    @Override
+    public Optional<Object> getParameter(DependencyContext dependency) {
+        if (dependency.getType() == KubectlClient.class) {
             return Optional.of(client);
+        } else if (dependency.getType() == KubernetesClient.class) {
+            return Optional.of(client.underlyingClient());
+        } else {
+            // named parameters
+            Named named = dependency.findAnnotation(Named.class)
+                    .orElseThrow(() -> new RuntimeException(
+                            "To inject Kubernetes resources, need to provide the name using @Named. Problematic field: "
+                                    + dependency.getName()));
+            if (dependency.getType() == Deployment.class) {
+                return Optional.of(client.underlyingClient().apps().deployments().withName(named.value()).get());
+            } else if (dependency.getType() == io.fabric8.kubernetes.api.model.Service.class) {
+                return Optional.of(client.underlyingClient().services().withName(named.value()).get());
+            } else if (dependency.getType() == Ingress.class) {
+                return Optional.of(client.underlyingClient().network().ingresses().withName(named.value()).get());
+            }
         }
 
         return Optional.empty();
