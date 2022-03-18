@@ -1,8 +1,11 @@
 package io.jcloud.api.extensions;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import io.jcloud.api.Service;
+import io.jcloud.core.DependencyContext;
 import io.jcloud.core.ScenarioContext;
 import io.jcloud.core.ServiceContext;
 
@@ -46,7 +49,11 @@ public interface ExtensionBootstrap {
 
     }
 
-    default Optional<Object> getParameter(Class<?> clazz) {
+    default List<Class<?>> supportedParameters() {
+        return Collections.emptyList();
+    }
+
+    default Optional<Object> getParameter(DependencyContext dependency) {
         return Optional.empty();
     }
 }

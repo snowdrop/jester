@@ -106,13 +106,12 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
 
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
-        return extensions.stream()
-                .anyMatch(ext -> ext.getParameter(parameterContext.getParameter().getType()).isPresent());
+        return isParameterSupported(parameterContext.getParameter().getType());
     }
 
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
-        return getParameter(parameterContext.getParameter().getName(), parameterContext.getParameter().getType());
+        return getParameter(new DependencyContext(parameterContext));
     }
 
     @Override
@@ -203,14 +202,16 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
     }
 
     private void injectDependency(ExtensionContext context, Field field) {
-        Object fieldValue;
+        Object fieldValue = null;
         if (ScenarioContext.class.equals(field.getType())) {
             fieldValue = scenario;
-        } else {
-            fieldValue = getParameter(field.getName(), field.getType());
+        } else if (isParameterSupported(field.getType())) {
+            fieldValue = getParameter(new DependencyContext(field.getName(), field.getType(), field.getAnnotations()));
         }
 
-        ReflectionUtils.setFieldValue(findTestInstance(context, field), field, fieldValue);
+        if (fieldValue != null) {
+            ReflectionUtils.setFieldValue(findTestInstance(context, field), field, fieldValue);
+        }
     }
 
     private void initService(ExtensionContext context, Service service, String name, Annotation... annotations) {
@@ -268,12 +269,16 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
         ReflectionUtils.setFieldValue(findTestInstance(context, fieldToInject), fieldToInject, service);
     }
 
-    private Object getParameter(String name, Class<?> clazz) {
-        Optional<Object> parameter = extensions.stream().map(ext -> ext.getParameter(clazz)).filter(Optional::isPresent)
-                .map(Optional::get).findFirst();
+    private boolean isParameterSupported(Class<?> paramType) {
+        return extensions.stream().anyMatch(ext -> ext.supportedParameters().contains(paramType));
+    }
+
+    private Object getParameter(DependencyContext dependency) {
+        Optional<Object> parameter = extensions.stream().map(ext -> ext.getParameter(dependency))
+                .filter(Optional::isPresent).map(Optional::get).findFirst();
 
         if (!parameter.isPresent()) {
-            fail("Failed to inject: " + name);
+            fail("Failed to inject: " + dependency.getName());
         }
 
         return parameter.get();

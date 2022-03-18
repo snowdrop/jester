@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerPortBuilder;
 import io.fabric8.kubernetes.api.model.PodSpec;
@@ -17,6 +19,7 @@ import io.jcloud.core.ManagedResource;
 import io.jcloud.core.extensions.KubernetesExtensionBootstrap;
 import io.jcloud.logging.KubernetesLoggingHandler;
 import io.jcloud.logging.LoggingHandler;
+import io.jcloud.utils.FileUtils;
 import io.jcloud.utils.ManifestsUtils;
 
 public abstract class KubernetesManagedResource extends ManagedResource {
@@ -125,20 +128,26 @@ public abstract class KubernetesManagedResource extends ManagedResource {
 
     private void applyDeployment() {
         Deployment deployment = context.getOwner().getConfiguration().get(DEPLOYMENT_TEMPLATE_PROPERTY)
-                .map(f -> Serialization.unmarshal(f, Deployment.class)).orElseGet(Deployment::new);
+                .map(f -> Serialization.unmarshal(FileUtils.loadFile(f), Deployment.class)).orElseGet(Deployment::new);
 
         // Set service data
         initDeployment(deployment);
         Container container = deployment.getSpec().getTemplate().getSpec().getContainers().get(0);
         container.setName(context.getName());
-        container.setImage(getImage());
-        if (getCommand() != null && getCommand().length > 0) {
+        if (StringUtils.isEmpty(container.getImage())) {
+            container.setImage(getImage());
+        }
+
+        if (container.getCommand() != null && container.getCommand().size() > 0 && getCommand() != null
+                && getCommand().length > 0) {
             container.setCommand(Arrays.asList(getCommand()));
         }
 
         for (int port : getPorts()) {
-            container.getPorts()
-                    .add(new ContainerPortBuilder().withName("port-" + port).withContainerPort(port).build());
+            if (container.getPorts().stream().noneMatch(p -> p.getContainerPort() == port)) {
+                container.getPorts()
+                        .add(new ContainerPortBuilder().withName("port-" + port).withContainerPort(port).build());
+            }
         }
 
         // Enrich it
