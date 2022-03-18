@@ -26,7 +26,6 @@ public class DockerContainerManagedResource extends ManagedResource {
 
     private static final String PRIVILEGED_MODE = "container.privileged-mode";
     private static final String TARGET = "target";
-    private static final String SCENARIO_NETWORK = "internal.container.network";
 
     private final String image;
     private final String expectedLog;
@@ -50,8 +49,7 @@ public class DockerContainerManagedResource extends ManagedResource {
             return;
         }
 
-        network = context.getScenarioContext().getTestStore().getOrComputeIfAbsent(SCENARIO_NETWORK,
-                k -> new DockerScenarioNetwork(context.getScenarioContext()), DockerScenarioNetwork.class);
+        network = DockerScenarioNetwork.getOrCreate(context.getScenarioContext());
         network.attachService(context);
 
         innerContainer = new GenericContainer<>(image);
