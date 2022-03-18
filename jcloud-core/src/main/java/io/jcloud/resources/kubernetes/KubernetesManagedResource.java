@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -15,7 +16,10 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentSpec;
 import io.fabric8.kubernetes.client.utils.Serialization;
 import io.jcloud.api.clients.KubectlClient;
+import io.jcloud.configuration.KubernetesServiceConfiguration;
+import io.jcloud.configuration.KubernetesServiceConfigurationBuilder;
 import io.jcloud.core.ManagedResource;
+import io.jcloud.core.ServiceContext;
 import io.jcloud.core.extensions.KubernetesExtensionBootstrap;
 import io.jcloud.logging.KubernetesLoggingHandler;
 import io.jcloud.logging.LoggingHandler;
@@ -23,9 +27,6 @@ import io.jcloud.utils.FileUtils;
 import io.jcloud.utils.ManifestsUtils;
 
 public abstract class KubernetesManagedResource extends ManagedResource {
-
-    private static final String DEPLOYMENT_TEMPLATE_PROPERTY = "kubernetes.template";
-    private static final String USE_INTERNAL_SERVICE_AS_URL_PROPERTY = "kubernetes.use-internal-service-as-url";
 
     private static final String DEPLOYMENT = "kubernetes.yml";
 
@@ -108,6 +109,13 @@ public abstract class KubernetesManagedResource extends ManagedResource {
         return loggingHandler;
     }
 
+    @Override
+    protected void init(ServiceContext context) {
+        super.init(context);
+        context.loadCustomConfiguration(io.jcloud.configuration.KubernetesServiceConfiguration.class,
+                new KubernetesServiceConfigurationBuilder());
+    }
+
     protected String[] getCommand() {
         return null;
     }
@@ -127,7 +135,9 @@ public abstract class KubernetesManagedResource extends ManagedResource {
     }
 
     private void applyDeployment() {
-        Deployment deployment = context.getOwner().getConfiguration().get(DEPLOYMENT_TEMPLATE_PROPERTY)
+        Deployment deployment = Optional
+                .ofNullable(context.getConfigurationAs(KubernetesServiceConfiguration.class).getTemplate())
+                .filter(StringUtils::isNotEmpty)
                 .map(f -> Serialization.unmarshal(FileUtils.loadFile(f), Deployment.class)).orElseGet(Deployment::new);
 
         // Set service data
@@ -178,8 +188,7 @@ public abstract class KubernetesManagedResource extends ManagedResource {
     }
 
     private boolean useInternalServiceAsUrl() {
-        return Boolean.TRUE.toString()
-                .equals(context.getOwner().getConfiguration().get(USE_INTERNAL_SERVICE_AS_URL_PROPERTY));
+        return context.getConfigurationAs(KubernetesServiceConfiguration.class).isUseInternalService();
     }
 
 }

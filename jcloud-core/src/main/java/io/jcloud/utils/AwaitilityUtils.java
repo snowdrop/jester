@@ -24,7 +24,6 @@ import io.jcloud.logging.Log;
  */
 public final class AwaitilityUtils {
 
-    private static final String TIMEOUT_FACTOR_PROPERTY = "factor.timeout";
     private static final int POLL_SECONDS = 1;
     private static final int TIMEOUT_SECONDS = 30;
 
@@ -187,12 +186,12 @@ public final class AwaitilityUtils {
     }
 
     private static long timeoutInSeconds(AwaitilitySettings settings) {
-        double timeoutFactor = 1.0;
+        double factor = 1.0;
         if (settings.service != null) {
-            timeoutFactor = settings.service.getConfiguration().getAsDouble(TIMEOUT_FACTOR_PROPERTY, timeoutFactor);
+            factor = settings.service.getConfiguration().getFactorTimeout();
         }
 
-        return Math.round(settings.timeout.toSeconds() * timeoutFactor);
+        return Math.round(settings.timeout.toSeconds() * factor);
     }
 
     public static final class CustomConditionEvaluationListener implements ConditionEvaluationListener {

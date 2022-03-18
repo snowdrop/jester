@@ -8,16 +8,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.slf4j.bridge.SLF4JBridgeHandler;
-
-import io.jcloud.configuration.PropertyLookup;
+import io.jcloud.configuration.SpringServiceConfiguration;
+import io.jcloud.configuration.SpringServiceConfigurationBuilder;
 import io.jcloud.core.ServiceContext;
 import io.jcloud.logging.LoggingHandler;
 
 public class SpringResource {
-    private static final String EXPECTED_OUTPUT_DEFAULT = "initialization completed";
-    private static final PropertyLookup EXPECTED_OUTPUT = new PropertyLookup("spring.expected.log",
-            EXPECTED_OUTPUT_DEFAULT);
     private static final List<String> ERRORS = Arrays.asList("Application run failed");
     private static final String JVM_RUNNER = ".jar";
 
@@ -25,9 +21,8 @@ public class SpringResource {
     private final Path runner;
 
     public SpringResource(ServiceContext context) {
-        SLF4JBridgeHandler.removeHandlersForRootLogger();
-        SLF4JBridgeHandler.uninstall();
         this.context = context;
+        this.context.loadCustomConfiguration(SpringServiceConfiguration.class, new SpringServiceConfigurationBuilder());
         this.runner = findRunner().map(Path::of).orElseThrow(() -> new RuntimeException(
                 "Could not locate the Spring JAR file. You need to build the application before running the test."));
     }
@@ -49,7 +44,7 @@ public class SpringResource {
     }
 
     public String getExpectedLog() {
-        return EXPECTED_OUTPUT.get(context);
+        return context.getConfigurationAs(SpringServiceConfiguration.class).getExpectedLog();
     }
 
     private Optional<String> findRunner() {

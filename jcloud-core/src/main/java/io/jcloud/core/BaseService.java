@@ -16,15 +16,12 @@ import org.apache.commons.lang3.StringUtils;
 import io.jcloud.api.HookAction;
 import io.jcloud.api.Service;
 import io.jcloud.api.ServiceListener;
-import io.jcloud.configuration.Configuration;
+import io.jcloud.configuration.ServiceConfiguration;
 import io.jcloud.logging.Log;
 import io.jcloud.utils.FileUtils;
 import io.jcloud.utils.PropertiesUtils;
 
 public class BaseService<T extends Service> implements Service {
-
-    public static final String DELETE_FOLDER_ON_EXIT = "delete.folder.on.exit";
-
     private final ServiceLoader<ServiceListener> listeners = ServiceLoader.load(ServiceListener.class);
 
     private final List<HookAction> onPreStartHookActions = new LinkedList<>();
@@ -34,7 +31,6 @@ public class BaseService<T extends Service> implements Service {
 
     private ManagedResource managedResource;
     private String serviceName;
-    private Configuration configuration;
     private ServiceContext context;
     private boolean autoStart = true;
 
@@ -51,11 +47,6 @@ public class BaseService<T extends Service> implements Service {
     @Override
     public String getDisplayName() {
         return managedResource.getDisplayName();
-    }
-
-    @Override
-    public Configuration getConfiguration() {
-        return configuration;
     }
 
     @Override
@@ -121,6 +112,11 @@ public class BaseService<T extends Service> implements Service {
     @Override
     public int getMappedPort(int port) {
         return managedResource.getMappedPort(port);
+    }
+
+    @Override
+    public ServiceConfiguration getConfiguration() {
+        return context.getConfiguration();
     }
 
     @Override
@@ -190,7 +186,7 @@ public class BaseService<T extends Service> implements Service {
     public void close() {
         if (!context.getScenarioContext().isDebug()) {
             stop();
-            if (getConfiguration().isTrue(DELETE_FOLDER_ON_EXIT)) {
+            if (context.getConfiguration().isDeleteFolderOnClose()) {
                 try {
                     FileUtils.deletePath(getServiceFolder());
                 } catch (Exception ex) {
@@ -203,7 +199,6 @@ public class BaseService<T extends Service> implements Service {
     @Override
     public ServiceContext register(String serviceName, ScenarioContext context) {
         this.serviceName = serviceName;
-        this.configuration = Configuration.load(serviceName);
         this.context = new ServiceContext(this, context);
         onPreStart(s -> futureProperties.forEach(Runnable::run));
         context.getTestStore().put(serviceName, this);

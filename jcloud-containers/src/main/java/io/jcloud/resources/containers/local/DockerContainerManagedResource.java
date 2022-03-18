@@ -16,7 +16,10 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.utility.MountableFile;
 
+import io.jcloud.configuration.DockerServiceConfiguration;
+import io.jcloud.configuration.DockerServiceConfigurationBuilder;
 import io.jcloud.core.ManagedResource;
+import io.jcloud.core.ServiceContext;
 import io.jcloud.logging.Log;
 import io.jcloud.logging.LoggingHandler;
 import io.jcloud.logging.TestContainersLoggingHandler;
@@ -24,7 +27,6 @@ import io.jcloud.utils.PropertiesUtils;
 
 public class DockerContainerManagedResource extends ManagedResource {
 
-    private static final String PRIVILEGED_MODE = "container.privileged-mode";
     private static final String TARGET = "target";
 
     private final String image;
@@ -70,8 +72,7 @@ public class DockerContainerManagedResource extends ManagedResource {
         innerContainer.withExposedPorts(ports);
         innerContainer.withNetwork(network);
         innerContainer.withNetworkAliases(context.getName());
-        innerContainer.withStartupTimeout(context.getOwner().getConfiguration().getAsDuration(SERVICE_STARTUP_TIMEOUT,
-                SERVICE_STARTUP_TIMEOUT_DEFAULT));
+        innerContainer.withStartupTimeout(context.getConfiguration().getStartupTimeout());
         innerContainer.withEnv(resolveProperties());
 
         loggingHandler = new TestContainersLoggingHandler(context.getOwner(), innerContainer);
@@ -117,8 +118,15 @@ public class DockerContainerManagedResource extends ManagedResource {
         return loggingHandler;
     }
 
+    @Override
+    protected void init(ServiceContext context) {
+        super.init(context);
+        context.loadCustomConfiguration(io.jcloud.configuration.DockerServiceConfiguration.class,
+                new DockerServiceConfigurationBuilder());
+    }
+
     private boolean isPrivileged() {
-        return context.getOwner().getConfiguration().isTrue(PRIVILEGED_MODE);
+        return context.getConfigurationAs(DockerServiceConfiguration.class).isPrivileged();
     }
 
     private void doStart() {

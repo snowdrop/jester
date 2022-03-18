@@ -8,7 +8,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
 import io.jcloud.api.extensions.AnnotationBinding;
-import io.jcloud.configuration.Configuration;
 import io.jcloud.core.ManagedResource;
 import io.jcloud.core.ScenarioContext;
 import io.jcloud.core.ServiceContext;
@@ -22,7 +21,7 @@ public interface Service extends ExtensionContext.Store.CloseableResource {
 
     String getDisplayName();
 
-    Configuration getConfiguration();
+    io.jcloud.configuration.ServiceConfiguration getConfiguration();
 
     Map<String, String> getProperties();
 

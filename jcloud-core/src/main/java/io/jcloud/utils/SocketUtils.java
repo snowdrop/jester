@@ -5,21 +5,12 @@ import java.net.ServerSocket;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.jcloud.api.PortResolutionStrategy;
 import io.jcloud.api.Service;
-import io.jcloud.configuration.PropertyLookup;
 
 public final class SocketUtils {
 
-    private static final PropertyLookup PORT_RANGE_MIN_PROPERTY = new PropertyLookup("port.range.min", "1100");
-    private static final PropertyLookup PORT_RANGE_MAX_PROPERTY = new PropertyLookup("port.range.max", "49151");
-    private static final PropertyLookup PORT_RESOLUTION_STRATEGY_PROPERTY = new PropertyLookup(
-            "port.resolution.strategy");
-
-    private static final int PORT_RANGE_MIN = PORT_RANGE_MIN_PROPERTY.getAsInteger();
-    private static final int PORT_RANGE_MAX = PORT_RANGE_MAX_PROPERTY.getAsInteger();
-    private static final String PORT_RESOLUTION_RANDOM_STRATEGY = "random";
-
-    private static final AtomicInteger CURRENT_MIN_PORT = new AtomicInteger(PORT_RANGE_MIN);
+    private static final AtomicInteger CURRENT_MIN_PORT = new AtomicInteger(0);
     private static final Random RND = new Random(System.nanoTime());
 
     private SocketUtils() {
@@ -27,46 +18,51 @@ public final class SocketUtils {
     }
 
     public static synchronized int findAvailablePort(Service service) {
-        if (PORT_RESOLUTION_RANDOM_STRATEGY.equals(PORT_RESOLUTION_STRATEGY_PROPERTY.get(service))) {
-            return findRandomAvailablePort();
+        if (service.getConfiguration().getPortResolutionStrategy() == PortResolutionStrategy.RANDOM) {
+            return findRandomAvailablePort(service);
         }
 
-        return findNextAvailablePort();
+        return findNextAvailablePort(service);
     }
 
-    public static int findRandomAvailablePort() {
-        int portRange = PORT_RANGE_MAX - PORT_RANGE_MIN;
+    public static int findRandomAvailablePort(Service service) {
+        int portRange = portRangeMax(service) - portRangeMin(service);
         int candidatePort;
         int searchCounter = 0;
         do {
             if (searchCounter > portRange) {
                 throw new IllegalStateException(
                         String.format("Could not find an available port in the range [%d, %d] after %d attempts",
-                                PORT_RANGE_MIN, PORT_RANGE_MAX, searchCounter));
+                                portRangeMin(service), portRangeMax(service), searchCounter));
             }
 
-            candidatePort = PORT_RANGE_MIN + RND.nextInt((PORT_RANGE_MAX - PORT_RANGE_MIN) + 1);
+            candidatePort = portRangeMin(service) + RND.nextInt((portRangeMax(service) - portRangeMin(service)) + 1);
             searchCounter++;
-        } while (!isPortAvailable(candidatePort));
+        } while (!isPortAvailable(service, candidatePort));
 
         return candidatePort;
     }
 
-    public static synchronized int findNextAvailablePort() {
+    public static synchronized int findNextAvailablePort(Service service) {
+        int portRangeMin = portRangeMin(service);
         int candidate;
         do {
+            if (CURRENT_MIN_PORT.get() < portRangeMin) {
+                CURRENT_MIN_PORT.set(portRangeMin);
+            }
+
             candidate = CURRENT_MIN_PORT.incrementAndGet();
-            if (isPortAvailable(candidate)) {
+            if (isPortAvailable(service, candidate)) {
                 return candidate;
             }
-        } while (candidate <= PORT_RANGE_MAX);
+        } while (candidate <= portRangeMax(service));
 
         throw new IllegalStateException(String.format("Could not find an available port in the range [%d, %d]",
-                PORT_RANGE_MIN, PORT_RANGE_MAX));
+                portRangeMin, portRangeMax(service)));
     }
 
-    private static boolean isPortAvailable(int port) {
-        if (port < PORT_RANGE_MIN || port > PORT_RANGE_MAX) {
+    private static boolean isPortAvailable(Service service, int port) {
+        if (port < portRangeMin(service) || port > portRangeMax(service)) {
             throw new IllegalArgumentException("Invalid start port: " + port);
         }
 
@@ -78,6 +74,14 @@ public final class SocketUtils {
         }
 
         return false;
+    }
+
+    private static int portRangeMin(Service service) {
+        return service.getConfiguration().getPortRangeMin();
+    }
+
+    private static int portRangeMax(Service service) {
+        return service.getConfiguration().getPortRangeMax();
     }
 
 }

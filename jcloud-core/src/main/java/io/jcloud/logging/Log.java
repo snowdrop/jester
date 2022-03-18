@@ -19,17 +19,15 @@ import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 
 import io.jcloud.api.Service;
-import io.jcloud.configuration.PropertyLookup;
 import io.jcloud.core.JCloudExtension;
 
 public final class Log {
-    public static final PropertyLookup LOG_LEVEL = new PropertyLookup("log.level");
-    public static final PropertyLookup LOG_FORMAT = new PropertyLookup("log.format");
-    public static final PropertyLookup LOG_FILE_OUTPUT = new PropertyLookup("log.file.output");
-    public static final PropertyLookup LOG_NO_COLOR = new PropertyLookup("log.nocolor", "false");
+
+    public static final String LOG_LEVEL = System.getProperty("log.level", "INFO");
+    public static final String LOG_FORMAT = System.getProperty("log.format", "[%1$tT.%tL] [%4$s] %5$s %6$s%n");
+    public static final boolean LOG_NO_COLOR = Boolean.parseBoolean(System.getProperty("log.disable-color", "false"));
 
     public static final String LOG_SUFFIX = ".log";
-    public static final String LOG_LEVEL_NAME = "log.level";
 
     private static final Service NO_SERVICE = null;
     private static final String COLOR_RESET = "\u001b[0m";
@@ -94,8 +92,8 @@ public final class Log {
             // ignore
         }
 
-        String logPattern = LOG_FORMAT.get();
-        Level level = Level.parse(LOG_LEVEL.get());
+        String logPattern = LOG_FORMAT;
+        Level level = Level.parse(LOG_LEVEL);
 
         // Configure logger handlers
         Logger logger = LogManager.getLogManager().getLogger(Log.class.getName());
@@ -131,7 +129,7 @@ public final class Log {
         }
 
         String message = inBrackets(service) + logMessage;
-        if (!LOG_NO_COLOR.getAsBoolean()) {
+        if (!LOG_NO_COLOR) {
             message = textColor + message + COLOR_RESET;
         }
 
@@ -143,8 +141,7 @@ public final class Log {
             return false;
         }
 
-        return service.getConfiguration().get(LOG_LEVEL_NAME).filter(StringUtils::isNotEmpty).map(Level::parse)
-                .map(configLevel -> configLevel.intValue() <= level.intValue()).orElse(false);
+        return service.getConfiguration().getLogLevel().intValue() <= level.intValue();
     }
 
     private static synchronized String findColorForText(Level level, Service service) {
