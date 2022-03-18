@@ -16,6 +16,8 @@ import io.jcloud.core.ServiceContext;
 
 public class DockerScenarioNetwork implements Network, ExtensionContext.Store.CloseableResource {
 
+    private static final String SCENARIO_NETWORK = "internal.container.network";
+
     private final ScenarioContext scenario;
     private final Set<ServiceContext> services = new HashSet<>();
 
@@ -50,6 +52,8 @@ public class DockerScenarioNetwork implements Network, ExtensionContext.Store.Cl
             DockerClientFactory.instance().client().removeNetworkCmd(scenario.getId()).exec();
         } catch (Exception ignored) {
         }
+
+        scenario.getTestStore().remove(SCENARIO_NETWORK);
     }
 
     @Override
@@ -58,7 +62,8 @@ public class DockerScenarioNetwork implements Network, ExtensionContext.Store.Cl
         return statement;
     }
 
-    private void closeSilently(ExtensionContext.Store.CloseableResource closeable) {
-
+    public static final DockerScenarioNetwork getOrCreate(ScenarioContext context) {
+        return context.getTestStore().getOrComputeIfAbsent(SCENARIO_NETWORK, k -> new DockerScenarioNetwork(context),
+                DockerScenarioNetwork.class);
     }
 }

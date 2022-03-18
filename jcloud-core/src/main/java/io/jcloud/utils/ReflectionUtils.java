@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public final class ReflectionUtils {
 
@@ -16,30 +17,29 @@ public final class ReflectionUtils {
 
     }
 
-    public static <T> T getStaticFieldValue(Field field) {
+    public static boolean isStatic(Field field) {
+        return Modifier.isStatic(field.getModifiers());
+    }
+
+    public static boolean isInstance(Field field) {
+        return !isStatic(field);
+    }
+
+    public static <T> T getFieldValue(Optional<Object> testInstance, Field field) {
         try {
             field.setAccessible(true);
-            return (T) field.get(null);
+            return (T) field.get(testInstance.orElse(null));
         } catch (IllegalAccessException e) {
-            throw new RuntimeException(
-                    "Can't resolve field value. Fields need to be in static. Problematic field: " + field.getName(), e);
+            throw new RuntimeException("Can't resolve field value. Problematic field: " + field.getName(), e);
         }
     }
 
-    public static void setStaticFieldValue(Field field, Object value) {
+    public static void setFieldValue(Optional<Object> testInstance, Field field, Object value) {
         field.setAccessible(true);
-        if (Modifier.isStatic(field.getModifiers())) {
-            try {
-                field.set(null, value);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(
-                        "Couldn't set value. Fields can only be injected into static instances. Problematic field: "
-                                + field.getName(),
-                        e);
-            }
-        } else {
-            throw new RuntimeException(
-                    "Fields can only be injected into static instances. Problematic field: " + field.getName());
+        try {
+            field.set(testInstance.orElse(null), value);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Couldn't set value. Problematic field: " + field.getName(), e);
         }
     }
 
@@ -49,7 +49,8 @@ public final class ReflectionUtils {
         }
 
         List<Annotation> annotations = new ArrayList<>();
-        annotations.addAll(findAllAnnotations(clazz.getSuperclass()));
+        Optional.ofNullable(clazz.getSuperclass()).ifPresent(c -> annotations.addAll(findAllAnnotations(c)));
+        Optional.ofNullable(clazz.getEnclosingClass()).ifPresent(c -> annotations.addAll(findAllAnnotations(c)));
         annotations.addAll(Arrays.asList(clazz.getAnnotations()));
         return annotations;
     }
@@ -60,7 +61,8 @@ public final class ReflectionUtils {
         }
 
         List<Field> fields = new ArrayList<>();
-        fields.addAll(findAllFields(clazz.getSuperclass()));
+        Optional.ofNullable(clazz.getSuperclass()).ifPresent(c -> fields.addAll(findAllFields(c)));
+        Optional.ofNullable(clazz.getEnclosingClass()).ifPresent(c -> fields.addAll(findAllFields(c)));
         fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
         return fields;
     }

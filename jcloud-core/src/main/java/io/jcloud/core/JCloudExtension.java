@@ -13,6 +13,7 @@ import java.util.ServiceLoader.Provider;
 
 import javax.inject.Inject;
 
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.LifecycleMethodExecutionExceptionHandler;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolver;
+import org.junit.jupiter.api.extension.TestInstances;
 import org.junit.jupiter.api.extension.TestWatcher;
 
 import io.jcloud.api.LookupService;
@@ -52,19 +54,13 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
         extensions = initExtensions();
         extensions.forEach(ext -> ext.beforeAll(scenario));
 
-        // Init services from test fields
-        ReflectionUtils.findAllFields(context.getRequiredTestClass())
-                .forEach(field -> initResourceFromField(context, field));
-
         // Init services from class annotations
         ReflectionUtils.findAllAnnotations(context.getRequiredTestClass())
                 .forEach(annotation -> initServiceFromAnnotation(context, annotation));
 
-        // Launch services
-        services.forEach(service -> {
-            extensions.forEach(ext -> ext.updateServiceContext(service));
-            launchService(service.getOwner());
-        });
+        // Init services from static fields
+        ReflectionUtils.findAllFields(context.getRequiredTestClass()).stream().filter(ReflectionUtils::isStatic)
+                .forEach(field -> initResourceFromField(context, field));
     }
 
     @Override
@@ -74,6 +70,7 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
             Collections.reverse(servicesToFinish);
             servicesToFinish.forEach(s -> s.getOwner().close());
             deleteLogIfScenarioPassed();
+            services.clear();
         } finally {
             extensions.forEach(ext -> ext.afterAll(scenario));
         }
@@ -81,6 +78,10 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
 
     @Override
     public void beforeEach(ExtensionContext context) {
+        // Init services from instance fields
+        ReflectionUtils.findAllFields(context.getRequiredTestClass()).stream().filter(ReflectionUtils::isInstance)
+                .forEach(field -> initResourceFromField(context, field));
+
         Log.info("## Running test " + context.getParent().map(ctx -> ctx.getDisplayName() + ".").orElse("")
                 + context.getDisplayName());
         scenario.setMethodTestContext(context);
@@ -93,7 +94,13 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
     }
 
     @Override
-    public void afterEach(ExtensionContext extensionContext) {
+    public void afterEach(ExtensionContext context) {
+        if (!isClassLifecycle(context)) {
+            // Stop services from instance fields
+            ReflectionUtils.findAllFields(context.getRequiredTestClass()).stream().filter(ReflectionUtils::isInstance)
+                    .forEach(field -> stopServiceFromField(context, field));
+        }
+
         extensions.forEach(ext -> ext.afterEach(scenario));
     }
 
@@ -170,10 +177,10 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
         if (field.isAnnotationPresent(LookupService.class)) {
             initLookupService(context, field);
         } else if (Service.class.isAssignableFrom(field.getType())) {
-            Service service = ReflectionUtils.getStaticFieldValue(field);
+            Service service = ReflectionUtils.getFieldValue(findTestInstance(context, field), field);
             initService(context, service, field.getName(), field.getAnnotations());
         } else if (field.isAnnotationPresent(Inject.class)) {
-            injectDependency(field);
+            injectDependency(context, field);
         }
     }
 
@@ -187,7 +194,15 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
         }
     }
 
-    private void injectDependency(Field field) {
+    private void stopServiceFromField(ExtensionContext context, Field field) {
+        if (Service.class.isAssignableFrom(field.getType())) {
+            Service service = ReflectionUtils.getFieldValue(findTestInstance(context, field), field);
+            service.stop();
+            services.removeIf(s -> service.getName().equals(s.getName()));
+        }
+    }
+
+    private void injectDependency(ExtensionContext context, Field field) {
         Object fieldValue;
         if (ScenarioContext.class.equals(field.getType())) {
             fieldValue = scenario;
@@ -195,7 +210,7 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
             fieldValue = getParameter(field.getName(), field.getType());
         }
 
-        ReflectionUtils.setStaticFieldValue(field, fieldValue);
+        ReflectionUtils.setFieldValue(findTestInstance(context, field), field, fieldValue);
     }
 
     private void initService(ExtensionContext context, Service service, String name, Annotation... annotations) {
@@ -220,6 +235,9 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
         ServiceContext serviceContext = service.register(name, scenario);
         service.init(resource);
         services.add(serviceContext);
+
+        extensions.forEach(ext -> ext.updateServiceContext(serviceContext));
+        launchService(service);
     }
 
     private Optional<AnnotationBinding> getAnnotationBinding(Annotation... annotations) {
@@ -245,9 +263,9 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
         }
 
         Field field = fieldService.get();
-        Service service = ReflectionUtils.getStaticFieldValue(field);
+        Service service = ReflectionUtils.getFieldValue(findTestInstance(context, field), field);
         initService(context, service, field.getName(), field.getAnnotations());
-        ReflectionUtils.setStaticFieldValue(fieldToInject, service);
+        ReflectionUtils.setFieldValue(findTestInstance(context, fieldToInject), fieldToInject, service);
     }
 
     private Object getParameter(String name, Class<?> clazz) {
@@ -276,5 +294,24 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
         if (!scenario.isFailed()) {
             scenario.getLogFile().toFile().delete();
         }
+    }
+
+    private boolean isClassLifecycle(ExtensionContext context) {
+        if (context.getTestInstanceLifecycle().isPresent()) {
+            return context.getTestInstanceLifecycle().get() == TestInstance.Lifecycle.PER_CLASS;
+        } else if (context.getParent().isPresent()) {
+            return isClassLifecycle(context.getParent().get());
+        }
+
+        return false;
+    }
+
+    private Optional<Object> findTestInstance(ExtensionContext context, Field field) {
+        Optional<TestInstances> testInstances = context.getTestInstances();
+        if (testInstances.isPresent()) {
+            return testInstances.get().findInstance((Class<Object>) field.getDeclaringClass());
+        }
+
+        return context.getTestInstance();
     }
 }
