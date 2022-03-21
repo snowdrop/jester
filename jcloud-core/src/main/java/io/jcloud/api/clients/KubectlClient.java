@@ -5,12 +5,14 @@ import static io.jcloud.utils.ManifestsUtils.LABEL_TO_WATCH_FOR_LOGS;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -217,6 +219,20 @@ public final class KubectlClient {
         return serviceModel.getSpec().getPorts().stream().filter(Objects::nonNull)
                 .filter(s -> s.getTargetPort().getIntVal() == port).map(ServicePort::getPort).findFirst()
                 .orElse(HTTP_PORT_DEFAULT);
+    }
+
+    /**
+     * @return events of the namespace.
+     */
+    public String getEvents() {
+        List<String> output = new ArrayList<>();
+        try {
+            new Command(KUBECTL, "get", "events", "-n", currentNamespace).outputToLines(output).runAndWait();
+        } catch (Exception ex) {
+            Log.warn("Failed to get namespace events", ex);
+        }
+
+        return output.stream().collect(Collectors.joining(System.lineSeparator()));
     }
 
     /**

@@ -27,10 +27,10 @@ public final class ServiceConfigurationLoader {
     public static <T extends Annotation, C> C load(String scope, ScenarioContext scenarioContext,
             BaseConfigurationBuilder<T, C> builder) {
         Map<String, String> properties = new HashMap<>();
-        if (GLOBAL_SCOPE.equals(scope)) {
-            // Lowest priority: properties from global.properties and scope `global`
-            properties.putAll(loadPropertiesFrom(GLOBAL_PROPERTIES, GLOBAL_SCOPE));
-        }
+        // Lowest priority: properties from global.properties and scope `global`
+        properties.putAll(loadPropertiesFrom(GLOBAL_PROPERTIES, GLOBAL_SCOPE));
+        // Then, system properties with scope global
+        properties.putAll(loadPropertiesFromSystemProperties(GLOBAL_SCOPE));
 
         // Then, properties from test.properties and scope as service name
         properties.putAll(loadPropertiesFrom(TEST_PROPERTIES, scope));
