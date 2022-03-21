@@ -66,4 +66,15 @@ public @interface ServiceConfiguration {
      * NAME>.port.resolution.strategy". Fallback global property: "ts.global.port.resolution.strategy"
      */
     String portResolutionStrategy() default "incremental";
+
+    /**
+     * Configure the image registry to use for services.
+     * <p>
+     * Fallback service property: "ts.services.<SERVICE NAME>.image.registry" Fallback global property:
+     * "ts.global.image.registry"
+     * <p>
+     * The default registry is based on the default setup in Kind. It's convenient to set it as default to run tests
+     * directly from the IDE.
+     */
+    String imageRegistry() default "localhost:5000";
 }

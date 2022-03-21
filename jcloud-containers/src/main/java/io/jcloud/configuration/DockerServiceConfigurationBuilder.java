@@ -11,9 +11,9 @@ public final class DockerServiceConfigurationBuilder
 
     @Override
     public DockerServiceConfiguration build() {
-        DockerServiceConfiguration serviceConfiguration = new DockerServiceConfiguration();
-        loadBoolean(PRIVILEGED_MODE, a -> a.privileged()).ifPresent(serviceConfiguration::setPrivileged);
-        return serviceConfiguration;
+        DockerServiceConfiguration config = new DockerServiceConfiguration();
+        loadBoolean(PRIVILEGED_MODE, a -> a.privileged()).ifPresent(config::setPrivileged);
+        return config;
     }
 
     @Override
