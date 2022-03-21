@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -50,6 +51,19 @@ public final class PropertiesUtils {
 
     public static Optional<String> get(Map<String, String> properties, String property) {
         return Optional.ofNullable(properties.get(property));
+    }
+
+    public static String[] resolveProperties(String[] values) {
+        if (values == null || values.length == 0) {
+            return values;
+        }
+
+        String[] newValues = Arrays.copyOf(values, values.length);
+        for (int index = 0; index < values.length; index++) {
+            newValues[index] = resolveProperty(newValues[index]);
+        }
+
+        return newValues;
     }
 
     /**

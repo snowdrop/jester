@@ -3,17 +3,11 @@ package io.jcloud.utils;
 import static java.util.regex.Pattern.quote;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import io.jcloud.core.ServiceContext;
 
 public final class DockerUtils {
-    public static final String CONTAINER_REGISTRY_URL_PROPERTY = "ts.container.registry-url";
-    /**
-     * This value is the default registry when setting up Kind with Registry. It's convenient to set it as default to
-     * run tests directly from the IDE.
-     */
-    public static final String DEFAULT_CONTAINER_REGISTRY_URL = "localhost:5000";
-
     private static final String DOCKER = "docker";
     private static final String DOCKERFILE = "Dockerfile";
 
@@ -33,29 +27,30 @@ public final class DockerUtils {
 
         Path dockerfilePath = FileUtils.copyContentTo(dockerfileContent,
                 service.getServiceFolder().resolve(DOCKERFILE));
-        buildService(service, dockerfilePath);
-        return pushToContainerRegistryUrl(service);
+        String image = build(service, dockerfilePath.toString(), Paths.get("").toString());
+        push(service);
+        return image;
     }
 
-    private static void buildService(ServiceContext service, Path dockerFile) {
+    public static String build(ServiceContext service, String dockerfile, String directory) {
+        String image = service.getConfiguration().getImageRegistry() + "/" + getUniqueName(service);
         try {
-            new Command(DOCKER, "build", "-f", dockerFile.toString(), "-t", getUniqueName(service), ".").runAndWait();
+            new Command(DOCKER, "build", "-f", Path.of(dockerfile).toFile().getAbsoluteFile().toString(), "-t", image,
+                    ".").onDirectory(directory).runAndWait();
         } catch (Exception e) {
             throw new RuntimeException("Failed to build image " + service.getServiceFolder().toAbsolutePath(), e);
         }
+
+        return image;
     }
 
-    private static String pushToContainerRegistryUrl(ServiceContext service) {
-        String containerRegistryUrl = System.getProperty(CONTAINER_REGISTRY_URL_PROPERTY,
-                DEFAULT_CONTAINER_REGISTRY_URL);
+    public static void push(ServiceContext service) {
         try {
-            String targetImage = containerRegistryUrl + "/" + getUniqueName(service);
-            new Command(DOCKER, "tag", getUniqueName(service), targetImage).runAndWait();
-            new Command(DOCKER, "push", targetImage).runAndWait();
-            return targetImage;
+            new Command(DOCKER, "push", service.getConfiguration().getImageRegistry() + "/" + getUniqueName(service))
+                    .runAndWait();
         } catch (Exception e) {
-            throw new RuntimeException(
-                    "Failed to push image " + service.getOwner().getName() + " into " + containerRegistryUrl, e);
+            throw new RuntimeException("Failed to push image " + service.getOwner().getName() + " into "
+                    + service.getConfiguration().getImageRegistry(), e);
         }
     }
 

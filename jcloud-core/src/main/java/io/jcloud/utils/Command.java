@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
@@ -72,8 +71,8 @@ public class Command {
         return this;
     }
 
-    public Command onDirectory(Path path) {
-        directory = path.toString();
+    public Command onDirectory(String directory) {
+        this.directory = directory;
         return this;
     }
 

@@ -40,6 +40,14 @@ public final class FileUtils {
         }
     }
 
+    public static void copyDirectoryTo(Path source, Path target) {
+        try {
+            org.apache.commons.io.FileUtils.copyDirectory(source.toFile(), target.toFile());
+        } catch (IOException e) {
+            throw new RuntimeException("Could not copy project.", e);
+        }
+    }
+
     public static String loadFile(File file) {
         try {
             return org.apache.commons.io.FileUtils.readFileToString(file, StandardCharsets.UTF_8);

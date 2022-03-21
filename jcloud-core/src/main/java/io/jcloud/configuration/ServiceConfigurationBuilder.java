@@ -18,6 +18,7 @@ public class ServiceConfigurationBuilder
     private static final String PORT_RANGE_MIN = "port.range.min";
     private static final String PORT_RANGE_MAX = "port.range.max";
     private static final String PORT_RESOLUTION_STRATEGY = "port.resolution.strategy";
+    private static final String IMAGE_REGISTRY = "image.registry";
 
     @Override
     public ServiceConfiguration build() {
@@ -33,6 +34,7 @@ public class ServiceConfigurationBuilder
         loadInteger(PORT_RANGE_MAX, a -> a.portRangeMax()).ifPresent(config::setPortRangeMax);
         loadString(PORT_RESOLUTION_STRATEGY, a -> a.portResolutionStrategy()).map(String::toUpperCase)
                 .map(PortResolutionStrategy::valueOf).ifPresent(config::setPortResolutionStrategy);
+        loadString(IMAGE_REGISTRY, a -> a.imageRegistry()).ifPresent(config::setImageRegistry);
         return config;
     }
 

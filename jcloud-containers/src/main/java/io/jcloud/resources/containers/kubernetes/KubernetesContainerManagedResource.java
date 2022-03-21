@@ -14,7 +14,7 @@ public class KubernetesContainerManagedResource extends KubernetesManagedResourc
 
     public KubernetesContainerManagedResource(String image, String expectedLog, String[] command, int[] ports) {
         this.image = PropertiesUtils.resolveProperty(image);
-        this.command = command;
+        this.command = PropertiesUtils.resolveProperties(command);
         this.expectedLog = PropertiesUtils.resolveProperty(expectedLog);
         this.ports = Arrays.stream(ports).boxed().toArray(Integer[]::new);
     }

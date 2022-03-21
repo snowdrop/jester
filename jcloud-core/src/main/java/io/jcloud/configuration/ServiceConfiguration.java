@@ -17,6 +17,7 @@ public final class ServiceConfiguration {
     private int portRangeMin = 1100;
     private int portRangeMax = 49151;
     private PortResolutionStrategy portResolutionStrategy = PortResolutionStrategy.INCREMENTAL;
+    private String imageRegistry = "localhost:5000";
 
     public Duration getStartupTimeout() {
         return startupTimeout;
@@ -88,5 +89,13 @@ public final class ServiceConfiguration {
 
     public void setPortResolutionStrategy(PortResolutionStrategy portResolutionStrategy) {
         this.portResolutionStrategy = portResolutionStrategy;
+    }
+
+    public String getImageRegistry() {
+        return imageRegistry;
+    }
+
+    public void setImageRegistry(String imageRegistry) {
+        this.imageRegistry = imageRegistry;
     }
 }
