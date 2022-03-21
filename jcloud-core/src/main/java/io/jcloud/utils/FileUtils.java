@@ -77,6 +77,12 @@ public final class FileUtils {
         }
     }
 
+    public static void createDirectoryIfDoesNotExist(Path folder) {
+        if (!Files.exists(folder)) {
+            folder.toFile().mkdirs();
+        }
+    }
+
     public static void deletePath(Path folder) {
         deleteFile(folder.toFile());
     }

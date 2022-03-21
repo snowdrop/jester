@@ -26,6 +26,12 @@ import io.jcloud.utils.FileUtils;
 public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
     public static final String CLIENT = "kubectl-client";
 
+    private static final boolean PRINT_INFO_ON_ERROR = Boolean
+            .parseBoolean(System.getProperty("ts.kubernetes.print.info.on.error", Boolean.TRUE.toString()));
+
+    private static final boolean PRINT_INFO_CONSOLE_ON_ERROR = Boolean
+            .parseBoolean(System.getProperty("ts.kubernetes.print.info.console.on.error", Boolean.TRUE.toString()));
+
     private static final boolean DELETE_NAMESPACE_AFTER = Boolean
             .parseBoolean(System.getProperty("ts.kubernetes.delete.namespace.after.all", Boolean.TRUE.toString()));
 
@@ -88,10 +94,34 @@ public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
 
     @Override
     public void onError(ScenarioContext context, Throwable throwable) {
+        if (PRINT_INFO_ON_ERROR) {
+            if (PRINT_INFO_CONSOLE_ON_ERROR) {
+                Log.error("Scenario " + context.getRunningTestClassName()
+                        + " failed. Printing diagnosis information from Kubernetes... ");
+            }
+
+            FileUtils.createDirectoryIfDoesNotExist(logsTestFolder(context));
+            printEvents(context);
+            printPodLogs(context);
+        }
+    }
+
+    private void printEvents(ScenarioContext context) {
+        String events = client.getEvents();
+        FileUtils.copyContentTo(events, logsTestFolder(context).resolve("events" + Log.LOG_SUFFIX));
+        if (PRINT_INFO_CONSOLE_ON_ERROR) {
+            Log.error(events);
+        }
+    }
+
+    private void printPodLogs(ScenarioContext context) {
         Map<String, String> logs = client.logs();
         for (Entry<String, String> podLog : logs.entrySet()) {
             FileUtils.copyContentTo(podLog.getValue(),
                     logsTestFolder(context).resolve(podLog.getKey() + Log.LOG_SUFFIX));
+            if (PRINT_INFO_CONSOLE_ON_ERROR) {
+                Log.error("Pod[%s]: '%s'", podLog.getKey(), podLog.getValue());
+            }
         }
     }
 
