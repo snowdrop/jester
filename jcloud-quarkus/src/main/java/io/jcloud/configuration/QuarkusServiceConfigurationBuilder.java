@@ -7,7 +7,7 @@ import io.jcloud.core.ScenarioContext;
 public final class QuarkusServiceConfigurationBuilder
         extends BaseConfigurationBuilder<io.jcloud.api.QuarkusServiceConfiguration, QuarkusServiceConfiguration> {
 
-    private static final String EXPECTED_OUTPUT = "quarkus.expected.log";
+    private static final String EXPECTED_OUTPUT = "quarkus.expected-log";
 
     @Override
     public QuarkusServiceConfiguration build() {

@@ -16,15 +16,14 @@ public @interface KubernetesServiceConfiguration {
 
     /**
      * Template for the initial deployment resource. Fallback service property: "ts.services.<SERVICE
-     * NAME>.kubernetes.template" Fallback global property: "ts.global.kubernetes.template"
+     * NAME>.kubernetes.template".
      */
     String template() default "";
 
     /**
      * Use internal routing instead of exposed network interfaces. This is useful to integration several services that
      * are running as part of the same namespace or network. Fallback service property: "ts.services.<SERVICE
-     * NAME>.kubernetes.use-internal-service-as-url" Fallback global property:
-     * "ts.global.kubernetes.use-internal-service-as-url"
+     * NAME>.kubernetes.use-internal-service-as-url".
      */
     boolean useInternalService() default false;
 }

@@ -7,7 +7,7 @@ import io.jcloud.core.ScenarioContext;
 public final class SpringServiceConfigurationBuilder
         extends BaseConfigurationBuilder<io.jcloud.api.SpringServiceConfiguration, SpringServiceConfiguration> {
 
-    private static final String EXPECTED_OUTPUT = "spring.expected.log";
+    private static final String EXPECTED_OUTPUT = "spring.expected-log";
 
     @Override
     public SpringServiceConfiguration build() {

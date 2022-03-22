@@ -53,15 +53,15 @@ jobs:
           distribution: 'temurin'
           java-version: ${{ matrix.java }}
           check-latest: true
-      - name: Generate Samples images
+      - name: Generate Images
         run: |
-          cd samples
+          cd images
           mvn clean install -Dsamples.container-image.registry=$KIND_REGISTRY -Dsamples.container-image.push=true
       - name: Build
         run: |
           mvn -s .github/mvn-settings.xml clean install -Pframework -Dexamples -Dcoverage -Dvalidate-format \
             -Dsamples.container-image.registry=$KIND_REGISTRY \
-            -Dts.global.image.registry=$KIND_REGISTRY \
+            -Dts.services.all.image.registry=$KIND_REGISTRY \
             -Dexclude.kubernetes.tests=no
       - name: Zip Artifacts
         run: |

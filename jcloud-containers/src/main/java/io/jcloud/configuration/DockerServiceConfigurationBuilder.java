@@ -7,7 +7,7 @@ import io.jcloud.core.ScenarioContext;
 public final class DockerServiceConfigurationBuilder
         extends BaseConfigurationBuilder<io.jcloud.api.DockerServiceConfiguration, DockerServiceConfiguration> {
 
-    private static final String PRIVILEGED_MODE = "container.privileged-mode";
+    private static final String PRIVILEGED_MODE = "docker.privileged-mode";
 
     @Override
     public DockerServiceConfiguration build() {

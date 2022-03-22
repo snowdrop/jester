@@ -17,8 +17,7 @@ public @interface DockerServiceConfiguration {
     /**
      * Configure the running container using privileged mode.
      * <p>
-     * Fallback service property: "ts.services.<SERVICE NAME>.container.privileged-mode" Fallback global property:
-     * "ts.global.container.privileged-mode"
+     * Fallback service property: "ts.services.<SERVICE NAME>.docker.privileged-mode".
      */
     boolean privileged() default false;
 }

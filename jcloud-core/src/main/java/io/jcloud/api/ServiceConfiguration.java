@@ -16,31 +16,30 @@ public @interface ServiceConfiguration {
 
     /**
      * Default startup timeout for services is 5 minutes. Fallback service property: "ts.services.<SERVICE
-     * NAME>.startup.timeout" Fallback global property: "ts.global.startup.timeout"
+     * NAME>.startup.timeout".
      */
     String startupTimeout() default "";
 
     /**
      * Default startup check poll interval is every 2 seconds. Fallback service property: "ts.services.<SERVICE
-     * NAME>.startup.check-poll-interval" Fallback global property: "ts.global.startup.check-poll-interval"
+     * NAME>.startup.check-poll-interval".
      */
     String startupCheckPollInterval() default "";
 
     /**
-     * Default timeout factor for all checks. Fallback service property: "ts.services.<SERVICE NAME>.factor.timeout"
-     * Fallback global property: "ts.global.factor.timeout"
+     * Default timeout factor for all checks. Fallback service property: "ts.services.<SERVICE NAME>.factor.timeout".
      */
     double factorTimeout() default 1.0;
 
     /**
      * Delete /target/{service name} folder on service close. Fallback service property: "ts.services.<SERVICE
-     * NAME>.delete.folder.on.close" Fallback global property: "ts.global.delete.folder.on.close"
+     * NAME>.delete.folder.on.close".
      */
     boolean deleteFolderOnClose() default true;
 
     /**
      * Enable/Disable the logs for the current service. Fallback service property: "ts.services.<SERVICE
-     * NAME>.log.enabled" Fallback global property: "ts.global.log.enabled"
+     * NAME>.log.enabled".
      */
     boolean logEnabled() default true;
 
@@ -50,28 +49,25 @@ public @interface ServiceConfiguration {
     String logLevel() default "INFO";
 
     /**
-     * Port resolution with range min. Fallback service property: "ts.services.<SERVICE NAME>.port.range.min". Fallback
-     * global property: "ts.global.port.range.min"
+     * Port resolution with range min. Fallback service property: "ts.services.<SERVICE NAME>.port.range.min".
      */
     int portRangeMin() default 1101;
 
     /**
-     * Port resolution with range max. Fallback service property: "ts.services.<SERVICE NAME>.port.range.max". Fallback
-     * global property: "ts.global.port.range.max"
+     * Port resolution with range max. Fallback service property: "ts.services.<SERVICE NAME>.port.range.max".
      */
     int portRangeMax() default 49151;
 
     /**
      * "incremental" (default) or "random". Fallback service property: "ts.services.<SERVICE
-     * NAME>.port.resolution.strategy". Fallback global property: "ts.global.port.resolution.strategy"
+     * NAME>.port.resolution.strategy".
      */
     String portResolutionStrategy() default "incremental";
 
     /**
      * Configure the image registry to use for services.
      * <p>
-     * Fallback service property: "ts.services.<SERVICE NAME>.image.registry" Fallback global property:
-     * "ts.global.image.registry"
+     * Fallback service property: "ts.services.<SERVICE NAME>.image.registry".
      * <p>
      * The default registry is based on the default setup in Kind. It's convenient to set it as default to run tests
      * directly from the IDE.

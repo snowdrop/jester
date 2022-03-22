@@ -17,8 +17,8 @@ public final class ServiceConfigurationLoader {
     private static final String GLOBAL_PROPERTIES = System.getProperty("ts.test.resources.file.location",
             "global.properties");
     private static final String TEST_PROPERTIES = "test.properties";
-    private static final String PREFIX_TEMPLATE = "ts.%s.";
-    private static final String GLOBAL_SCOPE = "global";
+    private static final String PREFIX_TEMPLATE = "ts.services.%s.";
+    private static final String ALL_SERVICES = "all";
 
     private ServiceConfigurationLoader() {
 
@@ -28,9 +28,9 @@ public final class ServiceConfigurationLoader {
             BaseConfigurationBuilder<T, C> builder) {
         Map<String, String> properties = new HashMap<>();
         // Lowest priority: properties from global.properties and scope `global`
-        properties.putAll(loadPropertiesFrom(GLOBAL_PROPERTIES, GLOBAL_SCOPE));
+        properties.putAll(loadPropertiesFrom(GLOBAL_PROPERTIES, ALL_SERVICES));
         // Then, system properties with scope global
-        properties.putAll(loadPropertiesFromSystemProperties(GLOBAL_SCOPE));
+        properties.putAll(loadPropertiesFromSystemProperties(ALL_SERVICES));
 
         // Then, properties from test.properties and scope as service name
         properties.putAll(loadPropertiesFrom(TEST_PROPERTIES, scope));
