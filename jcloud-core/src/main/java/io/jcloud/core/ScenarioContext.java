@@ -50,6 +50,16 @@ public final class ScenarioContext {
         this.debug = debug;
     }
 
+    public String getRunningTestClassAndMethodName() {
+        String classMethodName = getRunningTestClassName();
+        Optional<String> methodName = getRunningTestMethodName();
+        if (methodName.isPresent()) {
+            classMethodName += "." + methodName.get();
+        }
+
+        return classMethodName;
+    }
+
     public String getRunningTestClassName() {
         return getTestContext().getRequiredTestClass().getSimpleName();
     }

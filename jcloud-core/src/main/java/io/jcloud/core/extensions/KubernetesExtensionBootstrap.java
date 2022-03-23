@@ -96,7 +96,7 @@ public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
     public void onError(ScenarioContext context, Throwable throwable) {
         if (PRINT_INFO_ON_ERROR) {
             if (PRINT_INFO_CONSOLE_ON_ERROR) {
-                Log.error("Scenario " + context.getRunningTestClassName()
+                Log.error("Scenario " + context.getRunningTestClassAndMethodName()
                         + " failed. Printing diagnosis information from Kubernetes... ");
             }
 
