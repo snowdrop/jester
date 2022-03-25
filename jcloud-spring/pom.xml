@@ -12,7 +12,7 @@
   <name>jCloud - Spring Boot</name>
   <properties>
     <!-- Provided Dependencies -->
-    <spring.version>2.6.4</spring.version>
+    <spring.version>2.6.5</spring.version>
   </properties>
   <dependencies>
     <dependency>
