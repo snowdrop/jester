@@ -14,15 +14,21 @@ import java.util.function.Predicate;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
 
+import io.jcloud.configuration.BaseConfigurationBuilder;
+import io.jcloud.configuration.ConfigurationLoader;
+import io.jcloud.configuration.ScenarioConfigurationBuilder;
+
 public final class ScenarioContext {
 
+    private static final String SCENARIO = "scenario";
     private static final String LOG_FILE_PATH = System.getProperty("log.file.path", "target/logs");
     private static final int SCENARIO_ID_MAX_SIZE = 60;
 
     private final ExtensionContext testContext;
     private final String id;
     private final ExtensionContext.Namespace testNamespace;
-    private final Map<Class<?>, List<Annotation>> serviceConfigurations = new HashMap<>();
+    private final Map<String, Object> customConfigurationByTarget = new HashMap<>();
+    private final Map<Class<?>, List<Annotation>> annsForConfiguration = new HashMap<>();
 
     private ExtensionContext methodTestContext;
     private boolean failed;
@@ -32,6 +38,8 @@ public final class ScenarioContext {
         this.testContext = testContext;
         this.id = generateScenarioId(testContext);
         this.testNamespace = ExtensionContext.Namespace.create(ScenarioContext.class);
+
+        loadCustomConfiguration(SCENARIO, new ScenarioConfigurationBuilder());
     }
 
     public String getId() {
@@ -48,6 +56,12 @@ public final class ScenarioContext {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    public <T> T getConfigurationAs(Class<T> configurationClazz) {
+        return customConfigurationByTarget.values().stream().filter(configurationClazz::isInstance)
+                .map(configurationClazz::cast).findFirst()
+                .orElseThrow(() -> new RuntimeException("No found configuration for " + configurationClazz));
     }
 
     public String getRunningTestClassAndMethodName() {
@@ -100,15 +114,29 @@ public final class ScenarioContext {
         return getLogFolder().resolve(getRunningTestClassName() + LOG_SUFFIX);
     }
 
-    public <T extends Annotation> Optional<T> getAnnotatedConfigurationForService(Class<T> clazz, Predicate<T> apply) {
-        List<Annotation> serviceConfigurationsByClass = serviceConfigurations.get(clazz);
-        if (serviceConfigurationsByClass == null) {
-            serviceConfigurationsByClass = loadAnnotatedConfiguration(clazz);
-            serviceConfigurations.put(clazz, serviceConfigurationsByClass);
+    public <T extends Annotation> Optional<T> getAnnotatedConfiguration(Class<T> clazz) {
+        return getAnnotatedConfiguration(clazz, (s) -> true);
+    }
+
+    public <T extends Annotation> Optional<T> getAnnotatedConfiguration(Class<T> clazz, Predicate<T> apply) {
+        List<Annotation> configurationsByClass = annsForConfiguration.get(clazz);
+        if (configurationsByClass == null) {
+            configurationsByClass = loadAnnotatedConfiguration(clazz);
+            annsForConfiguration.put(clazz, configurationsByClass);
         }
 
-        return serviceConfigurationsByClass.stream().filter(clazz::isInstance).map(clazz::cast).filter(apply::test)
+        return configurationsByClass.stream().filter(clazz::isInstance).map(clazz::cast).filter(apply::test)
                 .findFirst();
+    }
+
+    public <T extends Annotation, C> C loadCustomConfiguration(String target, BaseConfigurationBuilder<T, C> builder) {
+        if (customConfigurationByTarget.containsKey(target)) {
+            throw new RuntimeException("Target configuration has been already loaded: " + target);
+        }
+
+        C configuration = ConfigurationLoader.load(target, this, builder);
+        customConfigurationByTarget.put(target, configuration);
+        return configuration;
     }
 
     protected void markScenarioAsFailed() {

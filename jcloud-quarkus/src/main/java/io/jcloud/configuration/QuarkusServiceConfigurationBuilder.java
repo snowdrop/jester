@@ -19,7 +19,7 @@ public final class QuarkusServiceConfigurationBuilder
     @Override
     protected Optional<io.jcloud.api.QuarkusServiceConfiguration> getAnnotationConfig(String serviceName,
             ScenarioContext scenarioContext) {
-        return scenarioContext.getAnnotatedConfigurationForService(io.jcloud.api.QuarkusServiceConfiguration.class,
+        return scenarioContext.getAnnotatedConfiguration(io.jcloud.api.QuarkusServiceConfiguration.class,
                 a -> a.forService().equals(serviceName));
     }
 }

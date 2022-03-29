@@ -14,6 +14,8 @@ import io.jcloud.utils.DurationUtils;
 import io.jcloud.utils.PropertiesUtils;
 
 public abstract class BaseConfigurationBuilder<T extends Annotation, C> {
+    private static final String COMMA = ",";
+
     private Map<String, String> properties = Collections.emptyMap();
     private Optional<T> annotationConfig = Optional.empty();
 
@@ -52,6 +54,16 @@ public abstract class BaseConfigurationBuilder<T extends Annotation, C> {
 
         // it not found in annotation, then property
         return PropertiesUtils.getAsBoolean(properties, propertyKey);
+    }
+
+    protected Optional<String[]> loadArrayOfStrings(String propertyKey, Function<T, String[]> annotationMapper) {
+        // first annotation,
+        if (annotationConfig.isPresent()) {
+            return Optional.of(annotationMapper.apply(annotationConfig.get()));
+        }
+
+        // it not found in annotation, then property
+        return PropertiesUtils.get(properties, propertyKey).map(v -> v.trim().split(COMMA));
     }
 
     protected Optional<String> loadString(String propertyKey, Function<T, String> annotationMapper) {

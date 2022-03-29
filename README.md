@@ -130,7 +130,7 @@ When running the test, it should pass, and we should see the app logs:
 [14:12:49.858] [INFO] [greetings] Service stopped (quay.io/<your username>/quarkus-test:latest)
 ```
 
-Now, let's reuse the same test to run it in Kubernetes:
+Now, let's reuse the same test to run it in Kubernetes. For doing this, we can either extend our test `ContainerTest` with a new test class and the annotation `@RunOnKubernetes`:
 
 ```java
 @RunOnKubernetes
@@ -138,6 +138,8 @@ public class KubernetesContainerIT extends ContainerTest {
     
 }
 ```
+
+Or we can run the test via command line using the property `ts.scenario.target=kubernetes`.
 
 Kubernetes will try to pull the image from a container registry (by default, it's `localhost:5000`). We can provide the registry via the property `ts.services.all.image.registry=quay.io`, or add this property in the `test.properties` or `global.properties` or configure your service using the `@ServiceConfiguration` annotation. More about how to configure your services in the [Configuration](#configuration) section.
 
@@ -811,12 +813,16 @@ The service configuration options that are common for all the services are:
 | Port Resolution Strategy | Strategy to resolve the ports to assign to the service. Possible values are: "incremental" or "random" | incremental | `ts.services.<SERVICE NAME>.port.resolution.strategy=incremental` | `@ServiceConfiguration(forService = "<SERVICE NAME>", portResolutionStrategy = "incremental")` |
 | Image Registry | Configure the image registry to use for services | localhost:5000 | `ts.services.<SERVICE NAME>.image.registry=localhost:5000` | `@ServiceConfiguration(forService = "<SERVICE NAME>", imageRegistry = "localhost:5000")` |
 
-### Kubernetes Service Configuration
+### Kubernetes Configuration
 
 The configuration that is only available for Kubernetes deployments is:
 
 | Name | Description | Default | Property | Annotation | 
-|------|-------------|---------|----------|------------| 
+|------|-------------|---------|----------|------------|
+| Print cluster info on failures | Print pods, events and status when there are test failures | true  | `ts.kubernetes.print.info.on.error=true` | `@RunOnKubernetes(printInfoOnError = true)` |
+| Delete namespace after all tests | Delete namespace after running all the tests | true  | `ts.kubernetes.delete.namespace.after.all=true` | `@RunOnKubernetes(deleteNamespaceAfterAll = true)` |
+| Use ephemeral namespaces or the current logged namespace | Run the tests on Kubernetes in an ephemeral namespace that will be deleted afterwards | true  | `ts.kubernetes.ephemeral.namespaces.enabled=true` | `@RunOnKubernetes(ephemeralNamespaceEnabled = true)` |
+| Load additional resources | Load the additional resources before running all the tests |  | `ts.kubernetes.additional-resources` | `@RunOnKubernetes(additionalResources = [...])` |
 | Template | Template for the initial deployment resource. The custom template should be located at the `src/test/resources` folder |  | `ts.services.<SERVICE NAME>.kubernetes.template=/custom-deployment.yaml` | `@KubernetesServiceConfiguration(forService = "<SERVICE NAME>", template = "/custom-deployment.yaml")` |
 | Use as internal service | Use internal routing instead of exposed network interfaces. This is useful to integration several services that are running as part of the same namespace or network |  | `ts.services.<SERVICE NAME>.kubernetes.use-internal-service-as-url=false` | `@KubernetesServiceConfiguration(forService = "<SERVICE NAME>", useInternalService = false)` |
 

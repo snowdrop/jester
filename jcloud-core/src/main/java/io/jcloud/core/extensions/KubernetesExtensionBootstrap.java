@@ -1,7 +1,5 @@
 package io.jcloud.core.extensions;
 
-import static io.jcloud.api.clients.KubectlClient.ENABLED_EPHEMERAL_NAMESPACES;
-
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -17,6 +15,9 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.jcloud.api.RunOnKubernetes;
 import io.jcloud.api.clients.KubectlClient;
 import io.jcloud.api.extensions.ExtensionBootstrap;
+import io.jcloud.configuration.KubernetesConfiguration;
+import io.jcloud.configuration.KubernetesConfigurationBuilder;
+import io.jcloud.configuration.ScenarioConfiguration;
 import io.jcloud.core.DependencyContext;
 import io.jcloud.core.ScenarioContext;
 import io.jcloud.core.ServiceContext;
@@ -25,35 +26,47 @@ import io.jcloud.utils.FileUtils;
 
 public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
     public static final String CLIENT = "kubectl-client";
-
-    private static final boolean PRINT_INFO_ON_ERROR = Boolean
-            .parseBoolean(System.getProperty("ts.kubernetes.print.info.on.error", Boolean.TRUE.toString()));
-
-    private static final boolean PRINT_INFO_CONSOLE_ON_ERROR = Boolean
-            .parseBoolean(System.getProperty("ts.kubernetes.print.info.console.on.error", Boolean.TRUE.toString()));
-
-    private static final boolean DELETE_NAMESPACE_AFTER = Boolean
-            .parseBoolean(System.getProperty("ts.kubernetes.delete.namespace.after.all", Boolean.TRUE.toString()));
+    public static final String TARGET_KUBERNETES = "kubernetes";
 
     private KubectlClient client;
 
     @Override
     public boolean appliesFor(ScenarioContext context) {
-        return context.isAnnotationPresent(RunOnKubernetes.class);
+        return context.isAnnotationPresent(RunOnKubernetes.class)
+                || TARGET_KUBERNETES.equals(context.getConfigurationAs(ScenarioConfiguration.class).getTarget());
     }
 
     @Override
     public void beforeAll(ScenarioContext context) {
+        KubernetesConfiguration configuration = context.loadCustomConfiguration(TARGET_KUBERNETES,
+                new KubernetesConfigurationBuilder());
+
         // if deleteNamespace and ephemeral namespaces are disabled then we are in debug mode. This mode is going to
         // keep all scenario resources in order to allow you to debug by yourself
-        context.setDebug(!DELETE_NAMESPACE_AFTER && !ENABLED_EPHEMERAL_NAMESPACES);
-        client = KubectlClient.create();
+        context.setDebug(!configuration.isDeleteNamespaceAfterAll() && !configuration.isEphemeralNamespaceEnabled());
+
+        if (configuration.isEphemeralNamespaceEnabled()) {
+            client = KubectlClient.createClientUsingANewNamespace();
+        } else {
+            client = KubectlClient.createClientUsingCurrentNamespace();
+        }
+
+        if (configuration.getAdditionalResources() != null) {
+            for (String additionalResource : configuration.getAdditionalResources()) {
+                client.apply(Path.of(additionalResource));
+            }
+        }
     }
 
     @Override
     public void afterAll(ScenarioContext context) {
-        if (DELETE_NAMESPACE_AFTER) {
-            client.deleteNamespace(context.getId());
+        KubernetesConfiguration configuration = context.getConfigurationAs(KubernetesConfiguration.class);
+        if (configuration.isDeleteNamespaceAfterAll()) {
+            if (configuration.isEphemeralNamespaceEnabled()) {
+                client.deleteNamespace(context.getId());
+            } else {
+                client.deleteResourcesInScenario(context.getId());
+            }
         }
     }
 
@@ -94,11 +107,9 @@ public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
 
     @Override
     public void onError(ScenarioContext context, Throwable throwable) {
-        if (PRINT_INFO_ON_ERROR) {
-            if (PRINT_INFO_CONSOLE_ON_ERROR) {
-                Log.error("Scenario " + context.getRunningTestClassAndMethodName()
-                        + " failed. Printing diagnosis information from Kubernetes... ");
-            }
+        if (context.getConfigurationAs(KubernetesConfiguration.class).isPrintInfoOnError()) {
+            Log.error("Scenario " + context.getRunningTestClassAndMethodName()
+                    + " failed. Printing diagnosis information from Kubernetes... ");
 
             FileUtils.createDirectoryIfDoesNotExist(logsTestFolder(context));
             printEvents(context);
@@ -109,9 +120,7 @@ public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
     private void printEvents(ScenarioContext context) {
         String events = client.getEvents();
         FileUtils.copyContentTo(events, logsTestFolder(context).resolve("events" + Log.LOG_SUFFIX));
-        if (PRINT_INFO_CONSOLE_ON_ERROR) {
-            Log.error(events);
-        }
+        Log.error(events);
     }
 
     private void printPodLogs(ScenarioContext context) {
@@ -119,9 +128,7 @@ public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
         for (Entry<String, String> podLog : logs.entrySet()) {
             FileUtils.copyContentTo(podLog.getValue(),
                     logsTestFolder(context).resolve(podLog.getKey() + Log.LOG_SUFFIX));
-            if (PRINT_INFO_CONSOLE_ON_ERROR) {
-                Log.error("Pod[%s]: '%s'", podLog.getKey(), podLog.getValue());
-            }
+            Log.error("Pod[%s]: '%s'", podLog.getKey(), podLog.getValue());
         }
     }
 

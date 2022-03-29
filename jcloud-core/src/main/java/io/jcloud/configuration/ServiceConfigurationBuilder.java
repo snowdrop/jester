@@ -41,7 +41,7 @@ public class ServiceConfigurationBuilder
     @Override
     protected Optional<io.jcloud.api.ServiceConfiguration> getAnnotationConfig(String serviceName,
             ScenarioContext scenarioContext) {
-        return scenarioContext.getAnnotatedConfigurationForService(io.jcloud.api.ServiceConfiguration.class,
+        return scenarioContext.getAnnotatedConfiguration(io.jcloud.api.ServiceConfiguration.class,
                 a -> a.forService().equals(serviceName));
     }
 }

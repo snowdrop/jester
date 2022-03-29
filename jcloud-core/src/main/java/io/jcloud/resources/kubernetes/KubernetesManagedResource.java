@@ -166,7 +166,7 @@ public abstract class KubernetesManagedResource extends ManagedResource {
         // Apply it
         Path target = context.getServiceFolder().resolve(DEPLOYMENT);
         ManifestsUtils.writeFile(target, deployment);
-        client.apply(context.getOwner(), target);
+        client.apply(target);
     }
 
     private void initDeployment(Deployment deployment) {
