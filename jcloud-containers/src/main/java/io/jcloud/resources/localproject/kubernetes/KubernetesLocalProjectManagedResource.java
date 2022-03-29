@@ -1,4 +1,4 @@
-package io.jcloud.resources.localsource.kubernetes;
+package io.jcloud.resources.localproject.kubernetes;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -6,11 +6,11 @@ import java.util.Arrays;
 
 import io.jcloud.core.ServiceContext;
 import io.jcloud.resources.kubernetes.KubernetesManagedResource;
-import io.jcloud.resources.localsource.LocalSourceResource;
+import io.jcloud.resources.localproject.LocalProjectResource;
 import io.jcloud.utils.DockerUtils;
 import io.jcloud.utils.PropertiesUtils;
 
-public class KubernetesLocalSourceManagedResource extends KubernetesManagedResource {
+public class KubernetesLocalProjectManagedResource extends KubernetesManagedResource {
 
     private final String location;
     private final String[] buildCommands;
@@ -19,9 +19,9 @@ public class KubernetesLocalSourceManagedResource extends KubernetesManagedResou
     private final String[] command;
     private final Integer[] ports;
 
-    private LocalSourceResource resource;
+    private LocalProjectResource resource;
 
-    public KubernetesLocalSourceManagedResource(String location, String[] buildCommands, String dockerfile,
+    public KubernetesLocalProjectManagedResource(String location, String[] buildCommands, String dockerfile,
             String expectedLog, String[] command, int[] ports) {
         this.location = PropertiesUtils.resolveProperty(location);
         this.buildCommands = PropertiesUtils.resolveProperties(buildCommands);
@@ -35,7 +35,7 @@ public class KubernetesLocalSourceManagedResource extends KubernetesManagedResou
     public void validate() {
         super.validate();
         if (!Files.exists(Path.of(location))) {
-            throw new RuntimeException("Error creating the LocalSource service " + context.getName() + ". Location '"
+            throw new RuntimeException("Error creating the LocalProject service " + context.getName() + ". Location '"
                     + location + "' does not exist.");
         }
     }
@@ -43,7 +43,7 @@ public class KubernetesLocalSourceManagedResource extends KubernetesManagedResou
     @Override
     protected void init(ServiceContext context) {
         super.init(context);
-        this.resource = new LocalSourceResource(context, location, buildCommands, dockerfile);
+        this.resource = new LocalProjectResource(context, location, buildCommands, dockerfile);
         DockerUtils.push(context);
     }
 

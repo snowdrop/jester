@@ -56,7 +56,7 @@ Let's find out the existing jCloud dependencies and their features:
 | Dependencies | Description | 
 |--------------|-------------| 
 | [jcloud-core](#jcloud-core)       | API, JUnit extension, allow using `@Scenario` and `@RunOnKubernetes` |
-| [jcloud-containers](#jcloud-containers) | Allow using `@Container` to run  and `@LocalSource` annotations |
+| [jcloud-containers](#jcloud-containers) | Allow using `@Container` to run  and `@LocalProject` annotations |
 | [jcloud-quarkus](#jcloud-quarkus)    | Allow using `@Quarkus` annotation |
 | [jcloud-spring](#jcloud-spring)     | Allow using `@Spring` annotation |
 
@@ -169,19 +169,19 @@ When running the Kubernetes test, we should see the app logs again and also the 
 
 Find one example using Containers in [here](examples/quarkus-oidc).
 
-#### Containers from Local Sources
+#### Containers from a local project
 
-If your service can be shipped within a container and the sources are in a local folder, we can use the annotation `@LocalSource`. Let's see how to use the same services from the previous example but using this annotation:
+If your service can be shipped within a container and the sources are in a local folder, we can use the annotation `@LocalProject`. Let's see how to use the same services from the previous example but using this annotation:
 
 ```java
-import io.jcloud.api.LocalSource;
+import io.jcloud.api.LocalProject;
 import io.jcloud.api.RestService;
 import io.jcloud.api.Scenario;
 
 @Scenario
-public class LocalSourceTest {
+public class LocalProjectTest {
 
-    @LocalSource(location = "../images/quarkus-rest", 
+    @LocalProject(location = "../images/quarkus-rest", 
             buildCommands = { "mvn", "clean", "install" }, 
             dockerfile = "../images/quarkus-rest/src/main/docker/Dockerfile.jvm",
             ports = 8080, 
@@ -197,7 +197,7 @@ public class LocalSourceTest {
 
 **Note**: paths are relative to the project where the test is located. 
 
-Using `@LocalSource`, we don't need to previously build and/or push the container. 
+Using `@LocalProject`, we don't need to previously build and/or push the container. 
 
 ### jCloud Quarkus
 

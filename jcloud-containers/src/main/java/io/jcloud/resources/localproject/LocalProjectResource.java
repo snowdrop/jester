@@ -1,14 +1,14 @@
-package io.jcloud.resources.localsource;
+package io.jcloud.resources.localproject;
 
 import io.jcloud.core.ServiceContext;
 import io.jcloud.utils.Command;
 import io.jcloud.utils.DockerUtils;
 
-public class LocalSourceResource {
+public class LocalProjectResource {
 
     private String generatedImage;
 
-    public LocalSourceResource(ServiceContext context, String location, String[] buildCommands, String dockerfile) {
+    public LocalProjectResource(ServiceContext context, String location, String[] buildCommands, String dockerfile) {
         if (buildCommands.length > 0) {
             try {
                 new Command(buildCommands).onDirectory(location).runAndWait();

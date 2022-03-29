@@ -2,10 +2,10 @@ package io.jcloud.api.extensions;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
 
-import io.jcloud.api.LocalSource;
+import io.jcloud.api.LocalProject;
 import io.jcloud.core.ManagedResource;
 
-public interface LocalSourceManagedResourceBinding {
+public interface LocalProjectManagedResourceBinding {
     /**
      * @param context
      *
@@ -20,5 +20,5 @@ public interface LocalSourceManagedResourceBinding {
      *
      * @return
      */
-    ManagedResource init(LocalSource metadata);
+    ManagedResource init(LocalProject metadata);
 }
