@@ -1,22 +1,22 @@
-package io.jcloud.resources.localsource.local;
+package io.jcloud.resources.localproject.local;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import io.jcloud.core.ServiceContext;
 import io.jcloud.resources.common.local.GenericContainerManagedResource;
-import io.jcloud.resources.localsource.LocalSourceResource;
+import io.jcloud.resources.localproject.LocalProjectResource;
 import io.jcloud.utils.PropertiesUtils;
 
-public class DockerLocalSourceManagedResource extends GenericContainerManagedResource {
+public class DockerLocalProjectManagedResource extends GenericContainerManagedResource {
 
     private final String location;
     private final String[] buildCommands;
     private final String dockerfile;
 
-    private LocalSourceResource resource;
+    private LocalProjectResource resource;
 
-    public DockerLocalSourceManagedResource(String location, String[] buildCommands, String dockerfile,
+    public DockerLocalProjectManagedResource(String location, String[] buildCommands, String dockerfile,
             String expectedLog, String[] command, int[] ports) {
         super(expectedLog, command, ports);
         this.location = PropertiesUtils.resolveProperty(location);
@@ -28,7 +28,7 @@ public class DockerLocalSourceManagedResource extends GenericContainerManagedRes
     public void validate() {
         super.validate();
         if (!Files.exists(Path.of(location))) {
-            throw new RuntimeException("Error creating the LocalSource service " + context.getName() + ". Location '"
+            throw new RuntimeException("Error creating the LocalProject service " + context.getName() + ". Location '"
                     + location + "' does not exist.");
         }
     }
@@ -41,7 +41,7 @@ public class DockerLocalSourceManagedResource extends GenericContainerManagedRes
     @Override
     protected void init(ServiceContext context) {
         super.init(context);
-        this.resource = new LocalSourceResource(context, location, buildCommands, dockerfile);
+        this.resource = new LocalProjectResource(context, location, buildCommands, dockerfile);
     }
 
     @Override
