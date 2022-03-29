@@ -32,8 +32,7 @@ public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
 
     @Override
     public boolean appliesFor(ScenarioContext context) {
-        return context.isAnnotationPresent(RunOnKubernetes.class)
-                || TARGET_KUBERNETES.equals(context.getConfigurationAs(ScenarioConfiguration.class).getTarget());
+        return isEnabled(context);
     }
 
     @Override
@@ -134,5 +133,10 @@ public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
 
     private Path logsTestFolder(ScenarioContext context) {
         return context.getLogFolder().resolve(context.getRunningTestClassName());
+    }
+
+    public static final boolean isEnabled(ScenarioContext context) {
+        return context.isAnnotationPresent(RunOnKubernetes.class)
+                || TARGET_KUBERNETES.equals(context.getConfigurationAs(ScenarioConfiguration.class).getTarget());
     }
 }

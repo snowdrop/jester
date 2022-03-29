@@ -3,12 +3,11 @@ package io.jcloud.resources.quarkus;
 import java.lang.annotation.Annotation;
 import java.util.ServiceLoader;
 
-import org.junit.jupiter.api.extension.ExtensionContext;
-
 import io.jcloud.api.Quarkus;
 import io.jcloud.api.extensions.AnnotationBinding;
 import io.jcloud.api.extensions.QuarkusManagedResourceBinding;
 import io.jcloud.core.ManagedResource;
+import io.jcloud.core.ScenarioContext;
 import io.jcloud.resources.quarkus.local.ProdModeBootstrapQuarkusManagedResource;
 
 public class QuarkusAnnotationBinding implements AnnotationBinding {
@@ -22,7 +21,7 @@ public class QuarkusAnnotationBinding implements AnnotationBinding {
     }
 
     @Override
-    public ManagedResource getManagedResource(ExtensionContext context, Annotation... annotations) {
+    public ManagedResource getManagedResource(ScenarioContext context, Annotation... annotations) {
         Quarkus metadata = findAnnotation(annotations, Quarkus.class).get();
 
         for (QuarkusManagedResourceBinding binding : customBindings) {

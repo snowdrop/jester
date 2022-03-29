@@ -1,16 +1,15 @@
 package io.jcloud.resources.containers.kubernetes;
 
-import org.junit.jupiter.api.extension.ExtensionContext;
-
 import io.jcloud.api.Container;
-import io.jcloud.api.RunOnKubernetes;
 import io.jcloud.api.extensions.ContainerManagedResourceBinding;
 import io.jcloud.core.ManagedResource;
+import io.jcloud.core.ScenarioContext;
+import io.jcloud.core.extensions.KubernetesExtensionBootstrap;
 
 public class KubernetesContainerManagedResourceBinding implements ContainerManagedResourceBinding {
     @Override
-    public boolean appliesFor(ExtensionContext context) {
-        return context.getRequiredTestClass().isAnnotationPresent(RunOnKubernetes.class);
+    public boolean appliesFor(ScenarioContext context) {
+        return KubernetesExtensionBootstrap.isEnabled(context);
     }
 
     @Override
