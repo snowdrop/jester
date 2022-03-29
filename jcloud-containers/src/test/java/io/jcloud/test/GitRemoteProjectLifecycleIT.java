@@ -22,6 +22,7 @@ import io.jcloud.api.RestService;
 import io.jcloud.api.Scenario;
 import io.jcloud.utils.AwaitilityUtils;
 import io.restassured.config.ConnectionConfig;
+import io.restassured.config.HttpClientConfig;
 import io.restassured.config.RestAssuredConfig;
 
 @Tag("containers")
@@ -71,8 +72,9 @@ public class GitRemoteProjectLifecycleIT {
     }
 
     private void thenServiceIsUpAndRunning() {
-        AwaitilityUtils.untilAsserted(() -> greetings.given()
+        AwaitilityUtils.untilAsserted(() -> greetings.given().log().all()
                 .config(RestAssuredConfig.config()
+                        .httpClient(HttpClientConfig.httpClientConfig().reuseHttpClientInstance())
                         .connectionConfig(ConnectionConfig.connectionConfig().closeIdleConnectionsAfterEachResponse()))
                 .get(SAMPLES_DEFAULT_REST_PATH).then().statusCode(HttpStatus.SC_OK)
                 .body(is(SAMPLES_DEFAULT_REST_PATH_OUTPUT)));

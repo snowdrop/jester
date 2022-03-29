@@ -27,6 +27,7 @@ import io.jcloud.api.Service;
 import io.jcloud.logging.Log;
 import io.jcloud.utils.AwaitilityUtils;
 import io.jcloud.utils.Command;
+import io.jcloud.utils.KeyValueEntry;
 import io.jcloud.utils.SocketUtils;
 
 public final class KubectlClient {
@@ -41,7 +42,7 @@ public final class KubectlClient {
     private final String currentNamespace;
     private final DefaultKubernetesClient masterClient;
     private final NamespacedKubernetesClient client;
-    private final Map<String, LocalPortForward> portForwardsByService = new HashMap<>();
+    private final Map<String, KeyValueEntry<Service, LocalPortForward>> portForwardsByService = new HashMap<>();
 
     private KubectlClient(String namespace) {
         currentNamespace = namespace;
@@ -198,14 +199,16 @@ public final class KubectlClient {
         }
 
         if (PORT_FORWARD_HOST.equalsIgnoreCase(host(service))) {
-            LocalPortForward portForward = portForwardsByService.get(serviceName);
-            if (portForward == null || !portForward.isAlive()) {
-                portForward = client.services().withName(serviceName).portForward(port,
-                        SocketUtils.findAvailablePort(service));
-                portForwardsByService.put(serviceName, portForward);
+            KeyValueEntry<Service, LocalPortForward> portForwardByService = portForwardsByService.get(serviceName);
+            if (portForwardByService == null || !portForwardByService.getValue().isAlive()) {
+                portForwardByService = new KeyValueEntry<>(service, client.services().withName(serviceName)
+                        .portForward(port, SocketUtils.findAvailablePort(service)));
+                Log.trace(service,
+                        "Opening port forward from local port " + portForwardByService.getValue().getLocalPort());
+                portForwardsByService.put(serviceName, portForwardByService);
             }
 
-            return portForward.getLocalPort();
+            return portForwardByService.getValue().getLocalPort();
         }
 
         return serviceModel.getSpec().getPorts().stream().filter(Objects::nonNull)
@@ -230,7 +233,7 @@ public final class KubectlClient {
     /**
      * Delete the namespace and all the resources.
      */
-    public void deleteNamespace(String scenarioId) {
+    public void deleteNamespace() {
         portForwardsByService.values().forEach(this::closePortForward);
         try {
             new Command(KUBECTL, "delete", "namespace", currentNamespace).runAndWait();
@@ -277,11 +280,12 @@ public final class KubectlClient {
         return pod.getStatus().getPhase().equals("Running");
     }
 
-    private void closePortForward(LocalPortForward portForward) {
-        int localPort = portForward.getLocalPort();
+    private void closePortForward(KeyValueEntry<Service, LocalPortForward> portForward) {
+        int localPort = portForward.getValue().getLocalPort();
+        Log.trace(portForward.getKey(), "Closing port forward using local port " + localPort);
         try {
-            portForward.close();
-            AwaitilityUtils.untilIsFalse(portForward::isAlive);
+            portForward.getValue().close();
+            AwaitilityUtils.untilIsFalse(portForward.getValue()::isAlive);
         } catch (IOException ex) {
             Log.warn("Failed to close port forward " + localPort, ex);
         }

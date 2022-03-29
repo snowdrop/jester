@@ -62,7 +62,7 @@ public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
         KubernetesConfiguration configuration = context.getConfigurationAs(KubernetesConfiguration.class);
         if (configuration.isDeleteNamespaceAfterAll()) {
             if (configuration.isEphemeralNamespaceEnabled()) {
-                client.deleteNamespace(context.getId());
+                client.deleteNamespace();
             } else {
                 client.deleteResourcesInScenario(context.getId());
             }

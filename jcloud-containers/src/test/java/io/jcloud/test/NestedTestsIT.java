@@ -24,6 +24,7 @@ import io.jcloud.api.RestService;
 import io.jcloud.api.Scenario;
 import io.jcloud.utils.AwaitilityUtils;
 import io.restassured.config.ConnectionConfig;
+import io.restassured.config.HttpClientConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.specification.RequestSpecification;
 
@@ -101,10 +102,14 @@ public class NestedTestsIT {
     }
 
     private void thenServiceIsUpAndRunning(RequestSpecification given) {
-        AwaitilityUtils.untilAsserted(() -> given
-                .config(RestAssuredConfig.config()
-                        .connectionConfig(ConnectionConfig.connectionConfig().closeIdleConnectionsAfterEachResponse()))
-                .get(SAMPLES_DEFAULT_REST_PATH).then().statusCode(HttpStatus.SC_OK)
-                .body(is(SAMPLES_DEFAULT_REST_PATH_OUTPUT)));
+        AwaitilityUtils
+                .untilAsserted(
+                        () -> given
+                                .config(RestAssuredConfig.config()
+                                        .httpClient(HttpClientConfig.httpClientConfig().reuseHttpClientInstance())
+                                        .connectionConfig(ConnectionConfig.connectionConfig()
+                                                .closeIdleConnectionsAfterEachResponse()))
+                                .get(SAMPLES_DEFAULT_REST_PATH).then().statusCode(HttpStatus.SC_OK)
+                                .body(is(SAMPLES_DEFAULT_REST_PATH_OUTPUT)));
     }
 }
