@@ -102,6 +102,11 @@ public final class KubectlClient {
         try {
             new Command(KUBECTL, "scale", "deployment/" + service.getName(), "--replicas=" + replicas, "-n",
                     currentNamespace).runAndWait();
+
+            AwaitilityUtils.untilIsTrue(
+                    () -> client.apps().deployments().withName(service.getName()).get().getSpec()
+                            .getReplicas() == replicas,
+                    AwaitilityUtils.AwaitilitySettings.defaults().withService(service));
         } catch (Exception e) {
             throw new RuntimeException("Service failed to be scaled.", e);
         }

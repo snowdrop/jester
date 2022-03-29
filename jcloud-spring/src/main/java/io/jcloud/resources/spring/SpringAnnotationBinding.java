@@ -3,12 +3,11 @@ package io.jcloud.resources.spring;
 import java.lang.annotation.Annotation;
 import java.util.ServiceLoader;
 
-import org.junit.jupiter.api.extension.ExtensionContext;
-
 import io.jcloud.api.Spring;
 import io.jcloud.api.extensions.AnnotationBinding;
 import io.jcloud.api.extensions.SpringManagedResourceBinding;
 import io.jcloud.core.ManagedResource;
+import io.jcloud.core.ScenarioContext;
 import io.jcloud.resources.spring.local.LocalBootstrapSpringManagedResource;
 
 public class SpringAnnotationBinding implements AnnotationBinding {
@@ -22,7 +21,7 @@ public class SpringAnnotationBinding implements AnnotationBinding {
     }
 
     @Override
-    public ManagedResource getManagedResource(ExtensionContext context, Annotation... annotations) {
+    public ManagedResource getManagedResource(ScenarioContext context, Annotation... annotations) {
         Spring metadata = findAnnotation(annotations, Spring.class).get();
 
         for (SpringManagedResourceBinding binding : customBindings) {

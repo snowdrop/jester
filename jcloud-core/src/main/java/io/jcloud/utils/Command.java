@@ -41,7 +41,6 @@ public class Command {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    Log.info("%s: %s", description, line);
                     lines.add(line);
                 }
             } catch (IOException ignored) {

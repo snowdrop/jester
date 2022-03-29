@@ -17,7 +17,7 @@ import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import io.jcloud.api.LocalProject;
+import io.jcloud.api.GitRemoteProject;
 import io.jcloud.api.RestService;
 import io.jcloud.api.Scenario;
 import io.jcloud.utils.AwaitilityUtils;
@@ -26,13 +26,14 @@ import io.restassured.config.RestAssuredConfig;
 
 @Tag("containers")
 @Scenario
-public class LocalProjectLifecycleIT {
+public class GitRemoteProjectLifecycleIT {
 
     private static final String MY_PROPERTY = "my.property";
     private static final String MY_PROPERTY_EXPECTED_VALUE = "this is a custom property";
 
-    @LocalProject(location = "../" + QUARKUS_REST_LOCATION, buildCommands = { "mvn", "clean", "install", "-DskipTests",
-            "-Dquarkus.container-image.build=false" }, dockerfile = "../" + QUARKUS_REST_LOCATION
+    @GitRemoteProject(repo = "https://github.com/Sgitario/jcloud-unit", branch = "main", contextDir = QUARKUS_REST_LOCATION, buildCommands = {
+            "mvn", "clean", "install", "-DskipTests",
+            "-Dquarkus.container-image.build=false" }, dockerfile = QUARKUS_REST_LOCATION
                     + "/src/main/docker/Dockerfile.jvm", ports = SAMPLES_DEFAULT_PORT, expectedLog = QUARKUS_STARTUP_EXPECTED_LOG)
     static RestService greetings = new RestService().withProperty(MY_PROPERTY, MY_PROPERTY_EXPECTED_VALUE);
 

@@ -205,7 +205,7 @@ public final class AwaitilityUtils {
         @Override
         public void conditionEvaluated(EvaluatedCondition condition) {
             if (settings.service != null) {
-                Log.debug(settings.service, condition.getDescription());
+                Log.trace(settings.service, condition.getDescription());
             } else {
                 Log.debug(condition.getDescription());
             }

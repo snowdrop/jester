@@ -35,7 +35,7 @@ public class DockerLocalProjectManagedResource extends GenericContainerManagedRe
 
     @Override
     public String getDisplayName() {
-        return "Local Source " + location;
+        return "Local project from " + location;
     }
 
     @Override

@@ -68,6 +68,14 @@ public final class Log {
         log(NO_SERVICE, Level.FINE, msg, args);
     }
 
+    public static void trace(Service service, String msg, Object... args) {
+        log(service, Level.FINEST, msg, args);
+    }
+
+    public static void trace(String msg, Object... args) {
+        log(NO_SERVICE, Level.FINEST, msg, args);
+    }
+
     public static void warn(Service service, String msg, Object... args) {
         log(service, Level.WARNING, msg, args);
     }
