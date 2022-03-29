@@ -19,7 +19,7 @@ public final class DockerServiceConfigurationBuilder
     @Override
     protected Optional<io.jcloud.api.DockerServiceConfiguration> getAnnotationConfig(String serviceName,
             ScenarioContext scenarioContext) {
-        return scenarioContext.getAnnotatedConfigurationForService(io.jcloud.api.DockerServiceConfiguration.class,
+        return scenarioContext.getAnnotatedConfiguration(io.jcloud.api.DockerServiceConfiguration.class,
                 a -> a.forService().equals(serviceName));
     }
 }

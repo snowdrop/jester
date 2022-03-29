@@ -15,4 +15,8 @@ import io.jcloud.core.JCloudExtension;
 @ExtendWith(JCloudExtension.class)
 @Inherited
 public @interface Scenario {
+    /**
+     * Set the scenario target environment where to run the tests. Fallback property `ts.scenario.target`.
+     */
+    String target() default "local";
 }

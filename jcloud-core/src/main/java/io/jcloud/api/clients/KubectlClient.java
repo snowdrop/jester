@@ -31,9 +31,6 @@ import io.jcloud.utils.SocketUtils;
 
 public final class KubectlClient {
 
-    public static final boolean ENABLED_EPHEMERAL_NAMESPACES = Boolean
-            .parseBoolean(System.getProperty("ts.kubernetes.ephemeral.namespaces.enabled", Boolean.TRUE.toString()));
-
     private static final int NAMESPACE_NAME_SIZE = 10;
     private static final int NAMESPACE_CREATION_RETRIES = 5;
 
@@ -46,20 +43,11 @@ public final class KubectlClient {
     private final NamespacedKubernetesClient client;
     private final Map<String, LocalPortForward> portForwardsByService = new HashMap<>();
 
-    private KubectlClient() {
-        if (ENABLED_EPHEMERAL_NAMESPACES) {
-            currentNamespace = createNamespace();
-        } else {
-            currentNamespace = new DefaultKubernetesClient().getNamespace();
-        }
-
+    private KubectlClient(String namespace) {
+        currentNamespace = namespace;
         Config config = new ConfigBuilder().withTrustCerts(true).withNamespace(currentNamespace).build();
         masterClient = new DefaultKubernetesClient(config);
         client = masterClient.inNamespace(currentNamespace);
-    }
-
-    public static KubectlClient create() {
-        return new KubectlClient();
     }
 
     /**
@@ -81,12 +69,11 @@ public final class KubectlClient {
      *
      * @param file
      */
-    public void apply(Service service, Path file) {
+    public void apply(Path file) {
         try {
             new Command(KUBECTL, "apply", "-f", file.toAbsolutePath().toString(), "-n", currentNamespace).runAndWait();
         } catch (Exception e) {
-            throw new RuntimeException(
-                    "Failed to apply resource " + file.toAbsolutePath() + " for " + service.getName(), e);
+            throw new RuntimeException("Failed to apply resource " + file.toAbsolutePath(), e);
         }
     }
 
@@ -240,18 +227,21 @@ public final class KubectlClient {
      */
     public void deleteNamespace(String scenarioId) {
         portForwardsByService.values().forEach(this::closePortForward);
-
-        if (ENABLED_EPHEMERAL_NAMESPACES) {
-            try {
-                new Command(KUBECTL, "delete", "namespace", currentNamespace).runAndWait();
-            } catch (Exception e) {
-                throw new RuntimeException("Project failed to be deleted.", e);
-            } finally {
-                masterClient.close();
-            }
-        } else {
-            deleteResourcesByLabel(LABEL_SCENARIO_ID, scenarioId);
+        try {
+            new Command(KUBECTL, "delete", "namespace", currentNamespace).runAndWait();
+        } catch (Exception e) {
+            throw new RuntimeException("Project failed to be deleted.", e);
+        } finally {
+            masterClient.close();
         }
+    }
+
+    /**
+     * Delete all the resources within the scenario.
+     */
+    public void deleteResourcesInScenario(String scenarioId) {
+        portForwardsByService.values().forEach(this::closePortForward);
+        deleteResourcesByLabel(LABEL_SCENARIO_ID, scenarioId);
     }
 
     /**
@@ -282,7 +272,29 @@ public final class KubectlClient {
         return pod.getStatus().getPhase().equals("Running");
     }
 
-    private String createNamespace() {
+    private void closePortForward(LocalPortForward portForward) {
+        int localPort = portForward.getLocalPort();
+        try {
+            portForward.close();
+            AwaitilityUtils.untilIsFalse(portForward::isAlive);
+        } catch (IOException ex) {
+            Log.warn("Failed to close port forward " + localPort, ex);
+        }
+    }
+
+    private void printServiceInfo(Service service) {
+        try {
+            new Command(KUBECTL, "get", "svc", service.getName(), "-n", currentNamespace).outputToConsole()
+                    .runAndWait();
+        } catch (Exception ignored) {
+        }
+    }
+
+    public static KubectlClient createClientUsingCurrentNamespace() {
+        return new KubectlClient(new DefaultKubernetesClient().getNamespace());
+    }
+
+    public static KubectlClient createClientUsingANewNamespace() {
         boolean namespaceCreated = false;
 
         String namespace = generateRandomNamespaceName();
@@ -301,10 +313,10 @@ public final class KubectlClient {
             throw new RuntimeException("Namespace cannot be created. Review your Kubernetes installation.");
         }
 
-        return namespace;
+        return new KubectlClient(namespace);
     }
 
-    private boolean doCreateNamespace(String namespaceName) {
+    private static boolean doCreateNamespace(String namespaceName) {
         boolean created = false;
         try {
             new Command(KUBECTL, "create", "namespace", namespaceName).runAndWait();
@@ -317,28 +329,10 @@ public final class KubectlClient {
         return created;
     }
 
-    private String generateRandomNamespaceName() {
+    private static String generateRandomNamespaceName() {
         return ThreadLocalRandom.current().ints(NAMESPACE_NAME_SIZE, 'a', 'z' + 1)
                 .collect(() -> new StringBuilder("ts-"), StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString();
-    }
-
-    private void closePortForward(LocalPortForward portForward) {
-        int localPort = portForward.getLocalPort();
-        try {
-            portForward.close();
-            AwaitilityUtils.untilIsFalse(portForward::isAlive);
-        } catch (IOException ex) {
-            Log.warn("Failed to close port forward " + localPort, ex);
-        }
-    }
-
-    private void printServiceInfo(Service service) {
-        try {
-            new Command(KUBECTL, "get", "svc", service.getName(), "-n", currentNamespace).outputToConsole()
-                    .runAndWait();
-        } catch (Exception ignored) {
-        }
     }
 
 }

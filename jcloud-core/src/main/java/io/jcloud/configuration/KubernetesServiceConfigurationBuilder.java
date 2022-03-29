@@ -22,7 +22,7 @@ public final class KubernetesServiceConfigurationBuilder
     @Override
     protected Optional<io.jcloud.api.KubernetesServiceConfiguration> getAnnotationConfig(String serviceName,
             ScenarioContext scenarioContext) {
-        return scenarioContext.getAnnotatedConfigurationForService(io.jcloud.api.KubernetesServiceConfiguration.class,
+        return scenarioContext.getAnnotatedConfiguration(io.jcloud.api.KubernetesServiceConfiguration.class,
                 a -> a.forService().equals(serviceName));
     }
 }
