@@ -31,7 +31,7 @@ public class SpringAnnotationBinding implements AnnotationBinding {
         }
 
         // If none handler found, then the container will be running on localhost by default
-        return new LocalBootstrapSpringManagedResource();
+        return new LocalBootstrapSpringManagedResource(metadata.forceBuild(), metadata.buildCommands());
     }
 
 }

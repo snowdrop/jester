@@ -12,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import io.jcloud.api.Service;
 import io.jcloud.api.model.QuarkusLaunchMode;
-import io.quarkus.builder.Version;
 
 public final class QuarkusUtils {
 
@@ -38,18 +37,35 @@ public final class QuarkusUtils {
     public static final String BUILD_TIME_PROPERTIES = "/build-time-list";
     public static final Set<String> BUILD_PROPERTIES = FileUtils.loadFile(BUILD_TIME_PROPERTIES).lines()
             .collect(toSet());
+
+    private static final String VERSION;
+    private static final String JAR_NAME;
     private static final String DOCKERFILE_TEMPLATE = "/Dockerfile.%s";
+
+    static {
+        String versionString = "(unknown)";
+        String jarName = "(unknown)";
+
+        try {
+            versionString = (String) Class.forName("io.quarkus.builder.Version").getMethod("getVersion").invoke(null);
+        } catch (Exception ex) {
+
+        }
+
+        VERSION = versionString;
+        JAR_NAME = jarName;
+    }
 
     private QuarkusUtils() {
 
     }
 
     public static String getVersion() {
-        return defaultVersionIfEmpty(PLATFORM_VERSION);
+        return StringUtils.defaultString(PLATFORM_VERSION, VERSION);
     }
 
     public static String getPluginVersion() {
-        return defaultVersionIfEmpty(PLUGIN_VERSION);
+        return StringUtils.defaultString(PLUGIN_VERSION, VERSION);
     }
 
     public static boolean isNativePackageType() {
@@ -80,14 +96,6 @@ public final class QuarkusUtils {
         return BUILD_PROPERTIES.stream().anyMatch(build -> name.matches(build) // It's a regular expression
                 || (build.endsWith(".") && name.startsWith(build)) // contains with
                 || name.equals(build)); // or it's equal to
-    }
-
-    private static String defaultVersionIfEmpty(String version) {
-        if (StringUtils.isEmpty(version)) {
-            version = Version.getVersion();
-        }
-
-        return version;
     }
 
     public static String getDockerfile(QuarkusLaunchMode mode) {

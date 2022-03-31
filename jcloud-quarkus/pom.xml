@@ -32,12 +32,6 @@
     <!-- Provided dependencies -->
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-bootstrap-core</artifactId>
-      <version>${quarkus.platform.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
       <artifactId>quarkus-test-common</artifactId>
       <version>${quarkus.platform.version}</version>
       <scope>provided</scope>

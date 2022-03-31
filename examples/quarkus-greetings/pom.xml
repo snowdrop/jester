@@ -32,6 +32,11 @@
       <artifactId>quarkus-resteasy-reactive</artifactId>
     </dependency>
     <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-test-common</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>io.jcloud</groupId>
       <artifactId>jcloud-quarkus</artifactId>
       <version>${project.version}</version>

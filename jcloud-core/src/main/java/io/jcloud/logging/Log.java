@@ -94,7 +94,7 @@ public final class Log {
 
     public static void configure() {
         // Configure Log Manager
-        try (InputStream in = JCloudExtension.class.getResourceAsStream("/logging.properties")) {
+        try (InputStream in = JCloudExtension.class.getResourceAsStream("/jcloud-logging.properties")) {
             LogManager.getLogManager().readConfiguration(in);
         } catch (IOException e) {
             // ignore
