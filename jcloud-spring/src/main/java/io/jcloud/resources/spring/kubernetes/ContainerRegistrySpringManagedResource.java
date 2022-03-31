@@ -10,8 +10,16 @@ import io.jcloud.utils.DockerUtils;
 
 public class ContainerRegistrySpringManagedResource extends KubernetesManagedResource {
 
+    private final boolean forceBuild;
+    private final String[] buildCommands;
+
     private SpringResource resource;
     private String image;
+
+    public ContainerRegistrySpringManagedResource(boolean forceBuild, String[] buildCommands) {
+        this.forceBuild = forceBuild;
+        this.buildCommands = buildCommands;
+    }
 
     @Override
     public String getDisplayName() {
@@ -38,7 +46,7 @@ public class ContainerRegistrySpringManagedResource extends KubernetesManagedRes
     protected void init(ServiceContext context) {
         super.init(context);
 
-        resource = new SpringResource(context);
+        resource = new SpringResource(context, forceBuild, buildCommands);
         image = createImageAndPush();
     }
 

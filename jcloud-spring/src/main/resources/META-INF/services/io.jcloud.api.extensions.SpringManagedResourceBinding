@@ -1,1 +1,1 @@
-io.jcloud.resources.spring.kubernetes.KubernetesQuarkusManagedResourceBinding
+io.jcloud.resources.spring.kubernetes.KubernetesSpringManagedResourceBinding

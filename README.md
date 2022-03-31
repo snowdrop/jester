@@ -34,6 +34,7 @@ Content:
   - [With Containers](#jcloud-containers)
   - [With Quarkus](#jcloud-quarkus)
   - [With Spring Boot](#jcloud-spring)
+  - [With JMH Benchmarks](#jcloud-benchmark)
 - [Services](#services)
   - [Default Service](#default-service)
   - [REST Service](#rest-service)
@@ -551,6 +552,95 @@ The same scenario works locally and in Kubernetes.
 Find this Spring example in [here](examples/spring-greetings).
 
 To configure the Spring services, go to the [Configuration](#spring-service-configuration) section.
+
+### jCloud Benchmarks
+
+This extension allows easily writing benchmarks using [Java Microbenchmark Harness (JMH)](https://github.com/openjdk/jmh) with the benefit of setting up tests using the jCloud extensions.
+
+First, we need to add the jCloud Benchmark dependency into the Maven pom file:
+
+```xml
+<dependencies>
+  <dependency>
+    <groupId>io.jcloud</groupId>
+    <artifactId>jcloud-benchmark</artifactId>
+    <scope>test</scope>
+  </dependency>
+<dependencies>
+```
+
+And now, we need to extend our scenario class with the interface `EnableBenchmark`:
+
+```java
+@Scenario @Spring
+public class GreetingResourceBenchmark implements EnableBenchmark {
+
+    @Benchmark // Annotations from JMH tool
+    @BenchmarkMode(Mode.Throughput)
+    public ValidatableResponse helloEndpointThroughput() {
+        return given()
+          .when().get("/hello")
+          .then()
+             .statusCode(200)
+             .body(is("Hello World"));
+    }
+
+}
+```
+
+Output:
+
+```
+[14:34:22.912] [INFO] ## Running test GreetingApplicationBenchmark.benchmarkRunner() 
+# JMH version: 1.35
+# VM version: JDK 11.0.14.1, OpenJDK 64-Bit Server VM, 11.0.14.1+1
+# VM invoker: /usr/lib/jvm/java-11-openjdk-11.0.14.1.1-5.fc35.x86_64/bin/java
+# VM options: -ea -Didea.test.cyclic.buffer.size=1048576 -javaagent:/home/jcarvaja/.local/share/JetBrains/Toolbox/apps/IDEA-C/ch-0/212.5080.55/lib/idea_rt.jar=40447:/home/jcarvaja/.local/share/JetBrains/Toolbox/apps/IDEA-C/ch-0/212.5080.55/bin -Dfile.encoding=UTF-8
+# Blackhole mode: full + dont-inline hint (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 1 iterations, 10 s each
+# Measurement: 3 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 50 threads, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.jcloud.examples.benchmark.apps.GreetingApplicationBenchmark.helloEndpointThroughput
+
+# Run progress: 0,00% complete, ETA 00:00:40
+# Fork: N/A, test runs in the host VM
+# *** WARNING: Non-forked runs may silently omit JVM options, mess up profilers, disable compiler hints, etc. ***
+# *** WARNING: Use non-forked runs only for debugging purposes, not for actual performance runs. ***
+[14:34:28.748] [INFO] [springWeb] 2022-03-31 14:34:25.491  INFO 94104 --- [io-1101-exec-48] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet' 
+[14:34:28.764] [INFO] [springWeb] 2022-03-31 14:34:25.492  INFO 94104 --- [io-1101-exec-48] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet' 
+[14:34:28.766] [INFO] [springWeb] 2022-03-31 14:34:25.494  INFO 94104 --- [io-1101-exec-48] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms 
+# Warmup Iteration   1: 547,141 ops/s
+Iteration   1: 942,183 ops/s
+Iteration   2: 1783,304 ops/s
+Iteration   3: 3037,837 ops/s
+
+Result "io.jcloud.examples.benchmark.apps.GreetingApplicationBenchmark.helloEndpointThroughput":
+  1921,108 ±(99.9%) 19239,854 ops/s [Average]
+  (min, avg, max) = (942,183, 1921,108, 3037,837), stdev = 1054,601
+  CI (99.9%): [≈ 0, 21160,962] (assumes normal distribution)
+
+
+# Run complete. Total time: 00:00:44
+
+REMEMBER: The numbers below are just data. To gain reusable insights, you need to follow up on
+why the numbers are the way they are. Use profilers (see -prof, -lprof), design factorial
+experiments, perform baseline and negative tests that provide experimental control, make sure
+the benchmarking environment is safe on JVM/OS/HW level, ask for reviews from the domain experts.
+Do not assume the numbers tell you what you want them to tell.
+
+Benchmark                                              Mode  Cnt     Score       Error  Units
+GreetingApplicationBenchmark.helloEndpointThroughput  thrpt    3  1921,108 ± 19239,854  ops/s
+
+Benchmark result is saved to target/benchmarks-results/GreetingApplicationBenchmark.json
+```
+
+The benchmark results are saved at `target/benchmarks-results/<name of the benchmark class>.json`. 
+
+**Note**: If you want to visualize the benchmark results in graphs, you can submit these files in [this JMH visualizer online](https://jmh.morethan.io/) to generate the plots and graphs. 
+
+Find a more complex scenario that uses several Quarkus and Spring applications at the same benchmark in [here](examples/apps-benchmark).
 
 ## Services
 

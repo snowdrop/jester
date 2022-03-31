@@ -6,7 +6,7 @@ import io.jcloud.core.ManagedResource;
 import io.jcloud.core.ScenarioContext;
 import io.jcloud.core.extensions.KubernetesExtensionBootstrap;
 
-public class KubernetesQuarkusManagedResourceBinding implements SpringManagedResourceBinding {
+public class KubernetesSpringManagedResourceBinding implements SpringManagedResourceBinding {
     @Override
     public boolean appliesFor(ScenarioContext context) {
         return KubernetesExtensionBootstrap.isEnabled(context);
@@ -14,6 +14,6 @@ public class KubernetesQuarkusManagedResourceBinding implements SpringManagedRes
 
     @Override
     public ManagedResource init(Spring metadata) {
-        return new ContainerRegistrySpringManagedResource();
+        return new ContainerRegistrySpringManagedResource(metadata.forceBuild(), metadata.buildCommands());
     }
 }

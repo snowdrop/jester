@@ -41,7 +41,6 @@ import io.quarkus.bootstrap.app.CuratedApplication;
 import io.quarkus.bootstrap.app.QuarkusBootstrap;
 import io.quarkus.bootstrap.model.AppArtifact;
 import io.quarkus.bootstrap.model.AppDependency;
-import io.quarkus.builder.Version;
 import io.quarkus.test.common.PathTestHelper;
 
 public class BootstrapQuarkusResource extends QuarkusResource {
@@ -77,7 +76,7 @@ public class BootstrapQuarkusResource extends QuarkusResource {
             requiresCustomBuild = true;
             this.forcedDependencies = Stream.of(forcedDependencies).map(d -> {
                 String groupId = StringUtils.defaultIfEmpty(resolveProperty(d.groupId()), QUARKUS_GROUP_ID_DEFAULT);
-                String version = StringUtils.defaultIfEmpty(resolveProperty(d.version()), Version.getVersion());
+                String version = StringUtils.defaultIfEmpty(resolveProperty(d.version()), QuarkusUtils.getVersion());
                 AppArtifact artifact = new AppArtifact(groupId, d.artifactId(), version);
                 // Quarkus introduces a breaking change in 2.3:
                 // https://github.com/quarkusio/quarkus/commit/0c85b27c4046c894c181ffea367fca503d1c682c
@@ -157,6 +156,7 @@ public class BootstrapQuarkusResource extends QuarkusResource {
             javaArchive.as(ExplodedExporter.class).exportExplodedInto(appFolder.toFile());
 
             Path testLocation = PathTestHelper.getTestClassesLocation(context.getTestContext().getRequiredTestClass());
+
             QuarkusBootstrap.Builder builder = QuarkusBootstrap.builder().setApplicationRoot(appFolder)
                     .setMode(QuarkusBootstrap.Mode.PROD).addExcludedPath(testLocation).setIsolateDeployment(true)
                     .setProjectRoot(testLocation).setBaseName(context.getName()).setTargetDirectory(appFolder);
