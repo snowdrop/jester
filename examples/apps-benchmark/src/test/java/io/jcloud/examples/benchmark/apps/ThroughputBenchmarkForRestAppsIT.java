@@ -1,8 +1,9 @@
 package io.jcloud.examples.benchmark.apps;
 
-import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.apache.http.HttpStatus;
+import java.net.http.HttpResponse;
+
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -14,13 +15,12 @@ import org.openjdk.jmh.annotations.Threads;
 import org.openjdk.jmh.annotations.Warmup;
 
 import io.jcloud.api.Dependency;
+import io.jcloud.api.HttpService;
 import io.jcloud.api.Quarkus;
-import io.jcloud.api.RestService;
 import io.jcloud.api.Scenario;
 import io.jcloud.api.Spring;
 import io.jcloud.core.EnableBenchmark;
 import io.jcloud.core.ServiceState;
-import io.restassured.response.ValidatableResponse;
 
 @DisabledOnOs(value = OS.WINDOWS, disabledReason = "Not supported on Windows")
 @Scenario
@@ -32,40 +32,40 @@ import io.restassured.response.ValidatableResponse;
 public class ThroughputBenchmarkForRestAppsIT implements EnableBenchmark {
 
     @Quarkus(dependencies = @Dependency(artifactId = "quarkus-resteasy-reactive", version = "${quarkus.platform.version:2.7.5.Final}"))
-    public static RestService quarkusReactive = new RestService().setAutoStart(false);
+    public static HttpService quarkusReactive = new HttpService().setAutoStart(false);
 
     @Quarkus(dependencies = @Dependency(artifactId = "quarkus-resteasy", version = "${quarkus.platform.version:2.7.5.Final}"))
-    public static RestService quarkusClassic = new RestService().setAutoStart(false);
+    public static HttpService quarkusClassic = new HttpService().setAutoStart(false);
 
     @Spring(forceBuild = true, buildCommands = { "mvn", "package", "-Pspring",
             "-Duse.test-source.folder=spring-jersey" })
-    public static RestService springJersey = new RestService().setAutoStart(false);
+    public static HttpService springJersey = new HttpService().setAutoStart(false);
 
     @Spring(forceBuild = true, buildCommands = { "mvn", "package", "-Pspring", "-Duse.test-source.folder=spring-web" })
-    public static RestService springWeb = new RestService().setAutoStart(false);
+    public static HttpService springWeb = new HttpService().setAutoStart(false);
 
-    public static class QuarkusResteasyReactiveState extends ServiceState<RestService> {
+    public static class QuarkusResteasyReactiveState extends ServiceState<HttpService> {
 
         public QuarkusResteasyReactiveState() {
             super(quarkusReactive);
         }
     }
 
-    public static class QuarkusResteasyClassicState extends ServiceState<RestService> {
+    public static class QuarkusResteasyClassicState extends ServiceState<HttpService> {
 
         public QuarkusResteasyClassicState() {
             super(quarkusClassic);
         }
     }
 
-    public static class SpringJerseyState extends ServiceState<RestService> {
+    public static class SpringJerseyState extends ServiceState<HttpService> {
 
         public SpringJerseyState() {
             super(springJersey);
         }
     }
 
-    public static class SpringWebState extends ServiceState<RestService> {
+    public static class SpringWebState extends ServiceState<HttpService> {
 
         public SpringWebState() {
             super(springWeb);
@@ -73,26 +73,28 @@ public class ThroughputBenchmarkForRestAppsIT implements EnableBenchmark {
     }
 
     @Benchmark
-    public ValidatableResponse resteasyReactive(QuarkusResteasyReactiveState state) {
+    public String quarkusResteasyReactive(QuarkusResteasyReactiveState state) {
         return runBenchmark(state);
     }
 
     @Benchmark
-    public ValidatableResponse resteasyClassic(QuarkusResteasyClassicState state) {
+    public String quarkusResteasyClassic(QuarkusResteasyClassicState state) {
         return runBenchmark(state);
     }
 
     @Benchmark
-    public ValidatableResponse springJersey(SpringJerseyState state) {
+    public String springJersey(SpringJerseyState state) {
         return runBenchmark(state);
     }
 
     @Benchmark
-    public ValidatableResponse springWeb(SpringWebState state) {
+    public String springWeb(SpringWebState state) {
         return runBenchmark(state);
     }
 
-    private ValidatableResponse runBenchmark(ServiceState<RestService> state) {
-        return state.getService().given().get("/greeting").then().statusCode(HttpStatus.SC_OK).body(is("Hello!"));
+    private String runBenchmark(ServiceState<HttpService> state) {
+        HttpResponse<String> response = state.getService().getString("/greeting");
+        assertEquals("Hello!", response.body());
+        return response.body();
     }
 }

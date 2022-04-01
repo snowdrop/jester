@@ -72,7 +72,7 @@ public class GitRemoteProjectLifecycleIT {
     }
 
     private void thenServiceIsUpAndRunning() {
-        AwaitilityUtils.untilAsserted(() -> greetings.given().log().all()
+        AwaitilityUtils.untilAsserted(() -> greetings.given()
                 .config(RestAssuredConfig.config()
                         .httpClient(HttpClientConfig.httpClientConfig().reuseHttpClientInstance())
                         .connectionConfig(ConnectionConfig.connectionConfig().closeIdleConnectionsAfterEachResponse()))
