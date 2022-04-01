@@ -15,12 +15,14 @@ import io.jcloud.utils.PropertiesUtils;
 
 public class LocalBootstrapSpringManagedResource extends ProcessManagedResource {
 
+    private final String location;
     private final boolean forceBuild;
     private final String[] buildCommands;
 
     private SpringResource resource;
 
-    public LocalBootstrapSpringManagedResource(boolean forceBuild, String[] buildCommands) {
+    public LocalBootstrapSpringManagedResource(String location, boolean forceBuild, String[] buildCommands) {
+        this.location = location;
         this.forceBuild = forceBuild;
         this.buildCommands = buildCommands;
     }
@@ -65,7 +67,7 @@ public class LocalBootstrapSpringManagedResource extends ProcessManagedResource 
     @Override
     protected void init(ServiceContext context) {
         super.init(context);
-        resource = new SpringResource(context, forceBuild, buildCommands);
+        resource = new SpringResource(context, location, forceBuild, buildCommands);
     }
 
     private Path getComputedApplicationProperties() {

@@ -14,6 +14,7 @@ public class KubernetesSpringManagedResourceBinding implements SpringManagedReso
 
     @Override
     public ManagedResource init(Spring metadata) {
-        return new ContainerRegistrySpringManagedResource(metadata.forceBuild(), metadata.buildCommands());
+        return new ContainerRegistrySpringManagedResource(metadata.location(), metadata.forceBuild(),
+                metadata.buildCommands());
     }
 }

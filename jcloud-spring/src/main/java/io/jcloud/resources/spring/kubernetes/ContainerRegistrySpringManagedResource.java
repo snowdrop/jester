@@ -10,13 +10,15 @@ import io.jcloud.utils.DockerUtils;
 
 public class ContainerRegistrySpringManagedResource extends KubernetesManagedResource {
 
+    private final String location;
     private final boolean forceBuild;
     private final String[] buildCommands;
 
     private SpringResource resource;
     private String image;
 
-    public ContainerRegistrySpringManagedResource(boolean forceBuild, String[] buildCommands) {
+    public ContainerRegistrySpringManagedResource(String location, boolean forceBuild, String[] buildCommands) {
+        this.location = location;
         this.forceBuild = forceBuild;
         this.buildCommands = buildCommands;
     }
@@ -46,7 +48,7 @@ public class ContainerRegistrySpringManagedResource extends KubernetesManagedRes
     protected void init(ServiceContext context) {
         super.init(context);
 
-        resource = new SpringResource(context, forceBuild, buildCommands);
+        resource = new SpringResource(context, location, forceBuild, buildCommands);
         image = createImageAndPush();
     }
 
