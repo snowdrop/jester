@@ -8,6 +8,13 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Spring {
+
+    /**
+     * Specify the path location where the Spring Boot application module is located. By default, it will use the
+     * current module.
+     */
+    String location() default ".";
+
     /**
      * Force build the JAR application.
      */

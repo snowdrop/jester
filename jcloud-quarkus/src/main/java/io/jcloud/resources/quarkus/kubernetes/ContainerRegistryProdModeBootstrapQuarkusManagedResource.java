@@ -12,14 +12,16 @@ import io.jcloud.utils.QuarkusUtils;
 
 public class ContainerRegistryProdModeBootstrapQuarkusManagedResource extends KubernetesManagedResource {
 
+    private final String location;
     private final Class<?>[] classes;
     private final Dependency[] forcedDependencies;
 
     private BootstrapQuarkusResource resource;
     private String image;
 
-    public ContainerRegistryProdModeBootstrapQuarkusManagedResource(Class<?>[] classes,
+    public ContainerRegistryProdModeBootstrapQuarkusManagedResource(String location, Class<?>[] classes,
             Dependency[] forcedDependencies) {
+        this.location = location;
         this.classes = classes;
         this.forcedDependencies = forcedDependencies;
     }
@@ -49,7 +51,7 @@ public class ContainerRegistryProdModeBootstrapQuarkusManagedResource extends Ku
     protected void init(ServiceContext context) {
         super.init(context);
 
-        resource = new BootstrapQuarkusResource(context, classes, forcedDependencies);
+        resource = new BootstrapQuarkusResource(context, location, classes, forcedDependencies);
         image = createImageAndPush();
     }
 

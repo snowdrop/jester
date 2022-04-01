@@ -3,6 +3,7 @@ package io.jcloud.resources.spring.common;
 import static io.jcloud.utils.FileUtils.findFile;
 import static io.jcloud.utils.PropertiesUtils.TARGET;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,11 +23,17 @@ public class SpringResource {
     private static final String JVM_RUNNER = ".jar";
 
     private final ServiceContext context;
+    private final Path location;
     private final Path runner;
     private final String[] buildCommands;
 
-    public SpringResource(ServiceContext context, boolean forceBuild, String[] buildCommands) {
+    public SpringResource(ServiceContext context, String location, boolean forceBuild, String[] buildCommands) {
         this.context = context;
+        this.location = Path.of(location);
+        if (!Files.exists(this.location)) {
+            throw new RuntimeException("Spring location does not exist.");
+        }
+
         this.buildCommands = PropertiesUtils.resolveProperties(buildCommands);
         this.context.loadCustomConfiguration(SpringServiceConfiguration.class, new SpringServiceConfigurationBuilder());
         if (forceBuild) {
@@ -58,11 +65,11 @@ public class SpringResource {
     }
 
     private Optional<String> findRunner() {
-        return findFile(TARGET, JVM_RUNNER);
+        return findFile(location.resolve(TARGET), JVM_RUNNER);
     }
 
     private Path tryToBuildRunner() {
-        FileUtils.copyDirectoryTo(Path.of("."), context.getServiceFolder());
+        FileUtils.copyDirectoryTo(location, context.getServiceFolder());
         FileUtils.deletePath(context.getServiceFolder().resolve("target"));
         FileUtils.deletePath(context.getServiceFolder().resolve("src").resolve("test").resolve("java"));
         if (buildCommands.length > 0) {

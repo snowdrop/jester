@@ -16,12 +16,15 @@ import io.jcloud.utils.PropertiesUtils;
 
 public class ProdModeBootstrapQuarkusManagedResource extends ProcessManagedResource {
 
+    private final String location;
     private final Class<?>[] classes;
     private final Dependency[] forcedDependencies;
 
     private BootstrapQuarkusResource resource;
 
-    public ProdModeBootstrapQuarkusManagedResource(Class<?>[] classes, Dependency[] forcedDependencies) {
+    public ProdModeBootstrapQuarkusManagedResource(String location, Class<?>[] classes,
+            Dependency[] forcedDependencies) {
+        this.location = location;
         this.classes = classes;
         this.forcedDependencies = forcedDependencies;
     }
@@ -66,7 +69,7 @@ public class ProdModeBootstrapQuarkusManagedResource extends ProcessManagedResou
     @Override
     protected void init(ServiceContext context) {
         super.init(context);
-        resource = new BootstrapQuarkusResource(context, classes, forcedDependencies);
+        resource = new BootstrapQuarkusResource(context, location, classes, forcedDependencies);
     }
 
     private Path getComputedApplicationProperties() {
