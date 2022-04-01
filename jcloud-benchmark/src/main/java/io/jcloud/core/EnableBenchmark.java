@@ -3,6 +3,7 @@ package io.jcloud.core;
 import java.nio.file.Path;
 
 import org.junit.jupiter.api.Test;
+import org.openjdk.jmh.profile.StackProfiler;
 import org.openjdk.jmh.results.format.ResultFormatType;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -18,7 +19,7 @@ public interface EnableBenchmark {
         Path result = Path.of("target", "benchmarks-results");
         FileUtils.createDirectoryIfDoesNotExist(result);
         Options jmhRunnerOptions = new OptionsBuilder().shouldDoGC(true).shouldFailOnError(true).shouldFailOnError(true)
-                .resultFormat(ResultFormatType.JSON)
+                .addProfiler(StackProfiler.class).resultFormat(ResultFormatType.JSON)
                 // do not use forking or the benchmark methods will not see references stored within its class
                 .forks(0)
                 // set the class name regex for benchmarks to search for to the current class

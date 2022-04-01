@@ -32,6 +32,7 @@ import io.jcloud.core.ServiceContext;
 import io.jcloud.utils.ClassPathUtils;
 import io.jcloud.utils.FileUtils;
 import io.jcloud.utils.MapUtils;
+import io.jcloud.utils.PathTestHelper;
 import io.jcloud.utils.PropertiesUtils;
 import io.jcloud.utils.QuarkusUtils;
 import io.jcloud.utils.ReflectionUtils;
@@ -41,7 +42,6 @@ import io.quarkus.bootstrap.app.CuratedApplication;
 import io.quarkus.bootstrap.app.QuarkusBootstrap;
 import io.quarkus.bootstrap.model.AppArtifact;
 import io.quarkus.bootstrap.model.AppDependency;
-import io.quarkus.test.common.PathTestHelper;
 
 public class BootstrapQuarkusResource extends QuarkusResource {
 
@@ -129,6 +129,10 @@ public class BootstrapQuarkusResource extends QuarkusResource {
     private void createComputedApplicationProperties() {
         Path generatedApplicationProperties = context.getServiceFolder().resolve(APPLICATION_PROPERTIES);
         Map<String, String> map = new HashMap<>();
+        // Add the content of the source application properties into the auto-generated application.properties
+        if (Files.exists(generatedApplicationProperties)) {
+            map.putAll(PropertiesUtils.toMap(generatedApplicationProperties));
+        }
         // Then add the service properties
         map.putAll(context.getOwner().getProperties());
         // Then overwrite the application properties with the generated application.properties
@@ -147,6 +151,12 @@ public class BootstrapQuarkusResource extends QuarkusResource {
     }
 
     private Path buildRunner() {
+        if (!QuarkusUtils.isBootstrapDependencyAdded()) {
+            throw new RuntimeException(
+                    "To use custom classes or dependencies, you need to add the dependency `io.quarkus:quarkus-test-common`. "
+                            + "Otherwise, you need to build the current module before executing the integration tests");
+        }
+
         try {
             copyResourcesToAppFolder();
             createSnapshotOfBuildProperties();

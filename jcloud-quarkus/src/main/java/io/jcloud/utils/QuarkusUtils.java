@@ -101,4 +101,13 @@ public final class QuarkusUtils {
     public static String getDockerfile(QuarkusLaunchMode mode) {
         return String.format(DOCKERFILE_TEMPLATE, mode.getName());
     }
+
+    public static boolean isBootstrapDependencyAdded() {
+        try {
+            Class.forName("io.quarkus.bootstrap.app.QuarkusBootstrap");
+            return true;
+        } catch (ClassNotFoundException ex) {
+            return false;
+        }
+    }
 }
