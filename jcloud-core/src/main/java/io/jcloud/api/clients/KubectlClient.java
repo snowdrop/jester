@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -42,7 +43,7 @@ public final class KubectlClient {
     private final String currentNamespace;
     private final DefaultKubernetesClient masterClient;
     private final NamespacedKubernetesClient client;
-    private final Map<String, KeyValueEntry<Service, LocalPortForward>> portForwardsByService = new HashMap<>();
+    private final Map<String, KeyValueEntry<Service, LocalPortForwardWrapper>> portForwardsByService = new HashMap<>();
 
     private KubectlClient(String namespace) {
         currentNamespace = namespace;
@@ -199,16 +200,19 @@ public final class KubectlClient {
         }
 
         if (PORT_FORWARD_HOST.equalsIgnoreCase(host(service))) {
-            KeyValueEntry<Service, LocalPortForward> portForwardByService = portForwardsByService.get(serviceName);
-            if (portForwardByService == null || !portForwardByService.getValue().isAlive()) {
-                portForwardByService = new KeyValueEntry<>(service, client.services().withName(serviceName)
-                        .portForward(port, SocketUtils.findAvailablePort(service)));
-                Log.trace(service,
-                        "Opening port forward from local port " + portForwardByService.getValue().getLocalPort());
+            KeyValueEntry<Service, LocalPortForwardWrapper> portForwardByService = portForwardsByService
+                    .get(serviceName);
+            if (portForwardByService == null || portForwardByService.getValue().needsToRecreate()) {
+                closePortForward(portForwardByService);
+                LocalPortForward process = client.services().withName(serviceName).portForward(port,
+                        SocketUtils.findAvailablePort(service));
+                Log.trace(service, "Opening port forward from local port " + process.getLocalPort());
+
+                portForwardByService = new KeyValueEntry<>(service, new LocalPortForwardWrapper(process, service));
                 portForwardsByService.put(serviceName, portForwardByService);
             }
 
-            return portForwardByService.getValue().getLocalPort();
+            return portForwardByService.getValue().localPort;
         }
 
         return serviceModel.getSpec().getPorts().stream().filter(Objects::nonNull)
@@ -258,7 +262,6 @@ public final class KubectlClient {
      * @param service
      */
     public void stopService(Service service) {
-        Optional.ofNullable(portForwardsByService.remove(service.getName())).ifPresent(this::closePortForward);
         scaleTo(service, 0);
     }
 
@@ -280,14 +283,16 @@ public final class KubectlClient {
         return pod.getStatus().getPhase().equals("Running");
     }
 
-    private void closePortForward(KeyValueEntry<Service, LocalPortForward> portForward) {
-        int localPort = portForward.getValue().getLocalPort();
-        Log.trace(portForward.getKey(), "Closing port forward using local port " + localPort);
-        try {
-            portForward.getValue().close();
-            AwaitilityUtils.untilIsFalse(portForward.getValue()::isAlive);
-        } catch (IOException ex) {
-            Log.warn("Failed to close port forward " + localPort, ex);
+    private void closePortForward(KeyValueEntry<Service, LocalPortForwardWrapper> portForward) {
+        if (portForward != null) {
+            int localPort = portForward.getValue().localPort;
+            Log.trace(portForward.getKey(), "Closing port forward using local port " + localPort);
+            try {
+                portForward.getValue().process.close();
+                AwaitilityUtils.untilIsFalse(portForward.getValue().process::isAlive);
+            } catch (IOException ex) {
+                Log.warn("Failed to close port forward " + localPort, ex);
+            }
         }
     }
 
@@ -342,6 +347,36 @@ public final class KubectlClient {
         return ThreadLocalRandom.current().ints(NAMESPACE_NAME_SIZE, 'a', 'z' + 1)
                 .collect(() -> new StringBuilder("ts-"), StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString();
+    }
+
+    class LocalPortForwardWrapper {
+        int localPort;
+        LocalPortForward process;
+        Service service;
+        Set<String> podIds;
+
+        LocalPortForwardWrapper(LocalPortForward process, Service service) {
+            this.localPort = process.getLocalPort();
+            this.process = process;
+            this.service = service;
+            this.podIds = resolvePodIds();
+        }
+
+        /**
+         * Needs to recreate the port forward if the pods have changed or the process was stopped.
+         */
+        boolean needsToRecreate() {
+            if (!process.isAlive()) {
+                return true;
+            }
+
+            Set<String> newPodIds = resolvePodIds();
+            return !podIds.containsAll(newPodIds);
+        }
+
+        private Set<String> resolvePodIds() {
+            return podsInService(service).stream().map(p -> p.getMetadata().getName()).collect(Collectors.toSet());
+        }
     }
 
 }

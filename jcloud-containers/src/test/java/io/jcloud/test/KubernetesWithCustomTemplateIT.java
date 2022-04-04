@@ -21,10 +21,11 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.jcloud.api.Container;
 import io.jcloud.api.JCloud;
 import io.jcloud.api.RestService;
-import io.jcloud.api.RunOnKubernetes;
+import io.jcloud.api.ServiceConfiguration;
+import io.jcloud.core.extensions.KubernetesExtensionBootstrap;
 
-@JCloud
-@RunOnKubernetes
+@JCloud(target = KubernetesExtensionBootstrap.TARGET_KUBERNETES)
+@ServiceConfiguration(forService = "templated", deleteFolderOnClose = false)
 public class KubernetesWithCustomTemplateIT {
 
     @Container(image = QUARKUS_REST_IMAGE, ports = SAMPLES_DEFAULT_PORT, expectedLog = QUARKUS_STARTUP_EXPECTED_LOG)
@@ -40,7 +41,7 @@ public class KubernetesWithCustomTemplateIT {
 
     @Test
     public void testServiceIsUpAndRunning() {
-        templated.given().get(SAMPLES_DEFAULT_REST_PATH).then().statusCode(HttpStatus.SC_OK)
+        templated.given().log().all().get(SAMPLES_DEFAULT_REST_PATH).then().log().all().statusCode(HttpStatus.SC_OK)
                 .body(is(SAMPLES_DEFAULT_REST_PATH_OUTPUT));
     }
 
@@ -54,7 +55,7 @@ public class KubernetesWithCustomTemplateIT {
         ContainerPort containerPort = deploymentOfTemplated.getSpec().getTemplate().getSpec().getContainers().get(0)
                 .getPorts().get(0);
         assertNotNull(containerPort);
-        assertEquals(8088, containerPort.getContainerPort());
+        assertEquals(6000, containerPort.getContainerPort());
         assertEquals("custom-port", containerPort.getName());
     }
 

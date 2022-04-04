@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -75,18 +74,19 @@ public class Command {
         return this;
     }
 
-    public void runAndWait(Duration waitAtLeast) throws IOException, InterruptedException {
-        runAndWait();
-        Thread.sleep(waitAtLeast.toMillis());
-    }
-
-    public void runAndWait() throws IOException, InterruptedException {
+    public Process run() throws IOException {
         Log.info("Running command: %s", String.join(" ", command));
         Process process = ProcessBuilderProvider.command(command).redirectErrorStream(true)
                 .directory(new File(directory).getAbsoluteFile()).start();
 
         new Thread(() -> outputConsumer.accept(description, process.getInputStream()),
                 "stdout consumer for command " + description).start();
+
+        return process;
+    }
+
+    public void runAndWait() throws IOException, InterruptedException {
+        Process process = run();
 
         int result = process.waitFor();
         if (result != 0) {
