@@ -31,10 +31,10 @@ import io.jcloud.core.ServiceState;
 @Threads(50)
 public class ThroughputBenchmarkForRestAppsIT implements EnableBenchmark {
 
-    @Quarkus(dependencies = @Dependency(artifactId = "quarkus-resteasy-reactive", version = "${quarkus.platform.version:2.7.5.Final}"))
+    @Quarkus(dependencies = @Dependency(artifactId = "quarkus-resteasy-reactive", version = "${quarkus.platform.version:2.8.0.Final}"))
     public static HttpService quarkusReactive = new HttpService().setAutoStart(false);
 
-    @Quarkus(dependencies = @Dependency(artifactId = "quarkus-resteasy", version = "${quarkus.platform.version:2.7.5.Final}"))
+    @Quarkus(dependencies = @Dependency(artifactId = "quarkus-resteasy", version = "${quarkus.platform.version:2.8.0.Final}"))
     public static HttpService quarkusClassic = new HttpService().setAutoStart(false);
 
     @Spring(forceBuild = true, buildCommands = { "mvn", "package", "-Pspring",
