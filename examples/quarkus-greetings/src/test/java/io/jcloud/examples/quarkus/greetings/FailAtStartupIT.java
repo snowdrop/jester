@@ -10,11 +10,11 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import io.jcloud.api.JCloud;
 import io.jcloud.api.Quarkus;
 import io.jcloud.api.RestService;
-import io.jcloud.api.Scenario;
 
-@Scenario
+@JCloud
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class FailAtStartupIT {
 

@@ -16,13 +16,13 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 
 import io.jcloud.configuration.BaseConfigurationBuilder;
 import io.jcloud.configuration.ConfigurationLoader;
-import io.jcloud.configuration.ScenarioConfigurationBuilder;
+import io.jcloud.configuration.JCloudConfigurationBuilder;
 
-public final class ScenarioContext {
+public final class JCloudContext {
 
-    private static final String SCENARIO = "scenario";
+    private static final String JCLOUD = "jcloud";
     private static final String LOG_FILE_PATH = System.getProperty("log.file.path", "target/logs");
-    private static final int SCENARIO_ID_MAX_SIZE = 60;
+    private static final int JCLOUD_ID_MAX_SIZE = 60;
 
     private final ExtensionContext testContext;
     private final String id;
@@ -34,12 +34,12 @@ public final class ScenarioContext {
     private boolean failed;
     private boolean debug;
 
-    protected ScenarioContext(ExtensionContext testContext) {
+    protected JCloudContext(ExtensionContext testContext) {
         this.testContext = testContext;
-        this.id = generateScenarioId(testContext);
-        this.testNamespace = ExtensionContext.Namespace.create(ScenarioContext.class);
+        this.id = generateContextId(testContext);
+        this.testNamespace = ExtensionContext.Namespace.create(JCloudContext.class);
 
-        loadCustomConfiguration(SCENARIO, new ScenarioConfigurationBuilder());
+        loadCustomConfiguration(JCLOUD, new JCloudConfigurationBuilder());
     }
 
     public String getId() {
@@ -139,7 +139,7 @@ public final class ScenarioContext {
         return configuration;
     }
 
-    protected void markScenarioAsFailed() {
+    protected void markTestSuiteAsFailed() {
         failed = true;
     }
 
@@ -147,8 +147,8 @@ public final class ScenarioContext {
         return Arrays.asList(testContext.getRequiredTestClass().getAnnotationsByType(clazz));
     }
 
-    private static String generateScenarioId(ExtensionContext context) {
+    private static String generateContextId(ExtensionContext context) {
         String fullId = context.getRequiredTestClass().getSimpleName() + "-" + System.currentTimeMillis();
-        return fullId.substring(0, Math.min(SCENARIO_ID_MAX_SIZE, fullId.length()));
+        return fullId.substring(0, Math.min(JCLOUD_ID_MAX_SIZE, fullId.length()));
     }
 }

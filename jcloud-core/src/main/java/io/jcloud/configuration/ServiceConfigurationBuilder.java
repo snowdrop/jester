@@ -4,7 +4,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 
 import io.jcloud.api.PortResolutionStrategy;
-import io.jcloud.core.ScenarioContext;
+import io.jcloud.core.JCloudContext;
 
 public class ServiceConfigurationBuilder
         extends BaseConfigurationBuilder<io.jcloud.api.ServiceConfiguration, ServiceConfiguration> {
@@ -40,8 +40,8 @@ public class ServiceConfigurationBuilder
 
     @Override
     protected Optional<io.jcloud.api.ServiceConfiguration> getAnnotationConfig(String serviceName,
-            ScenarioContext scenarioContext) {
-        return scenarioContext.getAnnotatedConfiguration(io.jcloud.api.ServiceConfiguration.class,
+            JCloudContext context) {
+        return context.getAnnotatedConfiguration(io.jcloud.api.ServiceConfiguration.class,
                 a -> a.forService().equals(serviceName));
     }
 }

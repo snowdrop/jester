@@ -1,6 +1,6 @@
 package io.jcloud.configuration;
 
-public final class ScenarioConfiguration {
+public final class JCloudConfiguration {
     private String target;
 
     public String getTarget() {

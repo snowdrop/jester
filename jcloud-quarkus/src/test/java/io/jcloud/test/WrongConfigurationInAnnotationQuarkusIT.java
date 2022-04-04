@@ -5,14 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 
 import io.jcloud.api.Dependency;
+import io.jcloud.api.JCloud;
 import io.jcloud.api.Quarkus;
 import io.jcloud.api.QuarkusServiceConfiguration;
 import io.jcloud.api.RestService;
-import io.jcloud.api.Scenario;
 import io.jcloud.api.ServiceConfiguration;
 import io.jcloud.test.samples.QuarkusPingApplication;
 
-@Scenario
+@JCloud
 @QuarkusServiceConfiguration(forService = "app", expectedLog = "this is wrong!")
 @ServiceConfiguration(forService = "app", startupTimeout = "10s")
 public class WrongConfigurationInAnnotationQuarkusIT {

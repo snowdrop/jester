@@ -1,8 +1,8 @@
 package io.jcloud.api.extensions;
 
 import io.jcloud.api.Quarkus;
+import io.jcloud.core.JCloudContext;
 import io.jcloud.core.ManagedResource;
-import io.jcloud.core.ScenarioContext;
 
 public interface QuarkusManagedResourceBinding {
     /**
@@ -10,7 +10,7 @@ public interface QuarkusManagedResourceBinding {
      *
      * @return if the current managed resource applies for the current context.
      */
-    boolean appliesFor(ScenarioContext context);
+    boolean appliesFor(JCloudContext context);
 
     /**
      * Init and return the managed resource for the current context.

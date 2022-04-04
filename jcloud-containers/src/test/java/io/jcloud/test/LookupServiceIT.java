@@ -12,12 +12,12 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import io.jcloud.api.Container;
+import io.jcloud.api.JCloud;
 import io.jcloud.api.LookupService;
 import io.jcloud.api.RestService;
-import io.jcloud.api.Scenario;
 
 @Tag("containers")
-@Scenario
+@JCloud
 public class LookupServiceIT extends BaseLookupServiceIT {
 
     @Container(image = QUARKUS_REST_IMAGE, ports = SAMPLES_DEFAULT_PORT, expectedLog = QUARKUS_STARTUP_EXPECTED_LOG)

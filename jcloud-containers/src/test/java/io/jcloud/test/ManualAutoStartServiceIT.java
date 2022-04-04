@@ -17,11 +17,11 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import io.jcloud.api.Container;
+import io.jcloud.api.JCloud;
 import io.jcloud.api.RestService;
-import io.jcloud.api.Scenario;
 
 @Tag("containers")
-@Scenario
+@JCloud
 public class ManualAutoStartServiceIT {
 
     private static final AtomicInteger PRE_START_COUNTER = new AtomicInteger(0);

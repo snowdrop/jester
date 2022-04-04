@@ -2,13 +2,13 @@ package io.jcloud.resources.spring.kubernetes;
 
 import io.jcloud.api.Spring;
 import io.jcloud.api.extensions.SpringManagedResourceBinding;
+import io.jcloud.core.JCloudContext;
 import io.jcloud.core.ManagedResource;
-import io.jcloud.core.ScenarioContext;
 import io.jcloud.core.extensions.KubernetesExtensionBootstrap;
 
 public class KubernetesSpringManagedResourceBinding implements SpringManagedResourceBinding {
     @Override
-    public boolean appliesFor(ScenarioContext context) {
+    public boolean appliesFor(JCloudContext context) {
         return KubernetesExtensionBootstrap.isEnabled(context);
     }
 

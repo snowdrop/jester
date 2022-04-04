@@ -11,27 +11,27 @@ import org.testcontainers.containers.Network;
 
 import com.github.dockerjava.api.command.CreateNetworkCmd;
 
-import io.jcloud.core.ScenarioContext;
+import io.jcloud.core.JCloudContext;
 import io.jcloud.core.ServiceContext;
 
-public class DockerScenarioNetwork implements Network, ExtensionContext.Store.CloseableResource {
+public class DockerJCloudNetwork implements Network, ExtensionContext.Store.CloseableResource {
 
-    private static final String SCENARIO_NETWORK = "internal.container.network";
+    private static final String NETWORK = "internal.container.network";
 
-    private final ScenarioContext scenario;
+    private final JCloudContext context;
     private final Set<ServiceContext> services = new HashSet<>();
 
-    public DockerScenarioNetwork(ScenarioContext scenario) {
-        this.scenario = scenario;
+    public DockerJCloudNetwork(JCloudContext context) {
+        this.context = context;
         CreateNetworkCmd createNetworkCmd = DockerClientFactory.instance().client().createNetworkCmd();
-        createNetworkCmd.withName(scenario.getId());
+        createNetworkCmd.withName(context.getId());
         createNetworkCmd.withCheckDuplicate(true);
         createNetworkCmd.exec();
     }
 
     @Override
     public String getId() {
-        return scenario.getId();
+        return context.getId();
     }
 
     public void attachService(ServiceContext service) {
@@ -49,11 +49,11 @@ public class DockerScenarioNetwork implements Network, ExtensionContext.Store.Cl
         }
 
         try {
-            DockerClientFactory.instance().client().removeNetworkCmd(scenario.getId()).exec();
+            DockerClientFactory.instance().client().removeNetworkCmd(context.getId()).exec();
         } catch (Exception ignored) {
         }
 
-        scenario.getTestStore().remove(SCENARIO_NETWORK);
+        context.getTestStore().remove(NETWORK);
     }
 
     @Override
@@ -62,8 +62,8 @@ public class DockerScenarioNetwork implements Network, ExtensionContext.Store.Cl
         return statement;
     }
 
-    public static final DockerScenarioNetwork getOrCreate(ScenarioContext context) {
-        return context.getTestStore().getOrComputeIfAbsent(SCENARIO_NETWORK, k -> new DockerScenarioNetwork(context),
-                DockerScenarioNetwork.class);
+    public static final DockerJCloudNetwork getOrCreate(JCloudContext context) {
+        return context.getTestStore().getOrComputeIfAbsent(NETWORK, k -> new DockerJCloudNetwork(context),
+                DockerJCloudNetwork.class);
     }
 }

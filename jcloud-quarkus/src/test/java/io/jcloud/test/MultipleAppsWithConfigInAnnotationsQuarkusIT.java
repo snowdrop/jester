@@ -5,14 +5,14 @@ import static org.hamcrest.Matchers.is;
 import org.junit.jupiter.api.Test;
 
 import io.jcloud.api.Dependency;
+import io.jcloud.api.JCloud;
 import io.jcloud.api.Quarkus;
 import io.jcloud.api.QuarkusServiceConfiguration;
 import io.jcloud.api.RestService;
-import io.jcloud.api.Scenario;
 import io.jcloud.test.samples.AppLifecycleBean;
 import io.jcloud.test.samples.QuarkusPingApplication;
 
-@Scenario
+@JCloud
 @QuarkusServiceConfiguration(forService = "one", expectedLog = "Installed features: (.*), resteasy, (.*)")
 @QuarkusServiceConfiguration(forService = "two", expectedLog = "Custom log at startup event!")
 public class MultipleAppsWithConfigInAnnotationsQuarkusIT {

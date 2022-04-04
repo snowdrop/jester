@@ -15,10 +15,10 @@ import org.junit.jupiter.api.Test;
 
 import io.jcloud.api.Container;
 import io.jcloud.api.HttpService;
-import io.jcloud.api.Scenario;
+import io.jcloud.api.JCloud;
 
 @Tag("containers")
-@Scenario
+@JCloud
 public class HttpServiceIT {
 
     @Container(image = QUARKUS_REST_IMAGE, ports = SAMPLES_DEFAULT_PORT, expectedLog = QUARKUS_STARTUP_EXPECTED_LOG)

@@ -1,6 +1,6 @@
 package io.jcloud.api.clients;
 
-import static io.jcloud.utils.ManifestsUtils.LABEL_SCENARIO_ID;
+import static io.jcloud.utils.ManifestsUtils.LABEL_CONTEXT_ID;
 import static io.jcloud.utils.ManifestsUtils.LABEL_TO_WATCH_FOR_LOGS;
 
 import java.io.IOException;
@@ -245,11 +245,11 @@ public final class KubectlClient {
     }
 
     /**
-     * Delete all the resources within the scenario.
+     * Delete all the resources within the test.
      */
-    public void deleteResourcesInScenario(String scenarioId) {
+    public void deleteResourcesInJCloudContext(String contextId) {
         portForwardsByService.values().forEach(this::closePortForward);
-        deleteResourcesByLabel(LABEL_SCENARIO_ID, scenarioId);
+        deleteResourcesByLabel(LABEL_CONTEXT_ID, contextId);
     }
 
     /**

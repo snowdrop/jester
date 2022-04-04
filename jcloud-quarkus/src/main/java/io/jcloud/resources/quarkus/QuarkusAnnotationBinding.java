@@ -6,8 +6,8 @@ import java.util.ServiceLoader;
 import io.jcloud.api.Quarkus;
 import io.jcloud.api.extensions.AnnotationBinding;
 import io.jcloud.api.extensions.QuarkusManagedResourceBinding;
+import io.jcloud.core.JCloudContext;
 import io.jcloud.core.ManagedResource;
-import io.jcloud.core.ScenarioContext;
 import io.jcloud.resources.quarkus.local.ProdModeBootstrapQuarkusManagedResource;
 
 public class QuarkusAnnotationBinding implements AnnotationBinding {
@@ -21,7 +21,7 @@ public class QuarkusAnnotationBinding implements AnnotationBinding {
     }
 
     @Override
-    public ManagedResource getManagedResource(ScenarioContext context, Annotation... annotations) {
+    public ManagedResource getManagedResource(JCloudContext context, Annotation... annotations) {
         Quarkus metadata = findAnnotation(annotations, Quarkus.class).get();
 
         for (QuarkusManagedResourceBinding binding : customBindings) {

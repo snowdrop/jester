@@ -8,7 +8,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 
-import io.jcloud.core.ScenarioContext;
+import io.jcloud.core.JCloudContext;
 
 public final class ConfigurationLoader {
     private static final String PREFIX_TEMPLATE = "ts.%s.";
@@ -17,14 +17,14 @@ public final class ConfigurationLoader {
 
     }
 
-    public static <T extends Annotation, C> C load(String target, ScenarioContext scenarioContext,
+    public static <T extends Annotation, C> C load(String target, JCloudContext context,
             BaseConfigurationBuilder<T, C> builder) {
         Map<String, String> properties = new HashMap<>();
         // Then, highest priority: properties from system properties and scope as service name
         properties.putAll(loadPropertiesFromSystemProperties(target));
 
         // Load configuration from annotations
-        builder.with(target, scenarioContext).withProperties(properties);
+        builder.with(target, context).withProperties(properties);
 
         // Build service configuration mixing up configuration from properties and annotations
         return builder.build();

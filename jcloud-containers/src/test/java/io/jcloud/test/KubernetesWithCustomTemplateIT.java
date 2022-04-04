@@ -19,11 +19,11 @@ import io.fabric8.kubernetes.api.model.ContainerPort;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.jcloud.api.Container;
+import io.jcloud.api.JCloud;
 import io.jcloud.api.RestService;
 import io.jcloud.api.RunOnKubernetes;
-import io.jcloud.api.Scenario;
 
-@Scenario
+@JCloud
 @RunOnKubernetes
 public class KubernetesWithCustomTemplateIT {
 

@@ -6,8 +6,8 @@ import java.util.ServiceLoader;
 import io.jcloud.api.Container;
 import io.jcloud.api.extensions.AnnotationBinding;
 import io.jcloud.api.extensions.ContainerManagedResourceBinding;
+import io.jcloud.core.JCloudContext;
 import io.jcloud.core.ManagedResource;
-import io.jcloud.core.ScenarioContext;
 import io.jcloud.resources.containers.local.DockerContainerManagedResource;
 
 public class ContainerAnnotationBinding implements AnnotationBinding {
@@ -21,7 +21,7 @@ public class ContainerAnnotationBinding implements AnnotationBinding {
     }
 
     @Override
-    public ManagedResource getManagedResource(ScenarioContext context, Annotation... annotations) {
+    public ManagedResource getManagedResource(JCloudContext context, Annotation... annotations) {
         Container metadata = findAnnotation(annotations, Container.class).get();
 
         for (ContainerManagedResourceBinding binding : containerBindings) {

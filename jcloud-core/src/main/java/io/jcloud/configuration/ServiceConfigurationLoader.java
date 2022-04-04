@@ -10,7 +10,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 
-import io.jcloud.core.ScenarioContext;
+import io.jcloud.core.JCloudContext;
 
 public final class ServiceConfigurationLoader {
 
@@ -24,7 +24,7 @@ public final class ServiceConfigurationLoader {
 
     }
 
-    public static <T extends Annotation, C> C load(String scope, ScenarioContext scenarioContext,
+    public static <T extends Annotation, C> C load(String scope, JCloudContext context,
             BaseConfigurationBuilder<T, C> builder) {
         Map<String, String> properties = new HashMap<>();
         // Lowest priority: properties from global.properties and scope `global`
@@ -38,7 +38,7 @@ public final class ServiceConfigurationLoader {
         properties.putAll(loadPropertiesFromSystemProperties(scope));
 
         // Load configuration from annotations
-        builder.with(scope, scenarioContext).withProperties(properties);
+        builder.with(scope, context).withProperties(properties);
 
         // Build service configuration mixing up configuration from properties and annotations
         return builder.build();

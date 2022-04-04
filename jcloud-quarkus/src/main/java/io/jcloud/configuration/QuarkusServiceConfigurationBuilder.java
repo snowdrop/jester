@@ -2,7 +2,7 @@ package io.jcloud.configuration;
 
 import java.util.Optional;
 
-import io.jcloud.core.ScenarioContext;
+import io.jcloud.core.JCloudContext;
 
 public final class QuarkusServiceConfigurationBuilder
         extends BaseConfigurationBuilder<io.jcloud.api.QuarkusServiceConfiguration, QuarkusServiceConfiguration> {
@@ -18,8 +18,8 @@ public final class QuarkusServiceConfigurationBuilder
 
     @Override
     protected Optional<io.jcloud.api.QuarkusServiceConfiguration> getAnnotationConfig(String serviceName,
-            ScenarioContext scenarioContext) {
-        return scenarioContext.getAnnotatedConfiguration(io.jcloud.api.QuarkusServiceConfiguration.class,
+            JCloudContext context) {
+        return context.getAnnotatedConfiguration(io.jcloud.api.QuarkusServiceConfiguration.class,
                 a -> a.forService().equals(serviceName));
     }
 }

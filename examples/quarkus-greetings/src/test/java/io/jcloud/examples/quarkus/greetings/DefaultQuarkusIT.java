@@ -6,10 +6,10 @@ import static org.hamcrest.Matchers.is;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
+import io.jcloud.api.JCloud;
 import io.jcloud.api.Quarkus;
-import io.jcloud.api.Scenario;
 
-@Scenario
+@JCloud
 @Quarkus
 public class DefaultQuarkusIT {
 

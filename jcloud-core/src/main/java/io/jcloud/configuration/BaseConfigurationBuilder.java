@@ -9,7 +9,7 @@ import java.util.function.Function;
 
 import org.apache.commons.lang3.StringUtils;
 
-import io.jcloud.core.ScenarioContext;
+import io.jcloud.core.JCloudContext;
 import io.jcloud.utils.DurationUtils;
 import io.jcloud.utils.PropertiesUtils;
 
@@ -19,8 +19,8 @@ public abstract class BaseConfigurationBuilder<T extends Annotation, C> {
     private Map<String, String> properties = Collections.emptyMap();
     private Optional<T> annotationConfig = Optional.empty();
 
-    public BaseConfigurationBuilder<T, C> with(String serviceName, ScenarioContext scenarioContext) {
-        this.annotationConfig = getAnnotationConfig(serviceName, scenarioContext);
+    public BaseConfigurationBuilder<T, C> with(String serviceName, JCloudContext context) {
+        this.annotationConfig = getAnnotationConfig(serviceName, context);
         return this;
     }
 
@@ -31,7 +31,7 @@ public abstract class BaseConfigurationBuilder<T extends Annotation, C> {
 
     public abstract C build();
 
-    protected abstract Optional<T> getAnnotationConfig(String serviceName, ScenarioContext scenarioContext);
+    protected abstract Optional<T> getAnnotationConfig(String serviceName, JCloudContext context);
 
     protected Optional<Duration> loadDuration(String propertyKey, Function<T, String> annotationMapper) {
         // first annotation,
