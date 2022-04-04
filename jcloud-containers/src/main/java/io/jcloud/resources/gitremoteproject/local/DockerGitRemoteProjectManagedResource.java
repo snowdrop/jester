@@ -1,5 +1,7 @@
 package io.jcloud.resources.gitremoteproject.local;
 
+import org.apache.commons.lang3.StringUtils;
+
 import io.jcloud.core.ServiceContext;
 import io.jcloud.resources.common.local.GenericContainerManagedResource;
 import io.jcloud.resources.gitremoteproject.GitRemoteProjectResource;
@@ -27,7 +29,16 @@ public class DockerGitRemoteProjectManagedResource extends GenericContainerManag
 
     @Override
     public String getDisplayName() {
-        return "Git project from " + repo;
+        String name = repo;
+        if (StringUtils.isNotEmpty(branch)) {
+            name += "/" + branch;
+        }
+
+        if (StringUtils.isNotEmpty(contextDir)) {
+            name += "/" + contextDir;
+        }
+
+        return "Git project from " + name;
     }
 
     @Override

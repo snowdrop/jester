@@ -47,7 +47,6 @@ public abstract class ProcessManagedResource extends ManagedResource {
         }
 
         try {
-            assignPorts();
             List<String> command = prepareCommand(getPropertiesForCommand());
             Log.info(context.getOwner(), "Running command: %s", String.join(" ", command));
 
@@ -97,6 +96,7 @@ public abstract class ProcessManagedResource extends ManagedResource {
     protected void init(ServiceContext context) {
         super.init(context);
         this.logOutputFile = new File(context.getServiceFolder().resolve(LOG_OUTPUT_FILE).toString());
+        assignPorts();
     }
 
     protected List<String> getPropertiesForCommand() {

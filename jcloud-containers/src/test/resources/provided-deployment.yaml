@@ -11,5 +11,5 @@ spec:
             - name: "my.property"
               value: "value from template!"
           ports:
-            - containerPort: 8088
+            - containerPort: 6000
               name: "custom-port"
