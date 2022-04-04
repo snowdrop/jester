@@ -23,7 +23,7 @@ import io.jcloud.core.ServiceContext;
 import io.jcloud.logging.Log;
 import io.jcloud.logging.LoggingHandler;
 import io.jcloud.logging.TestContainersLoggingHandler;
-import io.jcloud.resources.containers.local.DockerScenarioNetwork;
+import io.jcloud.resources.containers.local.DockerJCloudNetwork;
 import io.jcloud.utils.PropertiesUtils;
 
 public abstract class GenericContainerManagedResource extends ManagedResource {
@@ -34,7 +34,7 @@ public abstract class GenericContainerManagedResource extends ManagedResource {
     private final String[] command;
     private final Integer[] ports;
 
-    private DockerScenarioNetwork network;
+    private DockerJCloudNetwork network;
     private GenericContainer<?> innerContainer;
     private LoggingHandler loggingHandler;
 
@@ -52,7 +52,7 @@ public abstract class GenericContainerManagedResource extends ManagedResource {
             return;
         }
 
-        network = DockerScenarioNetwork.getOrCreate(context.getScenarioContext());
+        network = DockerJCloudNetwork.getOrCreate(context.getJCloudContext());
         network.attachService(context);
 
         innerContainer = new GenericContainer<>(getImage());

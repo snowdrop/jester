@@ -14,13 +14,13 @@ import org.keycloak.authorization.client.Configuration;
 
 import io.jcloud.api.Container;
 import io.jcloud.api.DefaultService;
+import io.jcloud.api.JCloud;
 import io.jcloud.api.Quarkus;
 import io.jcloud.api.RestService;
-import io.jcloud.api.Scenario;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Tag("containers")
-@Scenario
+@JCloud
 public class KeycloakGreetingResourceIT {
     protected static final String REALM = "test-realm";
     private static final String CLIENT_ID = "test-application-client";

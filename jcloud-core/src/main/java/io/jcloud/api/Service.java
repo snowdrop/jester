@@ -8,14 +8,14 @@ import java.util.Optional;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
 import io.jcloud.api.extensions.AnnotationBinding;
+import io.jcloud.core.JCloudContext;
 import io.jcloud.core.ManagedResource;
-import io.jcloud.core.ScenarioContext;
 import io.jcloud.core.ServiceContext;
 import io.jcloud.utils.LogsVerifier;
 
 public interface Service extends ExtensionContext.Store.CloseableResource {
 
-    String getScenarioId();
+    String getContextId();
 
     String getName();
 
@@ -33,7 +33,7 @@ public interface Service extends ExtensionContext.Store.CloseableResource {
 
     List<String> getLogs();
 
-    ServiceContext register(String serviceName, ScenarioContext context);
+    ServiceContext register(String serviceName, JCloudContext context);
 
     void init(ManagedResource resource);
 

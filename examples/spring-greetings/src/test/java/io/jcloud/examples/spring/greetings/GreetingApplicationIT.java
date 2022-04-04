@@ -5,10 +5,10 @@ import static org.hamcrest.Matchers.is;
 
 import org.junit.jupiter.api.Test;
 
-import io.jcloud.api.Scenario;
+import io.jcloud.api.JCloud;
 import io.jcloud.api.Spring;
 
-@Scenario
+@JCloud
 @Spring
 public class GreetingApplicationIT {
 

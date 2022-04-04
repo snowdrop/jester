@@ -6,8 +6,8 @@ import java.util.ServiceLoader;
 import io.jcloud.api.LocalProject;
 import io.jcloud.api.extensions.AnnotationBinding;
 import io.jcloud.api.extensions.LocalProjectManagedResourceBinding;
+import io.jcloud.core.JCloudContext;
 import io.jcloud.core.ManagedResource;
-import io.jcloud.core.ScenarioContext;
 import io.jcloud.resources.localproject.local.DockerLocalProjectManagedResource;
 
 public class LocalProjectAnnotationBinding implements AnnotationBinding {
@@ -21,7 +21,7 @@ public class LocalProjectAnnotationBinding implements AnnotationBinding {
     }
 
     @Override
-    public ManagedResource getManagedResource(ScenarioContext context, Annotation... annotations) {
+    public ManagedResource getManagedResource(JCloudContext context, Annotation... annotations) {
         LocalProject metadata = findAnnotation(annotations, LocalProject.class).get();
 
         for (LocalProjectManagedResourceBinding binding : bindings) {

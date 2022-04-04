@@ -77,6 +77,6 @@ public class ProdModeBootstrapQuarkusManagedResource extends ProcessManagedResou
     }
 
     private String propertyWithProfile(String name) {
-        return "%" + context.getScenarioContext().getRunningTestClassName() + "." + name;
+        return "%" + context.getJCloudContext().getRunningTestClassName() + "." + name;
     }
 }

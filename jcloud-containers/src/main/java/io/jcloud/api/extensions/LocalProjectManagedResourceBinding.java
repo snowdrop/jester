@@ -1,8 +1,8 @@
 package io.jcloud.api.extensions;
 
 import io.jcloud.api.LocalProject;
+import io.jcloud.core.JCloudContext;
 import io.jcloud.core.ManagedResource;
-import io.jcloud.core.ScenarioContext;
 
 public interface LocalProjectManagedResourceBinding {
     /**
@@ -10,7 +10,7 @@ public interface LocalProjectManagedResourceBinding {
      *
      * @return if the current managed resource applies for the current context.
      */
-    boolean appliesFor(ScenarioContext context);
+    boolean appliesFor(JCloudContext context);
 
     /**
      * Init and return the managed resource for the current context.

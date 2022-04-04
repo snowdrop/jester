@@ -18,8 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import io.jcloud.api.Container;
+import io.jcloud.api.JCloud;
 import io.jcloud.api.RestService;
-import io.jcloud.api.Scenario;
 import io.jcloud.utils.AwaitilityUtils;
 import io.restassured.config.ConnectionConfig;
 import io.restassured.config.HttpClientConfig;
@@ -27,7 +27,7 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.specification.RequestSpecification;
 
 @Tag("containers")
-@Scenario
+@JCloud
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ServiceInstancesIT {
 

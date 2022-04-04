@@ -15,11 +15,11 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.jcloud.api.RunOnKubernetes;
 import io.jcloud.api.clients.KubectlClient;
 import io.jcloud.api.extensions.ExtensionBootstrap;
+import io.jcloud.configuration.JCloudConfiguration;
 import io.jcloud.configuration.KubernetesConfiguration;
 import io.jcloud.configuration.KubernetesConfigurationBuilder;
-import io.jcloud.configuration.ScenarioConfiguration;
 import io.jcloud.core.DependencyContext;
-import io.jcloud.core.ScenarioContext;
+import io.jcloud.core.JCloudContext;
 import io.jcloud.core.ServiceContext;
 import io.jcloud.logging.Log;
 import io.jcloud.utils.FileUtils;
@@ -31,17 +31,17 @@ public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
     private KubectlClient client;
 
     @Override
-    public boolean appliesFor(ScenarioContext context) {
+    public boolean appliesFor(JCloudContext context) {
         return isEnabled(context);
     }
 
     @Override
-    public void beforeAll(ScenarioContext context) {
+    public void beforeAll(JCloudContext context) {
         KubernetesConfiguration configuration = context.loadCustomConfiguration(TARGET_KUBERNETES,
                 new KubernetesConfigurationBuilder());
 
         // if deleteNamespace and ephemeral namespaces are disabled then we are in debug mode. This mode is going to
-        // keep all scenario resources in order to allow you to debug by yourself
+        // keep all resources in order to allow you to debug by yourself
         context.setDebug(!configuration.isDeleteNamespaceAfterAll() && !configuration.isEphemeralNamespaceEnabled());
 
         if (configuration.isEphemeralNamespaceEnabled()) {
@@ -58,13 +58,13 @@ public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
     }
 
     @Override
-    public void afterAll(ScenarioContext context) {
+    public void afterAll(JCloudContext context) {
         KubernetesConfiguration configuration = context.getConfigurationAs(KubernetesConfiguration.class);
         if (configuration.isDeleteNamespaceAfterAll()) {
             if (configuration.isEphemeralNamespaceEnabled()) {
                 client.deleteNamespace();
             } else {
-                client.deleteResourcesInScenario(context.getId());
+                client.deleteResourcesInJCloudContext(context.getId());
             }
         }
     }
@@ -105,9 +105,9 @@ public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
     }
 
     @Override
-    public void onError(ScenarioContext context, Throwable throwable) {
+    public void onError(JCloudContext context, Throwable throwable) {
         if (context.getConfigurationAs(KubernetesConfiguration.class).isPrintInfoOnError()) {
-            Log.error("Scenario " + context.getRunningTestClassAndMethodName()
+            Log.error("Test " + context.getRunningTestClassAndMethodName()
                     + " failed. Printing diagnosis information from Kubernetes... ");
 
             FileUtils.createDirectoryIfDoesNotExist(logsTestFolder(context));
@@ -116,13 +116,13 @@ public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
         }
     }
 
-    private void printEvents(ScenarioContext context) {
+    private void printEvents(JCloudContext context) {
         String events = client.getEvents();
         FileUtils.copyContentTo(events, logsTestFolder(context).resolve("events" + Log.LOG_SUFFIX));
         Log.error(events);
     }
 
-    private void printPodLogs(ScenarioContext context) {
+    private void printPodLogs(JCloudContext context) {
         Map<String, String> logs = client.logs();
         for (Entry<String, String> podLog : logs.entrySet()) {
             FileUtils.copyContentTo(podLog.getValue(),
@@ -131,12 +131,12 @@ public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
         }
     }
 
-    private Path logsTestFolder(ScenarioContext context) {
+    private Path logsTestFolder(JCloudContext context) {
         return context.getLogFolder().resolve(context.getRunningTestClassName());
     }
 
-    public static final boolean isEnabled(ScenarioContext context) {
+    public static final boolean isEnabled(JCloudContext context) {
         return context.isAnnotationPresent(RunOnKubernetes.class)
-                || TARGET_KUBERNETES.equals(context.getConfigurationAs(ScenarioConfiguration.class).getTarget());
+                || TARGET_KUBERNETES.equals(context.getConfigurationAs(JCloudConfiguration.class).getTarget());
     }
 }

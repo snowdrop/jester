@@ -41,7 +41,7 @@ import io.jcloud.api.Service;
 public final class ManifestsUtils {
 
     public static final String LABEL_TO_WATCH_FOR_LOGS = "tsLogWatch";
-    public static final String LABEL_SCENARIO_ID = "scenarioId";
+    public static final String LABEL_CONTEXT_ID = "jcloudId";
     public static final String LABEL_DEPLOYMENT = "deployment";
 
     private static final String RESOURCE_MNT_FOLDER = "/resource";
@@ -84,7 +84,7 @@ public final class ManifestsUtils {
                 .orElse(new HashMap<>());
 
         objMetadataLabels.put(LABEL_DEPLOYMENT, service.getName());
-        objMetadataLabels.put(LABEL_SCENARIO_ID, service.getScenarioId());
+        objMetadataLabels.put(LABEL_CONTEXT_ID, service.getContextId());
         deployment.getMetadata().setLabels(objMetadataLabels);
 
         // set deployment name
@@ -112,7 +112,7 @@ public final class ManifestsUtils {
         Map<String, String> templateMetadataLabels = deployment.getSpec().getTemplate().getMetadata().getLabels();
         templateMetadataLabels.put(LABEL_DEPLOYMENT, service.getName());
         templateMetadataLabels.put(LABEL_TO_WATCH_FOR_LOGS, service.getName());
-        templateMetadataLabels.put(LABEL_SCENARIO_ID, service.getScenarioId());
+        templateMetadataLabels.put(LABEL_CONTEXT_ID, service.getContextId());
 
         // add env var properties
         Map<String, String> enrichProperties = enrichProperties(client, service.getProperties(), deployment);

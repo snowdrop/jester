@@ -6,46 +6,46 @@ import java.util.Optional;
 
 import io.jcloud.api.Service;
 import io.jcloud.core.DependencyContext;
-import io.jcloud.core.ScenarioContext;
+import io.jcloud.core.JCloudContext;
 import io.jcloud.core.ServiceContext;
 
 public interface ExtensionBootstrap {
 
-    boolean appliesFor(ScenarioContext context);
+    boolean appliesFor(JCloudContext context);
 
-    default void beforeAll(ScenarioContext context) {
-
-    }
-
-    default void afterAll(ScenarioContext context) {
+    default void beforeAll(JCloudContext context) {
 
     }
 
-    default void beforeEach(ScenarioContext context) {
+    default void afterAll(JCloudContext context) {
 
     }
 
-    default void afterEach(ScenarioContext context) {
+    default void beforeEach(JCloudContext context) {
 
     }
 
-    default void onSuccess(ScenarioContext context) {
+    default void afterEach(JCloudContext context) {
 
     }
 
-    default void onDisabled(ScenarioContext context, Optional<String> reason) {
+    default void onSuccess(JCloudContext context) {
 
     }
 
-    default void onError(ScenarioContext context, Throwable throwable) {
+    default void onDisabled(JCloudContext context, Optional<String> reason) {
 
     }
 
-    default void onServiceLaunch(ScenarioContext context, Service service) {
+    default void onError(JCloudContext context, Throwable throwable) {
 
     }
 
-    default void updateScenarioContext(ScenarioContext scenario) {
+    default void onServiceLaunch(JCloudContext context, Service service) {
+
+    }
+
+    default void updateContext(JCloudContext context) {
 
     }
 

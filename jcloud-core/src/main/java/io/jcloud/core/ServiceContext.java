@@ -18,17 +18,17 @@ import io.jcloud.configuration.ServiceConfigurationLoader;
 public final class ServiceContext {
 
     private final Service owner;
-    private final ScenarioContext scenarioContext;
+    private final JCloudContext jcloudContext;
     private final Path serviceFolder;
     private final Map<String, Object> store = new HashMap<>();
     private final ServiceConfiguration configuration;
     private final List<Object> customConfiguration = new ArrayList<>();
 
-    public ServiceContext(Service owner, ScenarioContext scenarioContext) {
+    public ServiceContext(Service owner, JCloudContext jcloudContext) {
         this.owner = owner;
-        this.scenarioContext = scenarioContext;
-        this.serviceFolder = Path.of("target", scenarioContext.getRunningTestClassName(), getName());
-        this.configuration = ServiceConfigurationLoader.load(owner.getName(), scenarioContext,
+        this.jcloudContext = jcloudContext;
+        this.serviceFolder = Path.of("target", jcloudContext.getRunningTestClassName(), getName());
+        this.configuration = ServiceConfigurationLoader.load(owner.getName(), jcloudContext,
                 new ServiceConfigurationBuilder());
     }
 
@@ -36,20 +36,16 @@ public final class ServiceContext {
         return owner;
     }
 
-    public String getScenarioId() {
-        return scenarioContext.getId();
-    }
-
     public String getName() {
         return owner.getName();
     }
 
-    public ScenarioContext getScenarioContext() {
-        return scenarioContext;
+    public JCloudContext getJCloudContext() {
+        return jcloudContext;
     }
 
     public ExtensionContext getTestContext() {
-        return scenarioContext.getTestContext();
+        return jcloudContext.getTestContext();
     }
 
     public Path getServiceFolder() {
@@ -81,6 +77,6 @@ public final class ServiceContext {
             throw new RuntimeException("Multiple custom configuration loading for: " + clazz);
         }
 
-        customConfiguration.add(ServiceConfigurationLoader.load(owner.getName(), scenarioContext, builder));
+        customConfiguration.add(ServiceConfigurationLoader.load(owner.getName(), jcloudContext, builder));
     }
 }

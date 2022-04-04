@@ -16,14 +16,14 @@ import org.openjdk.jmh.annotations.Warmup;
 
 import io.jcloud.api.Dependency;
 import io.jcloud.api.HttpService;
+import io.jcloud.api.JCloud;
 import io.jcloud.api.Quarkus;
-import io.jcloud.api.Scenario;
 import io.jcloud.api.Spring;
 import io.jcloud.core.EnableBenchmark;
 import io.jcloud.core.ServiceState;
 
 @DisabledOnOs(value = OS.WINDOWS, disabledReason = "Not supported on Windows")
-@Scenario
+@JCloud
 @Fork(3)
 @Warmup(iterations = 1)
 @Measurement(iterations = 3)

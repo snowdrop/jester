@@ -2,7 +2,7 @@ package io.jcloud.configuration;
 
 import java.util.Optional;
 
-import io.jcloud.core.ScenarioContext;
+import io.jcloud.core.JCloudContext;
 
 public final class SpringServiceConfigurationBuilder
         extends BaseConfigurationBuilder<io.jcloud.api.SpringServiceConfiguration, SpringServiceConfiguration> {
@@ -18,8 +18,8 @@ public final class SpringServiceConfigurationBuilder
 
     @Override
     protected Optional<io.jcloud.api.SpringServiceConfiguration> getAnnotationConfig(String serviceName,
-            ScenarioContext scenarioContext) {
-        return scenarioContext.getAnnotatedConfiguration(io.jcloud.api.SpringServiceConfiguration.class,
+            JCloudContext context) {
+        return context.getAnnotatedConfiguration(io.jcloud.api.SpringServiceConfiguration.class,
                 a -> a.forService().equals(serviceName));
     }
 }

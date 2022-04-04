@@ -40,52 +40,52 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
     private final ServiceLoader<ExtensionBootstrap> extensionsRegistry = ServiceLoader.load(ExtensionBootstrap.class);
 
     private List<ServiceContext> services = new ArrayList<>();
-    private ScenarioContext scenario;
+    private JCloudContext context;
     private List<ExtensionBootstrap> extensions;
 
     @Override
-    public void beforeAll(ExtensionContext context) {
-        // Init scenario context
-        scenario = new ScenarioContext(context);
+    public void beforeAll(ExtensionContext testContext) {
+        // Init jcloud context
+        context = new JCloudContext(testContext);
         Log.configure();
-        Log.debug("Scenario ID: '%s'", scenario.getId());
+        Log.debug("JCloud ID: '%s'", context.getId());
 
         // Init extensions
         extensions = initExtensions();
-        extensions.forEach(ext -> ext.beforeAll(scenario));
+        extensions.forEach(ext -> ext.beforeAll(context));
 
         // Init services from class annotations
-        ReflectionUtils.findAllAnnotations(context.getRequiredTestClass())
+        ReflectionUtils.findAllAnnotations(testContext.getRequiredTestClass())
                 .forEach(annotation -> initServiceFromAnnotation(annotation));
 
         // Init services from static fields
-        ReflectionUtils.findAllFields(context.getRequiredTestClass()).stream().filter(ReflectionUtils::isStatic)
-                .forEach(field -> initResourceFromField(context, field));
+        ReflectionUtils.findAllFields(testContext.getRequiredTestClass()).stream().filter(ReflectionUtils::isStatic)
+                .forEach(field -> initResourceFromField(testContext, field));
     }
 
     @Override
-    public void afterAll(ExtensionContext context) {
+    public void afterAll(ExtensionContext testContext) {
         try {
             List<ServiceContext> servicesToFinish = new ArrayList<>(services);
             Collections.reverse(servicesToFinish);
             servicesToFinish.forEach(s -> s.getOwner().close());
-            deleteLogIfScenarioPassed();
+            deleteLogIfTestSuitePassed();
             services.clear();
         } finally {
-            extensions.forEach(ext -> ext.afterAll(scenario));
+            extensions.forEach(ext -> ext.afterAll(context));
         }
     }
 
     @Override
-    public void beforeEach(ExtensionContext context) {
+    public void beforeEach(ExtensionContext testContext) {
         // Init services from instance fields
-        ReflectionUtils.findAllFields(context.getRequiredTestClass()).stream().filter(ReflectionUtils::isInstance)
-                .forEach(field -> initResourceFromField(context, field));
+        ReflectionUtils.findAllFields(testContext.getRequiredTestClass()).stream().filter(ReflectionUtils::isInstance)
+                .forEach(field -> initResourceFromField(testContext, field));
 
-        Log.info("## Running test " + context.getParent().map(ctx -> ctx.getDisplayName() + ".").orElse("")
-                + context.getDisplayName());
-        scenario.setMethodTestContext(context);
-        extensions.forEach(ext -> ext.beforeEach(scenario));
+        Log.info("## Running test " + testContext.getParent().map(ctx -> ctx.getDisplayName() + ".").orElse("")
+                + testContext.getDisplayName());
+        context.setMethodTestContext(testContext);
+        extensions.forEach(ext -> ext.beforeEach(context));
         services.forEach(service -> {
             if (service.getOwner().isAutoStart() && !service.getOwner().isRunning()) {
                 service.getOwner().start();
@@ -94,14 +94,14 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
     }
 
     @Override
-    public void afterEach(ExtensionContext context) {
-        if (!isClassLifecycle(context)) {
+    public void afterEach(ExtensionContext testContext) {
+        if (!isClassLifecycle(testContext)) {
             // Stop services from instance fields
-            ReflectionUtils.findAllFields(context.getRequiredTestClass()).stream().filter(ReflectionUtils::isInstance)
-                    .forEach(field -> stopServiceFromField(context, field));
+            ReflectionUtils.findAllFields(testContext.getRequiredTestClass()).stream()
+                    .filter(ReflectionUtils::isInstance).forEach(field -> stopServiceFromField(testContext, field));
         }
 
-        extensions.forEach(ext -> ext.afterEach(scenario));
+        extensions.forEach(ext -> ext.afterEach(context));
     }
 
     @Override
@@ -116,37 +116,37 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
 
     @Override
     public void handleAfterAllMethodExecutionException(ExtensionContext context, Throwable throwable) {
-        scenarioOnError(throwable);
+        testOnError(throwable);
     }
 
     @Override
     public void handleAfterEachMethodExecutionException(ExtensionContext context, Throwable throwable) {
-        scenarioOnError(throwable);
+        testOnError(throwable);
     }
 
     @Override
     public void handleBeforeAllMethodExecutionException(ExtensionContext context, Throwable throwable) {
-        scenarioOnError(throwable);
+        testOnError(throwable);
     }
 
     @Override
-    public void testSuccessful(ExtensionContext context) {
-        extensions.forEach(ext -> ext.onSuccess(scenario));
+    public void testSuccessful(ExtensionContext testContext) {
+        extensions.forEach(ext -> ext.onSuccess(context));
     }
 
     @Override
     public void testFailed(ExtensionContext context, Throwable cause) {
-        scenarioOnError(cause);
+        testOnError(cause);
     }
 
     @Override
-    public void testDisabled(ExtensionContext context, Optional<String> reason) {
-        extensions.forEach(ext -> ext.onDisabled(scenario, reason));
+    public void testDisabled(ExtensionContext testContext, Optional<String> reason) {
+        extensions.forEach(ext -> ext.onDisabled(context, reason));
     }
 
     @Override
     public void handleBeforeEachMethodExecutionException(ExtensionContext context, Throwable throwable) {
-        scenarioOnError(throwable);
+        testOnError(throwable);
     }
 
     private void launchService(Service service) {
@@ -156,20 +156,20 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
         }
 
         Log.info(service, "Initialize service (%s)", service.getDisplayName());
-        extensions.forEach(ext -> ext.onServiceLaunch(scenario, service));
+        extensions.forEach(ext -> ext.onServiceLaunch(context, service));
         try {
             service.start();
         } catch (Throwable throwable) {
-            scenarioOnError(throwable);
+            testOnError(throwable);
             throw throwable;
         }
     }
 
-    private void scenarioOnError(Throwable throwable) {
-        // mark scenario as failed
-        scenario.markScenarioAsFailed();
+    private void testOnError(Throwable throwable) {
+        // mark test suite as failed
+        context.markTestSuiteAsFailed();
         // notify extensions
-        extensions.forEach(ext -> ext.onError(scenario, throwable));
+        extensions.forEach(ext -> ext.onError(context, throwable));
     }
 
     private void initResourceFromField(ExtensionContext context, Field field) {
@@ -200,16 +200,16 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
         }
     }
 
-    private void injectDependency(ExtensionContext context, Field field) {
+    private void injectDependency(ExtensionContext testContext, Field field) {
         Object fieldValue = null;
-        if (ScenarioContext.class.equals(field.getType())) {
-            fieldValue = scenario;
+        if (JCloudContext.class.equals(field.getType())) {
+            fieldValue = context;
         } else if (isParameterSupported(field.getType())) {
             fieldValue = getParameter(new DependencyContext(field.getName(), field.getType(), field.getAnnotations()));
         }
 
         if (fieldValue != null) {
-            ReflectionUtils.setFieldValue(findTestInstance(context, field), field, fieldValue);
+            ReflectionUtils.setFieldValue(findTestInstance(testContext, field), field, fieldValue);
         }
     }
 
@@ -231,7 +231,7 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
         ManagedResource resource = getManagedResource(name, binding, annotations);
 
         // Initialize it
-        ServiceContext serviceContext = service.register(name, scenario);
+        ServiceContext serviceContext = service.register(name, context);
         service.init(resource);
         services.add(serviceContext);
 
@@ -245,7 +245,7 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
 
     private ManagedResource getManagedResource(String name, AnnotationBinding binding, Annotation... annotations) {
         try {
-            return binding.getManagedResource(scenario, annotations);
+            return binding.getManagedResource(context, annotations);
         } catch (Exception ex) {
             throw new RuntimeException("Could not create the Managed Resource for " + name, ex);
         }
@@ -284,8 +284,8 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
     private List<ExtensionBootstrap> initExtensions() {
         List<ExtensionBootstrap> list = new ArrayList<>();
         for (ExtensionBootstrap binding : extensionsRegistry) {
-            if (binding.appliesFor(scenario)) {
-                binding.updateScenarioContext(scenario);
+            if (binding.appliesFor(context)) {
+                binding.updateContext(context);
                 list.add(binding);
             }
         }
@@ -293,9 +293,9 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
         return list;
     }
 
-    private void deleteLogIfScenarioPassed() {
-        if (!scenario.isFailed()) {
-            scenario.getLogFile().toFile().delete();
+    private void deleteLogIfTestSuitePassed() {
+        if (!context.isFailed()) {
+            context.getLogFile().toFile().delete();
         }
     }
 

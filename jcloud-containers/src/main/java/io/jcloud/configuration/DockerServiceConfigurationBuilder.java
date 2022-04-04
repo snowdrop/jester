@@ -2,7 +2,7 @@ package io.jcloud.configuration;
 
 import java.util.Optional;
 
-import io.jcloud.core.ScenarioContext;
+import io.jcloud.core.JCloudContext;
 
 public final class DockerServiceConfigurationBuilder
         extends BaseConfigurationBuilder<io.jcloud.api.DockerServiceConfiguration, DockerServiceConfiguration> {
@@ -18,8 +18,8 @@ public final class DockerServiceConfigurationBuilder
 
     @Override
     protected Optional<io.jcloud.api.DockerServiceConfiguration> getAnnotationConfig(String serviceName,
-            ScenarioContext scenarioContext) {
-        return scenarioContext.getAnnotatedConfiguration(io.jcloud.api.DockerServiceConfiguration.class,
+            JCloudContext context) {
+        return context.getAnnotatedConfiguration(io.jcloud.api.DockerServiceConfiguration.class,
                 a -> a.forService().equals(serviceName));
     }
 }

@@ -35,8 +35,8 @@ public class BaseService<T extends Service> implements Service {
     private boolean autoStart = true;
 
     @Override
-    public String getScenarioId() {
-        return context.getScenarioId();
+    public String getContextId() {
+        return context.getJCloudContext().getId();
     }
 
     @Override
@@ -184,7 +184,7 @@ public class BaseService<T extends Service> implements Service {
      */
     @Override
     public void close() {
-        if (!context.getScenarioContext().isDebug()) {
+        if (!context.getJCloudContext().isDebug()) {
             stop();
             if (context.getConfiguration().isDeleteFolderOnClose()) {
                 try {
@@ -197,7 +197,7 @@ public class BaseService<T extends Service> implements Service {
     }
 
     @Override
-    public ServiceContext register(String serviceName, ScenarioContext context) {
+    public ServiceContext register(String serviceName, JCloudContext context) {
         this.serviceName = serviceName;
         this.context = new ServiceContext(this, context);
         onPreStart(s -> futureProperties.forEach(Runnable::run));

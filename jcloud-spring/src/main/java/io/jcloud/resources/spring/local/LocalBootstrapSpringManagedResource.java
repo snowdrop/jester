@@ -75,6 +75,6 @@ public class LocalBootstrapSpringManagedResource extends ProcessManagedResource 
     }
 
     private String propertyWithProfile(String name) {
-        return "%" + context.getScenarioContext().getRunningTestClassName() + "." + name;
+        return "%" + context.getJCloudContext().getRunningTestClassName() + "." + name;
     }
 }

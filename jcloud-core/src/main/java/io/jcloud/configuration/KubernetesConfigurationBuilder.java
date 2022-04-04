@@ -2,7 +2,7 @@ package io.jcloud.configuration;
 
 import java.util.Optional;
 
-import io.jcloud.core.ScenarioContext;
+import io.jcloud.core.JCloudContext;
 
 public final class KubernetesConfigurationBuilder
         extends BaseConfigurationBuilder<io.jcloud.api.RunOnKubernetes, KubernetesConfiguration> {
@@ -26,8 +26,7 @@ public final class KubernetesConfigurationBuilder
     }
 
     @Override
-    protected Optional<io.jcloud.api.RunOnKubernetes> getAnnotationConfig(String serviceName,
-            ScenarioContext scenarioContext) {
-        return scenarioContext.getAnnotatedConfiguration(io.jcloud.api.RunOnKubernetes.class);
+    protected Optional<io.jcloud.api.RunOnKubernetes> getAnnotationConfig(String serviceName, JCloudContext context) {
+        return context.getAnnotatedConfiguration(io.jcloud.api.RunOnKubernetes.class);
     }
 }
