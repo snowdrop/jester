@@ -26,6 +26,14 @@ jobs:
         with:
           version: v0.11.1
           registry: true
+      - name: Install OPM and Operator SDK tool
+        uses: redhat-actions/openshift-tools-installer@v1
+        with:
+          source: "github"
+          opm: "latest"
+          operator-sdk: "latest"
+      - name: Install Operator Lifecycle Manager and Operator SDK into Kind
+        run: operator-sdk olm install
       - name: Install JDK {{ matrix.java }}
         uses: joschi/setup-jdk@e87a7cec853d2dd7066adf837fe12bf0f3d45e52
         with:
