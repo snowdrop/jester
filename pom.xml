@@ -98,12 +98,22 @@
       </dependency>
       <dependency>
         <groupId>io.jcloud</groupId>
+        <artifactId>jcloud-operators</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.jcloud</groupId>
         <artifactId>jcloud-quarkus</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>io.jcloud</groupId>
         <artifactId>jcloud-spring</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.jcloud</groupId>
+        <artifactId>jcloud-service-kafka</artifactId>
         <version>${project.version}</version>
       </dependency>
       <!-- Declared Dependencies -->
@@ -144,6 +154,16 @@
       <dependency>
         <groupId>io.fabric8</groupId>
         <artifactId>kubernetes-client</artifactId>
+        <version>${kubernetes-client.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.fabric8</groupId>
+        <artifactId>openshift-client</artifactId>
+        <version>${kubernetes-client.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.fabric8</groupId>
+        <artifactId>openshift-model-operatorhub</artifactId>
         <version>${kubernetes-client.version}</version>
       </dependency>
       <!-- SMELL: This version is required by Fabric8 dependency... -->
@@ -273,6 +293,8 @@
                 </sample.quarkus-rest.image>
                 <sample.quarkus-secured.image>${samples.container-image.registry}/test/quarkus-secured:latest
                 </sample.quarkus-secured.image>
+                <sample.messaging-kafka.image>${samples.container-image.registry}/test/quarkus-messaging-kafka:latest
+                </sample.messaging-kafka.image>
               </systemProperties>
             </configuration>
           </execution>
@@ -296,8 +318,10 @@
         <module>jcloud-core</module>
         <module>jcloud-benchmark</module>
         <module>jcloud-containers</module>
+        <module>jcloud-operators</module>
         <module>jcloud-quarkus</module>
         <module>jcloud-spring</module>
+        <module>jcloud-service-kafka</module>
       </modules>
     </profile>
     <profile>

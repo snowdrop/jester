@@ -130,7 +130,12 @@ public final class KubectlClient {
         Map<String, String> logs = new HashMap<>();
         for (Pod pod : client.pods().list().getItems()) {
             String podName = pod.getMetadata().getName();
-            logs.put(podName, client.pods().withName(podName).getLog());
+            try {
+                logs.put(podName, client.pods().withName(podName).getLog());
+            } catch (Exception ignored) {
+                // the pod contains multiple container, and we don't support this use case yet, ignoring exception.
+            }
+
         }
 
         return logs;
@@ -268,7 +273,7 @@ public final class KubectlClient {
     /**
      * Delete test resources.
      */
-    private void deleteResourcesByLabel(String labelName, String labelValue) {
+    public void deleteResourcesByLabel(String labelName, String labelValue) {
         try {
             String label = String.format("%s=%s", labelName, labelValue);
             new Command(KUBECTL, "delete", "-n", currentNamespace, "all", "-l", label).runAndWait();

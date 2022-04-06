@@ -29,7 +29,6 @@ import io.jcloud.utils.ManifestsUtils;
 public abstract class KubernetesManagedResource extends ManagedResource {
 
     private static final String DEPLOYMENT = "kubernetes.yml";
-    private static final String PORT_FORWARD_HOST = "localhost";
 
     private KubectlClient client;
     private LoggingHandler loggingHandler;

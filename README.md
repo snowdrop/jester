@@ -34,10 +34,12 @@ Content:
   - [With Containers](#jcloud-containers)
   - [With Quarkus](#jcloud-quarkus)
   - [With Spring Boot](#jcloud-spring)
+  - [With Operators](#jcloud-operators)
   - [With JMH Benchmarks](#jcloud-benchmarks)
 - [Services](#services)
   - [Default Service](#default-service)
   - [REST Service](#rest-service)
+  - [Kafka Operator Service](#kafka-operator-service)
 - [Configuration](#configuration)
   - [Common](#service-configuration)
   - [Kubernetes](#kubernetes-configuration)
@@ -553,6 +555,82 @@ Find this Spring example in [here](examples/spring-greetings).
 
 To configure the Spring services, go to the [Configuration](#spring-service-configuration) section.
 
+### jCloud Operators
+
+This extension allows easily writing test cases with operators. 
+
+First, we need to add the jCloud Operators dependency into the Maven pom file:
+
+```xml
+<dependencies>
+  <dependency>
+    <groupId>io.jcloud</groupId>
+    <artifactId>jcloud-operators</artifactId>
+    <scope>test</scope>
+  </dependency>
+<dependencies>
+```
+
+Then, we need to create our Custom Resource YAML file, for example, for Kafka:
+
+```yaml
+apiVersion: kafka.strimzi.io/v1beta2
+kind: Kafka
+metadata:
+  name: kafka-instance
+spec:
+  ...
+```
+
+Now, we can create an OperatorService to load this YAML as part of an Operator installation:
+
+```java
+@JCloud
+@RunInKubernetes
+public class OperatorExampleIT {
+
+    @Operator(name = "my-operator", source = "...")
+    static final OperatorService operator = new OperatorService().withCrd("kafka-instance", "/my-crd.yaml");
+
+    @QuarkusApplication
+    static final RestService app = new RestService();
+
+    // ...
+}
+```
+
+The framework will install the operator and load the Custom Resource YAML file.
+
+**Note**: that the framework will wait for the operator to be installed before loading the CRD yaml files, but will not wait for the CRDs to be ready. If you are working with CRDs that update conditions, then we can ease this for you by providing the custom resource definition:
+
+```java
+@Version("v1beta2")
+@Group("kafka.strimzi.io")
+@Kind("Kafka")
+public class KafkaInstanceCustomResource
+        extends CustomResource<CustomResourceSpec, CustomResourceStatus>
+        implements Namespaced {
+}
+```
+
+And then registering the CRD with this type:
+
+```java
+@OpenShiftScenario
+public class OperatorExampleIT {
+
+    @Operator(name = "my-operator", source = "...")
+    static final OperatorService operator = new OperatorService().withCrd("kafka-instance", "/my-crd.yaml", KafkaInstanceCustomResource.class);
+
+    @QuarkusApplication
+    static final RestService app = new RestService();
+
+    // ...
+}
+```
+
+Now, the framework will wait for the operator to be installed and the custom resource named `kafka-instance` to be with a condition "Ready" as "True".
+
 ### jCloud Benchmarks
 
 This extension allows easily writing benchmarks using [Java Microbenchmark Harness (JMH)](https://github.com/openjdk/jmh) with the benefit of setting up tests using the jCloud extensions.
@@ -850,6 +928,36 @@ public class GreetingResourceIT {
     // your methods will be available
 }
 ```
+
+#### Kafka Operator Service
+
+The Kafka operator service implementation will automatically install the Strimzi Kafka operator and create an instance of Kafka. 
+
+To use the Kafka Operator service, you need first to add the jCloud Service Kafka extension:
+
+```xml
+<dependencies>
+  <dependency>
+    <groupId>io.jcloud</groupId>
+    <artifactId>jcloud-service-kafka</artifactId>
+    <scope>test</scope>
+  </dependency>
+<dependencies>
+```
+
+And now, we can simply create our Kafka instance by doing:
+
+Example:
+```java
+@JCloud
+@RunOnKubernetes
+public class KubernetesKafkaOperatorIT {
+    @Operator(name = "strimzi-kafka-operator")
+    static final KafkaOperatorService kafka = new KafkaOperatorService();
+}
+```
+
+See an example in [here](jcloud-service-kafka/src/test/java/io/jcloud/test/KubernetesKafkaOperatorIT.java).
 
 ## Configuration
 
