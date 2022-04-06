@@ -35,7 +35,7 @@ public class KubectlOperatorClient {
         this.kubectlClient = kubectlClient;
     }
 
-    public void installOperator(ServiceContext service, String name, String channel, String source,
+    public void installOperator(ServiceContext service, String subscriptionName, String channel, String source,
             String sourceNamespace) {
         // Install the operator group
         OperatorGroup groupModel = new OperatorGroup();
@@ -48,23 +48,23 @@ public class KubectlOperatorClient {
         // Install the subscription
         Subscription subscriptionModel = new Subscription();
         subscriptionModel.setMetadata(new ObjectMeta());
-        subscriptionModel.getMetadata().setName(name);
+        subscriptionModel.getMetadata().setName(service.getName());
         subscriptionModel.getMetadata().setNamespace(kubectlClient.namespace());
 
         subscriptionModel.setSpec(new SubscriptionSpec());
         subscriptionModel.getSpec().setChannel(channel);
-        subscriptionModel.getSpec().setName(name);
+        subscriptionModel.getSpec().setName(subscriptionName);
         subscriptionModel.getSpec().setSource(source);
         subscriptionModel.getSpec().setSourceNamespace(sourceNamespace);
 
-        Log.info(service.getOwner(), "Installing operator... " + name);
+        Log.info(service.getOwner(), "Installing operator... " + subscriptionName);
         kubectlClient.underlyingClient().resource(subscriptionModel).createOrReplace();
 
         // Wait for the operator to be installed
         untilIsTrue(() -> {
             // Get Cluster Service Version
-            Subscription subscription = kubectlClient.underlyingClient().resources(Subscription.class).withName(name)
-                    .get();
+            Subscription subscription = kubectlClient.underlyingClient().resources(Subscription.class)
+                    .withName(service.getName()).get();
             String installedCsv = subscription.getStatus().getInstalledCSV();
             if (StringUtils.isEmpty(installedCsv)) {
                 return false;
@@ -73,8 +73,13 @@ public class KubectlOperatorClient {
             // Check Cluster Service Version status
             ClusterServiceVersion operatorService = kubectlClient.underlyingClient()
                     .resources(ClusterServiceVersion.class).withName(installedCsv).get();
-            Log.debug(service.getOwner(), "Operator CSV status: " + operatorService.getStatus().getPhase());
-            return OPERATOR_PHASE_INSTALLED.equals(operatorService.getStatus().getPhase());
+            if (operatorService == null || operatorService.getStatus() == null) {
+                return false;
+            }
+
+            String csvStatus = operatorService.getStatus().getPhase();
+            Log.debug(service.getOwner(), "Operator CSV status: " + csvStatus);
+            return OPERATOR_PHASE_INSTALLED.equals(csvStatus);
         }, AwaitilityUtils.AwaitilitySettings.defaults().withService(service.getOwner())
                 .usingTimeout(service.getConfigurationAs(OperatorServiceConfiguration.class).getInstallTimeout()));
         Log.info(service.getOwner(), "Operator installed");

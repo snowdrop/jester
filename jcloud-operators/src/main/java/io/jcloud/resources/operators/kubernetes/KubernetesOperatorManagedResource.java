@@ -19,7 +19,7 @@ import io.jcloud.utils.PropertiesUtils;
 
 public class KubernetesOperatorManagedResource extends ManagedResource {
 
-    private final String name;
+    private final String subscriptionName;
     private final String channel;
     private final String source;
     private final String sourceNamespace;
@@ -29,8 +29,9 @@ public class KubernetesOperatorManagedResource extends ManagedResource {
     private boolean running;
     private List<CustomResourceDefinition> crdsToWatch = new ArrayList<>();
 
-    public KubernetesOperatorManagedResource(String name, String channel, String source, String sourceNamespace) {
-        this.name = PropertiesUtils.resolveProperty(name);
+    public KubernetesOperatorManagedResource(String subscriptionName, String channel, String source,
+            String sourceNamespace) {
+        this.subscriptionName = PropertiesUtils.resolveProperty(subscriptionName);
         this.channel = PropertiesUtils.resolveProperty(channel);
         this.source = PropertiesUtils.resolveProperty(source);
         this.sourceNamespace = PropertiesUtils.resolveProperty(sourceNamespace);
@@ -38,7 +39,7 @@ public class KubernetesOperatorManagedResource extends ManagedResource {
 
     @Override
     public String getDisplayName() {
-        return "Operator " + name;
+        return "Operator " + subscriptionName;
     }
 
     @Override
@@ -57,7 +58,7 @@ public class KubernetesOperatorManagedResource extends ManagedResource {
 
     @Override
     public void stop() {
-        client.deleteOperator(context, name);
+        client.deleteOperator(context, subscriptionName);
         running = false;
     }
 
@@ -92,7 +93,7 @@ public class KubernetesOperatorManagedResource extends ManagedResource {
     }
 
     private void installOperator() {
-        client.installOperator(context, name, channel, source, sourceNamespace);
+        client.installOperator(context, subscriptionName, channel, source, sourceNamespace);
     }
 
     private void applyCRDs() {

@@ -14,7 +14,7 @@ public class KubernetesOperatorManagedResourceBinding implements OperatorManaged
 
     @Override
     public ManagedResource init(Operator metadata) {
-        return new KubernetesOperatorManagedResource(metadata.name(), metadata.channel(), metadata.source(),
+        return new KubernetesOperatorManagedResource(metadata.subscription(), metadata.channel(), metadata.source(),
                 metadata.sourceNamespace());
     }
 }
