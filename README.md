@@ -589,7 +589,7 @@ Now, we can create an OperatorService to load this YAML as part of an Operator i
 @RunInKubernetes
 public class OperatorExampleIT {
 
-    @Operator(name = "my-operator", source = "...")
+    @Operator(subscription = "my-operator", source = "...")
     static final OperatorService operator = new OperatorService().withCrd("kafka-instance", "/my-crd.yaml");
 
     @QuarkusApplication
@@ -619,7 +619,7 @@ And then registering the CRD with this type:
 @OpenShiftScenario
 public class OperatorExampleIT {
 
-    @Operator(name = "my-operator", source = "...")
+    @Operator(subscription = "my-operator", source = "...")
     static final OperatorService operator = new OperatorService().withCrd("kafka-instance", "/my-crd.yaml", KafkaInstanceCustomResource.class);
 
     @QuarkusApplication
@@ -952,7 +952,7 @@ Example:
 @JCloud
 @RunOnKubernetes
 public class KubernetesKafkaOperatorIT {
-    @Operator(name = "strimzi-kafka-operator")
+    @Operator(subscription = "strimzi-kafka-operator")
     static final KafkaOperatorService kafka = new KafkaOperatorService();
 }
 ```

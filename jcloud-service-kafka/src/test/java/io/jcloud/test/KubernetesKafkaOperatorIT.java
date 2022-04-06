@@ -16,7 +16,7 @@ import io.jcloud.api.RunOnKubernetes;
 @JCloud
 @RunOnKubernetes
 public class KubernetesKafkaOperatorIT {
-    @Operator(name = "strimzi-kafka-operator")
+    @Operator(subscription = "strimzi-kafka-operator")
     static final KafkaOperatorService kafka = new KafkaOperatorService();
 
     @Container(image = "${sample.messaging-kafka.image:server.io/test/quarkus-messaging-kafka:latest}", ports = 8080, expectedLog = "Installed features")
