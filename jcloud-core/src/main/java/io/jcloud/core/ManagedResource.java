@@ -36,6 +36,11 @@ public abstract class ManagedResource {
     public abstract String getHost();
 
     /**
+     * Get the first mapped port.
+     */
+    public abstract int getFirstMappedPort();
+
+    /**
      * Get the Port of the running resource.
      */
     public abstract int getMappedPort(int port);

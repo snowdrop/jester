@@ -68,6 +68,11 @@ public class KubernetesOperatorManagedResource extends ManagedResource {
     }
 
     @Override
+    public int getFirstMappedPort() {
+        throw new UnsupportedOperationException("getFirstMappedPort in operators is not supported yet");
+    }
+
+    @Override
     public int getMappedPort(int port) {
         throw new UnsupportedOperationException("getMappedPort in operators is not supported yet");
     }

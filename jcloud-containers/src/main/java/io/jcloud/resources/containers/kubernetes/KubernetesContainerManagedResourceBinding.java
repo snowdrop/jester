@@ -1,6 +1,5 @@
 package io.jcloud.resources.containers.kubernetes;
 
-import io.jcloud.api.Container;
 import io.jcloud.api.extensions.ContainerManagedResourceBinding;
 import io.jcloud.core.JCloudContext;
 import io.jcloud.core.ManagedResource;
@@ -13,8 +12,7 @@ public class KubernetesContainerManagedResourceBinding implements ContainerManag
     }
 
     @Override
-    public ManagedResource init(Container metadata) {
-        return new KubernetesContainerManagedResource(metadata.image(), metadata.expectedLog(), metadata.command(),
-                metadata.ports());
+    public ManagedResource init(String image, String expectedLog, String[] command, int[] ports) {
+        return new KubernetesContainerManagedResource(image, expectedLog, command, ports);
     }
 }

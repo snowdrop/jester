@@ -78,6 +78,11 @@ public abstract class ProcessManagedResource extends ManagedResource {
     }
 
     @Override
+    public int getFirstMappedPort() {
+        return assignedHttpPort;
+    }
+
+    @Override
     public int getMappedPort(int port) {
         return assignedHttpPort;
     }

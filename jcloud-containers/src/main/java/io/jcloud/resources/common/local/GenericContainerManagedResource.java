@@ -100,6 +100,11 @@ public abstract class GenericContainerManagedResource extends ManagedResource {
     }
 
     @Override
+    public int getFirstMappedPort() {
+        return getMappedPort(ports[0]);
+    }
+
+    @Override
     public int getMappedPort(int port) {
         return innerContainer.getMappedPort(port);
     }

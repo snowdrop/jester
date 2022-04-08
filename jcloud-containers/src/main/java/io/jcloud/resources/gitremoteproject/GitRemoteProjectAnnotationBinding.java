@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.util.ServiceLoader;
 
 import io.jcloud.api.GitRemoteProject;
+import io.jcloud.api.Service;
 import io.jcloud.api.extensions.AnnotationBinding;
 import io.jcloud.api.extensions.GitRemoteProjectManagedResourceBinding;
 import io.jcloud.core.JCloudContext;
@@ -21,7 +22,7 @@ public class GitRemoteProjectAnnotationBinding implements AnnotationBinding {
     }
 
     @Override
-    public ManagedResource getManagedResource(JCloudContext context, Annotation... annotations) {
+    public ManagedResource getManagedResource(JCloudContext context, Service service, Annotation... annotations) {
         GitRemoteProject metadata = findAnnotation(annotations, GitRemoteProject.class).get();
 
         for (GitRemoteProjectManagedResourceBinding binding : bindings) {

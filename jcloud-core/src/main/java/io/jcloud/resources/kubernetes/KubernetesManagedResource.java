@@ -86,6 +86,11 @@ public abstract class KubernetesManagedResource extends ManagedResource {
     }
 
     @Override
+    public int getFirstMappedPort() {
+        return getMappedPort(getPorts()[0]);
+    }
+
+    @Override
     public int getMappedPort(int port) {
         if (useInternalServiceAsUrl()) {
             return port;

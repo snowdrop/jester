@@ -228,7 +228,7 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
         service.validate(binding, annotations);
 
         // Resolve managed resource
-        ManagedResource resource = getManagedResource(name, binding, annotations);
+        ManagedResource resource = getManagedResource(name, service, binding, annotations);
 
         // Initialize it
         ServiceContext serviceContext = service.register(name, context);
@@ -243,9 +243,10 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
         return bindingsRegistry.stream().map(Provider::get).filter(b -> b.isFor(annotations)).findFirst();
     }
 
-    private ManagedResource getManagedResource(String name, AnnotationBinding binding, Annotation... annotations) {
+    private ManagedResource getManagedResource(String name, Service service, AnnotationBinding binding,
+            Annotation... annotations) {
         try {
-            return binding.getManagedResource(context, annotations);
+            return binding.getManagedResource(context, service, annotations);
         } catch (Exception ex) {
             throw new RuntimeException("Could not create the Managed Resource for " + name, ex);
         }

@@ -116,6 +116,11 @@
         <artifactId>jcloud-service-kafka</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>io.jcloud</groupId>
+        <artifactId>jcloud-service-database</artifactId>
+        <version>${project.version}</version>
+      </dependency>
       <!-- Declared Dependencies -->
       <dependency>
         <groupId>org.junit</groupId>
@@ -321,6 +326,7 @@
         <module>jcloud-operators</module>
         <module>jcloud-quarkus</module>
         <module>jcloud-spring</module>
+        <module>jcloud-service-database</module>
         <module>jcloud-service-kafka</module>
       </modules>
     </profile>
@@ -335,6 +341,7 @@
       <modules>
         <module>examples/quarkus-greetings</module>
         <module>examples/quarkus-oidc</module>
+        <module>examples/quarkus-jdbc-mysql</module>
         <module>examples/spring-greetings</module>
         <module>examples/apps-benchmark</module>
       </modules>
