@@ -43,6 +43,8 @@ public interface Service extends ExtensionContext.Store.CloseableResource {
 
     String getHost();
 
+    int getFirstMappedPort();
+
     int getMappedPort(int port);
 
     @Override

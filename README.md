@@ -40,6 +40,7 @@ Content:
   - [Default Service](#default-service)
   - [REST Service](#rest-service)
   - [Kafka Operator Service](#kafka-operator-service)
+  - [Database Services](#database-services)
 - [Configuration](#configuration)
   - [Common](#service-configuration)
   - [Kubernetes](#kubernetes-configuration)
@@ -958,6 +959,65 @@ public class KubernetesKafkaOperatorIT {
 ```
 
 See an example in [here](jcloud-service-kafka/src/test/java/io/jcloud/test/KubernetesKafkaOperatorIT.java).
+
+#### Database Services
+
+JCloud includes an extension with some build-in database services for:
+
+- MySQL service with `@MySqlContainer`
+- MariaDB service with `@MariaDbContainer`
+- SQL Server service with `@SqlServerContainer`
+- PostgreSQL service with `@PostgresqlContainer`
+- MongoDB service with `@MongoDbContainer`
+
+To use any of these services, you need first to add the jCloud Service Kafka extension:
+
+```xml
+<dependencies>
+  <dependency>
+    <groupId>io.jcloud</groupId>
+    <artifactId>jcloud-service-database</artifactId>
+    <scope>test</scope>
+  </dependency>
+<dependencies>
+```
+
+And now, let's see how to use it. In the following example, we'll configure a Quarkus application using a MySql database:
+
+```java
+@JCloud
+public class MySqlDatabaseIT {
+
+    @MySqlContainer
+    static DatabaseService database = new DatabaseService();
+
+    @Quarkus
+    static RestService app = new RestService()
+            .withProperty("quarkus.datasource.username", database.getUser())
+            .withProperty("quarkus.datasource.password", database.getPassword())
+            .withProperty("quarkus.datasource.jdbc.url", database::getJdbcUrl)
+            .withProperty("quarkus.datasource.reactive.url", database::getReactiveUrl);
+    
+    // ...
+}
+```
+
+The `DatabaseService` service extends the Service API with the following methods:
+- `getJdbcUrl`: to return the JDBC connection URL.
+- `getReactiveUrl`: to return the reactive way connection URL.
+
+The existing database services will use default images and ports that are tested as part of the jCloud ecosystem. However, you can overwrite the default settings by using the `@DatabaseContainer` annotation:
+
+```java
+@JCloud
+public class MySqlDatabaseIT {
+
+    @MySqlContainer(image = "${mysql.80.image}", port = 1111, expectedLog = "Only MySQL server logs after this point")
+    static DatabaseService database = new DatabaseService();
+    
+    // ...
+}
+```
 
 ## Configuration
 

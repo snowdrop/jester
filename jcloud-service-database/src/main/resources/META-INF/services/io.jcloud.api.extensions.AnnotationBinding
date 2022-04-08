@@ -1,0 +1,5 @@
+io.jcloud.resources.containers.database.MariaDbContainerAnnotationBinding
+io.jcloud.resources.containers.database.MongoDbContainerAnnotationBinding
+io.jcloud.resources.containers.database.MySqlContainerAnnotationBinding
+io.jcloud.resources.containers.database.PostgresqlContainerAnnotationBinding
+io.jcloud.resources.containers.database.SqlServerContainerAnnotationBinding

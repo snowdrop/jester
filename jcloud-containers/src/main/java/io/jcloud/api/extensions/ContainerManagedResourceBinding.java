@@ -1,6 +1,5 @@
 package io.jcloud.api.extensions;
 
-import io.jcloud.api.Container;
 import io.jcloud.core.JCloudContext;
 import io.jcloud.core.ManagedResource;
 
@@ -14,10 +13,6 @@ public interface ContainerManagedResourceBinding {
 
     /**
      * Init and return the managed resource for the current context.
-     *
-     * @param metadata
-     *
-     * @return
      */
-    ManagedResource init(Container metadata);
+    ManagedResource init(String image, String expectedLog, String[] command, int[] ports);
 }

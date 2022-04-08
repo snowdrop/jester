@@ -3,6 +3,7 @@ package io.jcloud.resources.spring;
 import java.lang.annotation.Annotation;
 import java.util.ServiceLoader;
 
+import io.jcloud.api.Service;
 import io.jcloud.api.Spring;
 import io.jcloud.api.extensions.AnnotationBinding;
 import io.jcloud.api.extensions.SpringManagedResourceBinding;
@@ -21,7 +22,7 @@ public class SpringAnnotationBinding implements AnnotationBinding {
     }
 
     @Override
-    public ManagedResource getManagedResource(JCloudContext context, Annotation... annotations) {
+    public ManagedResource getManagedResource(JCloudContext context, Service service, Annotation... annotations) {
         Spring metadata = findAnnotation(annotations, Spring.class).get();
 
         for (SpringManagedResourceBinding binding : customBindings) {

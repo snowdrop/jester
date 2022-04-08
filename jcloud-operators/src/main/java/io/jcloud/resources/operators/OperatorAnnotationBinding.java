@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.util.ServiceLoader;
 
 import io.jcloud.api.Operator;
+import io.jcloud.api.Service;
 import io.jcloud.api.extensions.AnnotationBinding;
 import io.jcloud.api.extensions.OperatorManagedResourceBinding;
 import io.jcloud.core.JCloudContext;
@@ -20,7 +21,7 @@ public class OperatorAnnotationBinding implements AnnotationBinding {
     }
 
     @Override
-    public ManagedResource getManagedResource(JCloudContext context, Annotation... annotations) {
+    public ManagedResource getManagedResource(JCloudContext context, Service service, Annotation... annotations) {
         Operator metadata = findAnnotation(annotations, Operator.class).get();
 
         for (OperatorManagedResourceBinding binding : bindings) {

@@ -110,6 +110,11 @@ public class BaseService<T extends Service> implements Service {
     }
 
     @Override
+    public int getFirstMappedPort() {
+        return managedResource.getFirstMappedPort();
+    }
+
+    @Override
     public int getMappedPort(int port) {
         return managedResource.getMappedPort(port);
     }
