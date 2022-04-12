@@ -1,7 +1,7 @@
 package io.jcloud.configuration;
 
 public final class SpringServiceConfiguration {
-    private String expectedLog = "initialization completed";
+    private String expectedLog = "Started .* in .* seconds";
 
     public String getExpectedLog() {
         return expectedLog;

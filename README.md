@@ -1106,7 +1106,7 @@ The configuration that is only available when running services annotated with `@
 
 | Name | Description | Default | Property | Annotation | 
 |------|-------------|---------|----------|------------| 
-| Expected Log | Configure the expected log for the Spring service | initialization completed | `ts.services.<SERVICE NAME>.spring.expected-log=initialization completed` | `@SpringServiceConfiguration(forService = "<SERVICE NAME>", expectedLog = "initialization completed")` |
+| Expected Log | Configure the expected log for the Spring service | Started .* in .* seconds | `ts.services.<SERVICE NAME>.spring.expected-log=Started .* in .* seconds` | `@SpringServiceConfiguration(forService = "<SERVICE NAME>", expectedLog = "Started .* in .* seconds")` |
 
 ## Architecture
 
