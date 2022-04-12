@@ -1,12 +1,13 @@
 package io.jcloud.utils;
 
+import static io.jcloud.utils.JsonUtils.fromJson;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.net.http.HttpResponse;
 import java.util.function.Supplier;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jcloud.logging.Log;
 
 public class JsonBodyHandler<W> implements HttpResponse.BodyHandler<Supplier<W>> {
 
@@ -30,10 +31,10 @@ public class JsonBodyHandler<W> implements HttpResponse.BodyHandler<Supplier<W>>
     private static <W> Supplier<W> toSupplierOfType(InputStream inputStream, Class<W> targetType) {
         return () -> {
             try (InputStream stream = inputStream) {
-                ObjectMapper objectMapper = new ObjectMapper();
-                return objectMapper.readValue(stream, targetType);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
+                return fromJson(stream, targetType);
+            } catch (IOException ex) {
+                Log.warn("Exception reading response in HttpService", ex);
+                return null;
             }
         };
     }
