@@ -17,5 +17,5 @@ public @interface SpringServiceConfiguration {
     /**
      * Configure the expected log for the Spring service.
      */
-    String expectedLog() default "initialization completed";
+    String expectedLog() default "Started .* in .* seconds";
 }
