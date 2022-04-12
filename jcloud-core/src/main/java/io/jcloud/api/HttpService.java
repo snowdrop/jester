@@ -1,5 +1,6 @@
 package io.jcloud.api;
 
+import static io.jcloud.utils.JsonUtils.toJson;
 import static org.apache.http.entity.mime.MIME.CONTENT_TYPE;
 
 import java.io.InputStream;
@@ -17,16 +18,12 @@ import java.util.stream.Stream;
 
 import org.apache.http.entity.ContentType;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.jcloud.core.BaseService;
 import io.jcloud.utils.JsonBodyHandler;
 
 public class HttpService extends BaseService<HttpService> {
 
     private static final int DEFAULT_HTTP_PORT = 8080;
-    private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final String HTTP = "http://";
     private static final String BASE_PATH = "/";
 
@@ -112,10 +109,6 @@ public class HttpService extends BaseService<HttpService> {
         super.stop();
 
         closeHttpClient();
-    }
-
-    private String toJson(Object object) throws JsonProcessingException {
-        return MAPPER.writeValueAsString(object);
     }
 
     private void closeHttpClient() {
