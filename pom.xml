@@ -296,8 +296,8 @@
                 <!-- Samples mapping -->
                 <sample.quarkus-rest.image>${samples.container-image.registry}/test/quarkus-rest:latest
                 </sample.quarkus-rest.image>
-                <sample.quarkus-secured.image>${samples.container-image.registry}/test/quarkus-secured:latest
-                </sample.quarkus-secured.image>
+                <sample.quarkus-json.image>${samples.container-image.registry}/test/quarkus-json:latest
+                </sample.quarkus-json.image>
                 <sample.messaging-kafka.image>${samples.container-image.registry}/test/quarkus-messaging-kafka:latest
                 </sample.messaging-kafka.image>
               </systemProperties>

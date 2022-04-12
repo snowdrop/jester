@@ -1,20 +1,32 @@
 package io.jcloud.api;
 
+import static org.apache.http.entity.mime.MIME.CONTENT_TYPE;
+
+import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.http.entity.ContentType;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.jcloud.core.BaseService;
+import io.jcloud.utils.JsonBodyHandler;
 
 public class HttpService extends BaseService<HttpService> {
 
     private static final int DEFAULT_HTTP_PORT = 8080;
+    private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final String HTTP = "http://";
     private static final String BASE_PATH = "/";
 
@@ -55,11 +67,55 @@ public class HttpService extends BaseService<HttpService> {
         }
     }
 
+    public HttpResponse<Supplier<Map>> getAsJson(String... paths) {
+        return getAsJson(Map.class, paths);
+    }
+
+    public <T> HttpResponse<Supplier<T>> getAsJson(Class<T> clazz, String... paths) {
+        createHttpClientIfNull();
+        try {
+            return innerHttpClient.send(HttpRequest.newBuilder(target(paths)).GET().build(),
+                    new JsonBodyHandler<>(clazz));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public HttpResponse<Supplier<Map>> postAsJson(Object request, String... paths) {
+        return postAsJson(request, Map.class, paths);
+    }
+
+    public <T> HttpResponse<Supplier<T>> postAsJson(Object request, Class<T> clazz, String... paths) {
+        createHttpClientIfNull();
+        try {
+            return innerHttpClient.send(
+                    HttpRequest.newBuilder(target(paths)).POST(HttpRequest.BodyPublishers.ofString(toJson(request)))
+                            .setHeader(CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType()).build(),
+                    new JsonBodyHandler<>(clazz));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public <R> HttpResponse<InputStream> delete(String... paths) {
+        createHttpClientIfNull();
+        try {
+            return innerHttpClient.send(HttpRequest.newBuilder(target(paths)).DELETE().build(),
+                    HttpResponse.BodyHandlers.ofInputStream());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public void stop() {
         super.stop();
 
         closeHttpClient();
+    }
+
+    private String toJson(Object object) throws JsonProcessingException {
+        return MAPPER.writeValueAsString(object);
     }
 
     private void closeHttpClient() {
@@ -90,7 +146,8 @@ public class HttpService extends BaseService<HttpService> {
     }
 
     private URI target(String[] paths) {
-        return URI.create(String.format("%s%s:%s%s", HTTP, getHost(), getMappedPort(httpPort),
-                Stream.of(paths).collect(Collectors.joining("/"))));
+        String url = String.format("%s%s:%s%s", HTTP, getHost(), getMappedPort(httpPort),
+                Stream.of(paths).collect(Collectors.joining("/")));
+        return URI.create(url);
     }
 }
