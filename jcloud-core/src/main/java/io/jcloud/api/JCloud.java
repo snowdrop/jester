@@ -19,4 +19,9 @@ public @interface JCloud {
      * Set the target environment where to run the tests. Fallback property `ts.jcloud.target`.
      */
     String target() default "local";
+
+    /**
+     * Enable profiling only for Java processes. Fallback property `ts.jcloud.enable.profiling`.
+     */
+    boolean enableProfiling() default false;
 }

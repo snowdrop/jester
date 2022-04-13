@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 
 import io.jcloud.configuration.BaseConfigurationBuilder;
 import io.jcloud.configuration.ConfigurationLoader;
+import io.jcloud.configuration.JCloudConfiguration;
 import io.jcloud.configuration.JCloudConfigurationBuilder;
 
 public final class JCloudContext {
@@ -56,6 +57,10 @@ public final class JCloudContext {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    public JCloudConfiguration getConfiguration() {
+        return getConfigurationAs(JCloudConfiguration.class);
     }
 
     public <T> T getConfigurationAs(Class<T> configurationClazz) {

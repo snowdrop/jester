@@ -191,7 +191,8 @@ public class BaseService<T extends Service> implements Service {
     public void close() {
         if (!context.getJCloudContext().isDebug()) {
             stop();
-            if (context.getConfiguration().isDeleteFolderOnClose()) {
+            if (!context.getJCloudContext().getConfiguration().isProfilingEnabled()
+                    && context.getConfiguration().isDeleteFolderOnClose()) {
                 try {
                     FileUtils.deletePath(getServiceFolder());
                 } catch (Exception ex) {

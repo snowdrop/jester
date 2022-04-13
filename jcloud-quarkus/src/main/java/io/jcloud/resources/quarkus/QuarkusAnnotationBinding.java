@@ -9,7 +9,7 @@ import io.jcloud.api.extensions.AnnotationBinding;
 import io.jcloud.api.extensions.QuarkusManagedResourceBinding;
 import io.jcloud.core.JCloudContext;
 import io.jcloud.core.ManagedResource;
-import io.jcloud.resources.quarkus.local.ProdModeBootstrapQuarkusManagedResource;
+import io.jcloud.resources.quarkus.local.ProdModeBootstrapQuarkusManagedResourceJava;
 
 public class QuarkusAnnotationBinding implements AnnotationBinding {
 
@@ -32,7 +32,7 @@ public class QuarkusAnnotationBinding implements AnnotationBinding {
         }
 
         // If none handler found, then the container will be running on localhost by default
-        return new ProdModeBootstrapQuarkusManagedResource(metadata.location(), metadata.classes(),
+        return new ProdModeBootstrapQuarkusManagedResourceJava(metadata.location(), metadata.classes(),
                 metadata.dependencies());
     }
 

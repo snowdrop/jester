@@ -268,10 +268,15 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
     }
 
     private boolean isParameterSupported(Class<?> paramType) {
-        return extensions.stream().anyMatch(ext -> ext.supportedParameters().contains(paramType));
+        return paramType.isAssignableFrom(JCloudContext.class)
+                || extensions.stream().anyMatch(ext -> ext.supportedParameters().contains(paramType));
     }
 
     private Object getParameter(DependencyContext dependency) {
+        if (dependency.getType().isAssignableFrom(JCloudContext.class)) {
+            return context;
+        }
+
         Optional<Object> parameter = extensions.stream().map(ext -> ext.getParameter(dependency))
                 .filter(Optional::isPresent).map(Optional::get).findFirst();
 
