@@ -6,6 +6,7 @@ import static io.jcloud.utils.PropertiesUtils.SECRET_PREFIX;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,7 +24,7 @@ import io.jcloud.utils.ProcessBuilderProvider;
 import io.jcloud.utils.ProcessUtils;
 import io.jcloud.utils.SocketUtils;
 
-public abstract class ProcessManagedResource extends ManagedResource {
+public abstract class JavaProcessManagedResource extends ManagedResource {
 
     private static final String LOCALHOST = "localhost";
     private static final List<String> PREFIXES_TO_REPLACE = Arrays.asList(RESOURCE_PREFIX, SECRET_PREFIX);
@@ -112,10 +113,18 @@ public abstract class ProcessManagedResource extends ManagedResource {
                 .collect(Collectors.toList());
     }
 
+    protected boolean enableProfiling() {
+        return context.getJCloudContext().getConfiguration().isProfilingEnabled();
+    }
+
     private List<String> prepareCommand(List<String> systemProperties) {
         List<String> command = new LinkedList<>();
         if (getRunner().getFileName().toString().endsWith(".jar")) {
             command.add(JAVA);
+            if (enableProfiling()) {
+                command.addAll(getProfilingProperties());
+            }
+
             command.addAll(systemProperties);
             command.add("-jar");
             command.add(getRunner().toAbsolutePath().toString());
@@ -125,6 +134,11 @@ public abstract class ProcessManagedResource extends ManagedResource {
         }
 
         return command;
+    }
+
+    protected Collection<String> getProfilingProperties() {
+        return Arrays.asList("-XX:+FlightRecorder", "-XX:StartFlightRecording=filename="
+                + context.getServiceFolder().toAbsolutePath().resolve("profile.jfr"));
     }
 
     private void assignPorts() {

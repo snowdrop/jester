@@ -1,32 +1,30 @@
-package io.jcloud.resources.quarkus.local;
+package io.jcloud.resources.spring.local;
 
-import static io.jcloud.utils.QuarkusUtils.APPLICATION_PROPERTIES;
-import static io.jcloud.utils.QuarkusUtils.QUARKUS_HTTP_PORT_PROPERTY;
+import static io.jcloud.utils.SpringUtils.APPLICATION_PROPERTIES;
+import static io.jcloud.utils.SpringUtils.SERVER_HTTP_PORT;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 
-import io.jcloud.api.Dependency;
 import io.jcloud.core.ServiceContext;
-import io.jcloud.resources.local.ProcessManagedResource;
-import io.jcloud.resources.quarkus.common.BootstrapQuarkusResource;
+import io.jcloud.resources.local.JavaProcessManagedResource;
+import io.jcloud.resources.spring.common.SpringResource;
 import io.jcloud.utils.PropertiesUtils;
 
-public class ProdModeBootstrapQuarkusManagedResource extends ProcessManagedResource {
+public class LocalBootstrapSpringManagedResourceJava extends JavaProcessManagedResource {
 
     private final String location;
-    private final Class<?>[] classes;
-    private final Dependency[] forcedDependencies;
+    private final boolean forceBuild;
+    private final String[] buildCommands;
 
-    private BootstrapQuarkusResource resource;
+    private SpringResource resource;
 
-    public ProdModeBootstrapQuarkusManagedResource(String location, Class<?>[] classes,
-            Dependency[] forcedDependencies) {
+    public LocalBootstrapSpringManagedResourceJava(String location, boolean forceBuild, String[] buildCommands) {
         this.location = location;
-        this.classes = classes;
-        this.forcedDependencies = forcedDependencies;
+        this.forceBuild = forceBuild;
+        this.buildCommands = buildCommands;
     }
 
     @Override
@@ -36,7 +34,7 @@ public class ProdModeBootstrapQuarkusManagedResource extends ProcessManagedResou
 
     @Override
     protected String getHttpPortProperty() {
-        return QUARKUS_HTTP_PORT_PROPERTY;
+        return SERVER_HTTP_PORT;
     }
 
     @Override
@@ -69,7 +67,7 @@ public class ProdModeBootstrapQuarkusManagedResource extends ProcessManagedResou
     @Override
     protected void init(ServiceContext context) {
         super.init(context);
-        resource = new BootstrapQuarkusResource(context, location, classes, forcedDependencies);
+        resource = new SpringResource(context, location, forceBuild, buildCommands);
     }
 
     private Path getComputedApplicationProperties() {

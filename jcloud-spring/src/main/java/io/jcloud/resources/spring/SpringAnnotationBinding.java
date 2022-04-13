@@ -9,7 +9,7 @@ import io.jcloud.api.extensions.AnnotationBinding;
 import io.jcloud.api.extensions.SpringManagedResourceBinding;
 import io.jcloud.core.JCloudContext;
 import io.jcloud.core.ManagedResource;
-import io.jcloud.resources.spring.local.LocalBootstrapSpringManagedResource;
+import io.jcloud.resources.spring.local.LocalBootstrapSpringManagedResourceJava;
 
 public class SpringAnnotationBinding implements AnnotationBinding {
 
@@ -32,7 +32,7 @@ public class SpringAnnotationBinding implements AnnotationBinding {
         }
 
         // If none handler found, then the container will be running on localhost by default
-        return new LocalBootstrapSpringManagedResource(metadata.location(), metadata.forceBuild(),
+        return new LocalBootstrapSpringManagedResourceJava(metadata.location(), metadata.forceBuild(),
                 metadata.buildCommands());
     }
 
