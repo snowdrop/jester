@@ -1,17 +1,12 @@
 package io.jcloud.resources.spring.local;
 
-import static io.jcloud.utils.SpringUtils.APPLICATION_PROPERTIES;
 import static io.jcloud.utils.SpringUtils.SERVER_HTTP_PORT;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
-import java.util.Optional;
 
 import io.jcloud.core.ServiceContext;
 import io.jcloud.resources.local.JavaProcessManagedResource;
 import io.jcloud.resources.spring.common.SpringResource;
-import io.jcloud.utils.PropertiesUtils;
 
 public class LocalBootstrapSpringManagedResourceJava extends JavaProcessManagedResource {
 
@@ -53,28 +48,13 @@ public class LocalBootstrapSpringManagedResourceJava extends JavaProcessManagedR
     }
 
     @Override
-    public String getProperty(String name) {
-        Path applicationProperties = getComputedApplicationProperties();
-        if (!Files.exists(applicationProperties)) {
-            return null;
-        }
-
-        Map<String, String> computedProperties = PropertiesUtils.toMap(applicationProperties);
-        return Optional.ofNullable(computedProperties.get(name))
-                .orElseGet(() -> computedProperties.get(propertyWithProfile(name)));
-    }
-
-    @Override
     protected void init(ServiceContext context) {
         super.init(context);
         resource = new SpringResource(context, location, forceBuild, buildCommands);
     }
 
-    private Path getComputedApplicationProperties() {
-        return context.getServiceFolder().resolve(APPLICATION_PROPERTIES);
-    }
-
-    private String propertyWithProfile(String name) {
-        return "%" + context.getJCloudContext().getRunningTestClassName() + "." + name;
+    @Override
+    protected boolean enableSsl() {
+        return getAllComputedProperties().keySet().stream().anyMatch(p -> p.contains("server.ssl"));
     }
 }

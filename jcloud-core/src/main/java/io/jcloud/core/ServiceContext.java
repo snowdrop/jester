@@ -71,6 +71,15 @@ public final class ServiceContext {
         return (T) store.get(key);
     }
 
+    public Map<String, Object> getAllProperties() {
+        Map<String, Object> allProperties = new HashMap<>();
+        // from store
+        allProperties.putAll(store);
+        // from runtime properties
+        allProperties.putAll(owner.getProperties());
+        return allProperties;
+    }
+
     public <T extends Annotation, C> void loadCustomConfiguration(Class<C> clazz,
             BaseConfigurationBuilder<T, C> builder) {
         if (customConfiguration.stream().anyMatch(c -> c.getClass() == clazz)) {

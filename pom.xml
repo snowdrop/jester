@@ -340,9 +340,11 @@
       </activation>
       <modules>
         <module>examples/quarkus-greetings</module>
+        <module>examples/quarkus-ssl</module>
         <module>examples/quarkus-oidc</module>
         <module>examples/quarkus-jdbc-mysql</module>
         <module>examples/spring-greetings</module>
+        <module>examples/spring-ssl</module>
         <module>examples/apps-benchmark</module>
       </modules>
     </profile>

@@ -41,10 +41,14 @@ public final class FileUtils {
     }
 
     public static void copyDirectoryTo(Path source, Path target) {
+        if (!source.toFile().exists()) {
+            return;
+        }
+
         try {
             org.apache.commons.io.FileUtils.copyDirectory(source.toFile(), target.toFile());
         } catch (IOException e) {
-            throw new RuntimeException("Could not copy project.", e);
+            throw new RuntimeException("Could not copy source: " + source, e);
         }
     }
 

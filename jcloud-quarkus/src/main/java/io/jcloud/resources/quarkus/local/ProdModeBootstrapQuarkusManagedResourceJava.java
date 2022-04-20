@@ -1,18 +1,14 @@
 package io.jcloud.resources.quarkus.local;
 
-import static io.jcloud.utils.QuarkusUtils.APPLICATION_PROPERTIES;
 import static io.jcloud.utils.QuarkusUtils.QUARKUS_HTTP_PORT_PROPERTY;
+import static io.jcloud.utils.QuarkusUtils.QUARKUS_SSL_PORT_PROPERTY;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
-import java.util.Optional;
 
 import io.jcloud.api.Dependency;
 import io.jcloud.core.ServiceContext;
 import io.jcloud.resources.local.JavaProcessManagedResource;
 import io.jcloud.resources.quarkus.common.BootstrapQuarkusResource;
-import io.jcloud.utils.PropertiesUtils;
 
 public class ProdModeBootstrapQuarkusManagedResourceJava extends JavaProcessManagedResource {
 
@@ -40,6 +36,11 @@ public class ProdModeBootstrapQuarkusManagedResourceJava extends JavaProcessMana
     }
 
     @Override
+    protected String getSslPortProperty() {
+        return QUARKUS_SSL_PORT_PROPERTY;
+    }
+
+    @Override
     protected Path getRunner() {
         return resource.getRunner();
     }
@@ -55,28 +56,13 @@ public class ProdModeBootstrapQuarkusManagedResourceJava extends JavaProcessMana
     }
 
     @Override
-    public String getProperty(String name) {
-        Path applicationProperties = getComputedApplicationProperties();
-        if (!Files.exists(applicationProperties)) {
-            return null;
-        }
-
-        Map<String, String> computedProperties = PropertiesUtils.toMap(applicationProperties);
-        return Optional.ofNullable(computedProperties.get(name))
-                .orElseGet(() -> computedProperties.get(propertyWithProfile(name)));
-    }
-
-    @Override
     protected void init(ServiceContext context) {
         super.init(context);
         resource = new BootstrapQuarkusResource(context, location, classes, forcedDependencies);
     }
 
-    private Path getComputedApplicationProperties() {
-        return context.getServiceFolder().resolve(APPLICATION_PROPERTIES);
-    }
-
-    private String propertyWithProfile(String name) {
-        return "%" + context.getJCloudContext().getRunningTestClassName() + "." + name;
+    @Override
+    protected boolean enableSsl() {
+        return getAllComputedProperties().keySet().stream().anyMatch(p -> p.contains("quarkus.http.ssl"));
     }
 }
