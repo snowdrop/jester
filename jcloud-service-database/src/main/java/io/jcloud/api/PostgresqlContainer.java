@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PostgresqlContainer {
-    String image() default "quay.io/bitnami/postgresql:13.5.0";
+    String image() default "quay.io/jcarvaja/postgresql:13.5.0";
 
     int[] ports() default 5432;
 

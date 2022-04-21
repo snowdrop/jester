@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MariaDbContainer {
-    String image() default "quay.io/bitnami/mariadb:10.6";
+    String image() default "quay.io/jcarvaja/mariadb:10.6";
 
     int[] ports() default 3306;
 
