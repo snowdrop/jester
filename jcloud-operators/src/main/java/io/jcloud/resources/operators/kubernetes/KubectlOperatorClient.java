@@ -89,6 +89,10 @@ public class KubectlOperatorClient {
         kubectlClient.apply(file);
     }
 
+    public void delete(Path file) {
+        kubectlClient.delete(file);
+    }
+
     public boolean isCustomResourceReady(String name,
             Class<? extends CustomResource<CustomResourceSpec, CustomResourceStatus>> crdType) {
         CustomResource<?, ? extends CustomResourceStatus> customResource = kubectlClient.underlyingClient()
