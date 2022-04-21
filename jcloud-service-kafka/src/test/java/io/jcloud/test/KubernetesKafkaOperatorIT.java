@@ -9,14 +9,17 @@ import org.junit.jupiter.api.Test;
 import io.jcloud.api.Container;
 import io.jcloud.api.JCloud;
 import io.jcloud.api.KafkaOperatorService;
+import io.jcloud.api.KafkaResource;
 import io.jcloud.api.Operator;
 import io.jcloud.api.RestService;
 import io.jcloud.api.RunOnKubernetes;
 
 @JCloud
 @RunOnKubernetes
+@Operator(subscription = "strimzi-kafka-operator")
 public class KubernetesKafkaOperatorIT {
-    @Operator(subscription = "strimzi-kafka-operator")
+
+    @KafkaResource
     static final KafkaOperatorService kafka = new KafkaOperatorService();
 
     @Container(image = "${sample.messaging-kafka.image:server.io/test/quarkus-messaging-kafka:latest}", ports = 8080, expectedLog = "Installed features")

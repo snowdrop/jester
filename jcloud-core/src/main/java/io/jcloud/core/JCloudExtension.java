@@ -26,7 +26,6 @@ import org.junit.jupiter.api.extension.TestInstances;
 import org.junit.jupiter.api.extension.TestWatcher;
 
 import io.jcloud.api.LookupService;
-import io.jcloud.api.RestService;
 import io.jcloud.api.Service;
 import io.jcloud.api.extensions.AnnotationBinding;
 import io.jcloud.api.extensions.ExtensionBootstrap;
@@ -184,12 +183,8 @@ public class JCloudExtension implements BeforeAllCallback, AfterAllCallback, Bef
     }
 
     private void initServiceFromAnnotation(Annotation annotation) {
-        Optional<AnnotationBinding> binding = getAnnotationBinding(annotation);
-        if (binding.isPresent()) {
-            // by default, it will be a rest service
-            Service service = new RestService();
-            initService(service, annotation.annotationType().getSimpleName().toLowerCase(), binding.get(), annotation);
-        }
+        getAnnotationBinding(annotation).ifPresent(binding -> initService(binding.getDefaultServiceImplementation(),
+                binding.getDefaultName(annotation), binding, annotation));
     }
 
     private void stopServiceFromField(ExtensionContext context, Field field) {

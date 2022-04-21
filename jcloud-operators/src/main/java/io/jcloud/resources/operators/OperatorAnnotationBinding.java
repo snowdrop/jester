@@ -1,8 +1,10 @@
 package io.jcloud.resources.operators;
 
 import java.lang.annotation.Annotation;
+import java.util.Locale;
 import java.util.ServiceLoader;
 
+import io.jcloud.api.DefaultService;
 import io.jcloud.api.Operator;
 import io.jcloud.api.Service;
 import io.jcloud.api.extensions.AnnotationBinding;
@@ -18,6 +20,17 @@ public class OperatorAnnotationBinding implements AnnotationBinding {
     @Override
     public boolean isFor(Annotation... annotations) {
         return findAnnotation(annotations, Operator.class).isPresent();
+    }
+
+    @Override
+    public String getDefaultName(Annotation annotation) {
+        Operator metadata = (Operator) annotation;
+        return metadata.subscription().toLowerCase(Locale.ROOT);
+    }
+
+    @Override
+    public Service getDefaultServiceImplementation() {
+        return new DefaultService();
     }
 
     @Override

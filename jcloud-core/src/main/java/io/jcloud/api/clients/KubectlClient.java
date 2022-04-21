@@ -80,6 +80,19 @@ public final class KubectlClient {
     }
 
     /**
+     * Delete the file into Kubernetes.
+     *
+     * @param file
+     */
+    public void delete(Path file) {
+        try {
+            new Command(KUBECTL, "delete", "-f", file.toAbsolutePath().toString(), "-n", currentNamespace).runAndWait();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to apply resource " + file.toAbsolutePath(), e);
+        }
+    }
+
+    /**
      * Expose the service and port defined.
      *
      * @param service
