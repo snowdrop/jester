@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MongoDbContainer {
-    String image() default "quay.io/bitnami/mongodb:5.0";
+    String image() default "quay.io/jcarvaja/mongodb:5.0";
 
     int[] ports() default 27017;
 

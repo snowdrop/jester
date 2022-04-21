@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MySqlContainer {
-    String image() default "quay.io/bitnami/mysql:8.0";
+    String image() default "quay.io/jcarvaja/mysql:8.0";
 
     int[] ports() default 3306;
 
