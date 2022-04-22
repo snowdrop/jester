@@ -11,7 +11,7 @@
   <artifactId>examples-spring-ssl</artifactId>
   <name>jCloud - Examples - Spring - SSL</name>
   <properties>
-    <spring.boot.version>2.6.6</spring.boot.version>
+    <spring.boot.version>2.6.7</spring.boot.version>
   </properties>
   <dependencies>
     <dependency>
