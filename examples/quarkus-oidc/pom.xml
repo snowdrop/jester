@@ -16,7 +16,7 @@
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
     <quarkus.platform.version>2.8.1.Final</quarkus.platform.version>
     <!-- For tests only -->
-    <keycloak-authz-client.version>17.0.0</keycloak-authz-client.version>
+    <keycloak-authz-client.version>18.0.0</keycloak-authz-client.version>
   </properties>
   <dependencyManagement>
     <dependencies>
