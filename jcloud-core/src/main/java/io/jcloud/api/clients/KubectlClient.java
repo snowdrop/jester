@@ -101,7 +101,7 @@ public final class KubectlClient {
     public void expose(Service service, Integer port) {
         try {
             new Command(KUBECTL, "expose", "deployment", service.getName(), "--port=" + port,
-                    "--name=" + service.getName(), "-n", currentNamespace).runAndWait();
+                    "--name=" + createUniqueServiceName(service, port), "-n", currentNamespace).runAndWait();
         } catch (Exception e) {
             throw new RuntimeException("Service failed to be exposed.", e);
         }
@@ -211,7 +211,7 @@ public final class KubectlClient {
      * @return
      */
     public int port(Service service, int port) {
-        String serviceName = service.getName();
+        String serviceName = createUniqueServiceName(service, port);
         io.fabric8.kubernetes.api.model.Service serviceModel = client.services().withName(serviceName).get();
         if (serviceModel == null || serviceModel.getSpec() == null || serviceModel.getSpec().getPorts() == null) {
             throw new RuntimeException("Service " + serviceName + " not found");
@@ -365,6 +365,10 @@ public final class KubectlClient {
         return ThreadLocalRandom.current().ints(NAMESPACE_NAME_SIZE, 'a', 'z' + 1)
                 .collect(() -> new StringBuilder("ts-"), StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString();
+    }
+
+    private String createUniqueServiceName(Service service, Integer port) {
+        return service.getName() + "-" + port;
     }
 
     class LocalPortForwardWrapper {
