@@ -1,7 +1,5 @@
 package io.jcloud.resources.gitremoteproject.kubernetes;
 
-import java.util.Arrays;
-
 import io.jcloud.core.ServiceContext;
 import io.jcloud.resources.gitremoteproject.GitRemoteProjectResource;
 import io.jcloud.resources.kubernetes.KubernetesManagedResource;
@@ -17,7 +15,7 @@ public class KubernetesGitRemoteProjectManagedResource extends KubernetesManaged
     private final String dockerfile;
     private final String expectedLog;
     private final String[] command;
-    private final Integer[] ports;
+    private final int[] ports;
 
     private GitRemoteProjectResource resource;
 
@@ -30,7 +28,7 @@ public class KubernetesGitRemoteProjectManagedResource extends KubernetesManaged
         this.dockerfile = PropertiesUtils.resolveProperty(dockerfile);
         this.command = PropertiesUtils.resolveProperties(command);
         this.expectedLog = PropertiesUtils.resolveProperty(expectedLog);
-        this.ports = Arrays.stream(ports).boxed().toArray(Integer[]::new);
+        this.ports = ports;
     }
 
     @Override
@@ -56,7 +54,7 @@ public class KubernetesGitRemoteProjectManagedResource extends KubernetesManaged
     }
 
     @Override
-    protected Integer[] getPorts() {
+    protected int[] getPorts() {
         return ports;
     }
 }

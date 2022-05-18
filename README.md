@@ -1086,7 +1086,8 @@ The configuration that is only available for Kubernetes deployments is:
 | Use ephemeral namespaces or the current logged namespace | Run the tests on Kubernetes in an ephemeral namespace that will be deleted afterwards | true  | `ts.kubernetes.ephemeral.namespaces.enabled=true` | `@RunOnKubernetes(ephemeralNamespaceEnabled = true)` |
 | Load additional resources | Load the additional resources before running all the tests |  | `ts.kubernetes.additional-resources` | `@RunOnKubernetes(additionalResources = [...])` |
 | Template | Template for the initial deployment resource. The custom template should be located at the `src/test/resources` folder |  | `ts.services.<SERVICE NAME>.kubernetes.template=/custom-deployment.yaml` | `@KubernetesServiceConfiguration(forService = "<SERVICE NAME>", template = "/custom-deployment.yaml")` |
-| Use as internal service | Use internal routing instead of exposed network interfaces. This is useful to integration several services that are running as part of the same namespace or network |  | `ts.services.<SERVICE NAME>.kubernetes.use-internal-service-as-url=false` | `@KubernetesServiceConfiguration(forService = "<SERVICE NAME>", useInternalService = false)` |
+| Use as internal service | Use internal routing instead of exposed network interfaces. This is useful to integration several services that are running as part of the same namespace or network |  | `ts.services.<SERVICE NAME>.kubernetes.use-internal-service=false` | `@KubernetesServiceConfiguration(forService = "<SERVICE NAME>", useInternalService = false)` |
+| Custom additional ports | Add custom additional ports to be used during the tests |  | `ts.services.<SERVICE NAME>.kubernetes.additional-ports=8001,8002` | `@KubernetesServiceConfiguration(forService = "<SERVICE NAME>", additionalPorts = [8001, 8002])` |
 
 ### Docker Service Configuration
 

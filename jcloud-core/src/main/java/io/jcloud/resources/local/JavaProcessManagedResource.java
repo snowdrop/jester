@@ -1,11 +1,9 @@
 package io.jcloud.resources.local;
 
-import static io.jcloud.utils.Ports.isSsl;
 import static io.jcloud.utils.PropertiesUtils.RESOURCE_PREFIX;
 import static io.jcloud.utils.PropertiesUtils.SECRET_PREFIX;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,24 +25,22 @@ import io.jcloud.logging.LoggingHandler;
 import io.jcloud.utils.FileUtils;
 import io.jcloud.utils.ProcessBuilderProvider;
 import io.jcloud.utils.ProcessUtils;
-import io.jcloud.utils.PropertiesUtils;
 import io.jcloud.utils.SocketUtils;
 
 public abstract class JavaProcessManagedResource extends ManagedResource {
 
     private static final String LOCALHOST = "localhost";
-    private static final String APPLICATION_PROPERTIES = "application.properties";
-    private static final Path SOURCE_RESOURCES = Path.of("src", "main", "resources");
-    private static final Path SOURCE_TEST_RESOURCES = Path.of("src", "test", "resources");
     private static final List<String> PREFIXES_TO_REPLACE = Arrays.asList(RESOURCE_PREFIX, SECRET_PREFIX);
     private static final String LOG_OUTPUT_FILE = "out.log";
     private static final String JAVA = "java";
+
+    protected Map<String, String> propertiesToOverwrite = new HashMap<>();
 
     private File logOutputFile;
     private Process process;
     private LoggingHandler loggingHandler;
     private int assignedHttpPort;
-    private int assignedSslPort;
+    private Map<Integer, Integer> assignedCustomPorts;
 
     protected abstract String getHttpPortProperty();
 
@@ -95,18 +91,7 @@ public abstract class JavaProcessManagedResource extends ManagedResource {
 
     @Override
     public int getMappedPort(int port) {
-        if (isSsl(port)) {
-            return assignedSslPort;
-        }
-
-        return assignedHttpPort;
-    }
-
-    @Override
-    public String getProperty(String name) {
-        Map<String, String> computedProperties = getPropertiesFromFile();
-        return Optional.ofNullable(computedProperties.get(name))
-                .orElseGet(() -> computedProperties.get(propertyWithProfile(name)));
+        return Optional.ofNullable(assignedCustomPorts.get(port)).orElse(assignedHttpPort);
     }
 
     @Override
@@ -132,55 +117,16 @@ public abstract class JavaProcessManagedResource extends ManagedResource {
         FileUtils.copyDirectoryTo(SOURCE_RESOURCES, context.getServiceFolder());
     }
 
-    protected Map<String, Object> getAllComputedProperties() {
-        Map<String, Object> allProperties = new HashMap<>();
-        // from properties file
-        allProperties.putAll(getPropertiesFromFile());
-        // from context
-        allProperties.putAll(context.getAllProperties());
-        return allProperties;
-    }
-
-    protected Path getComputedApplicationProperties() {
-        return context.getServiceFolder().resolve(APPLICATION_PROPERTIES);
-    }
-
     protected List<String> getPropertiesForCommand() {
         Map<String, String> runtimeProperties = new HashMap<>(context.getOwner().getProperties());
-        if (enableSsl()) {
-            runtimeProperties.putIfAbsent(getSslPortProperty(), "" + assignedSslPort);
-        }
-
-        runtimeProperties.putIfAbsent(getHttpPortProperty(), "" + assignedHttpPort);
+        runtimeProperties.putAll(propertiesToOverwrite);
 
         return runtimeProperties.entrySet().stream().map(e -> "-D" + e.getKey() + "=" + getComputedValue(e.getValue()))
                 .collect(Collectors.toList());
     }
 
-    protected String getSslPortProperty() {
-        // if ssl is enable, let's use the same http port property by default.
-        return getHttpPortProperty();
-    }
-
-    protected boolean enableSsl() {
-        return false;
-    }
-
     protected boolean enableProfiling() {
         return context.getJCloudContext().getConfiguration().isProfilingEnabled();
-    }
-
-    private String propertyWithProfile(String name) {
-        return "%" + context.getJCloudContext().getRunningTestClassName() + "." + name;
-    }
-
-    private Map<String, String> getPropertiesFromFile() {
-        List<Path> applicationPropertiesCandidates = Arrays.asList(getComputedApplicationProperties(),
-                SOURCE_TEST_RESOURCES.resolve(APPLICATION_PROPERTIES),
-                SOURCE_RESOURCES.resolve(APPLICATION_PROPERTIES));
-
-        return applicationPropertiesCandidates.stream().filter(Files::exists).map(PropertiesUtils::toMap).findFirst()
-                .orElseGet(Collections::emptyMap);
     }
 
     private List<String> prepareCommand(List<String> systemProperties) {
@@ -207,12 +153,20 @@ public abstract class JavaProcessManagedResource extends ManagedResource {
                 + context.getServiceFolder().toAbsolutePath().resolve("profile.jfr"));
     }
 
+    protected Map<Integer, Integer> assignCustomPorts() {
+        return Collections.emptyMap();
+    }
+
+    protected int getOrAssignPortByProperty(String property) {
+        return context.getOwner().getProperty(property).filter(StringUtils::isNotEmpty).map(Integer::parseInt)
+                .orElseGet(() -> SocketUtils.findAvailablePort(context.getOwner()));
+    }
+
     private void assignPorts() {
         assignedHttpPort = getOrAssignPortByProperty(getHttpPortProperty());
+        propertiesToOverwrite.put(getHttpPortProperty(), "" + assignedHttpPort);
 
-        if (enableSsl()) {
-            assignedSslPort = getOrAssignPortByProperty(getSslPortProperty());
-        }
+        this.assignedCustomPorts = assignCustomPorts();
     }
 
     private String getComputedValue(String value) {
@@ -223,10 +177,5 @@ public abstract class JavaProcessManagedResource extends ManagedResource {
         }
 
         return value;
-    }
-
-    private int getOrAssignPortByProperty(String property) {
-        return context.getOwner().getProperty(property).filter(StringUtils::isNotEmpty).map(Integer::parseInt)
-                .orElseGet(() -> SocketUtils.findAvailablePort(context.getOwner()));
     }
 }

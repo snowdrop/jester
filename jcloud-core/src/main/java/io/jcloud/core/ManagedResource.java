@@ -2,13 +2,25 @@ package io.jcloud.core;
 
 import static io.jcloud.utils.AwaitilityUtils.untilIsTrue;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import io.jcloud.logging.LoggingHandler;
 import io.jcloud.utils.AwaitilityUtils;
+import io.jcloud.utils.PropertiesUtils;
 
 public abstract class ManagedResource {
+
+    protected static final String APPLICATION_PROPERTIES = "application.properties";
+    protected static final Path SOURCE_RESOURCES = Path.of("src", "main", "resources");
+    protected static final Path SOURCE_TEST_RESOURCES = Path.of("src", "test", "resources");
 
     protected ServiceContext context;
 
@@ -73,7 +85,10 @@ public abstract class ManagedResource {
      * @return the computed property directly from the managed resource.
      */
     public String getProperty(String property) {
-        return context.get(property);
+        Map<String, Object> computedProperties = getAllComputedProperties();
+        Object value = Optional.ofNullable(computedProperties.get(property))
+                .orElseGet(() -> computedProperties.get(propertyWithProfile(property)));
+        return value != null ? String.valueOf(value) : null;
     }
 
     public void validate() {
@@ -94,6 +109,32 @@ public abstract class ManagedResource {
         if (getLoggingHandler() != null) {
             getLoggingHandler().flush();
         }
+    }
+
+    protected Map<String, Object> getAllComputedProperties() {
+        Map<String, Object> allProperties = new HashMap<>();
+        // from properties file
+        allProperties.putAll(getPropertiesFromFile());
+        // from context
+        allProperties.putAll(context.getAllProperties());
+        return allProperties;
+    }
+
+    protected Path getComputedApplicationProperties() {
+        return context.getServiceFolder().resolve(APPLICATION_PROPERTIES);
+    }
+
+    private Map<String, String> getPropertiesFromFile() {
+        List<Path> applicationPropertiesCandidates = Arrays.asList(getComputedApplicationProperties(),
+                SOURCE_TEST_RESOURCES.resolve(APPLICATION_PROPERTIES),
+                SOURCE_RESOURCES.resolve(APPLICATION_PROPERTIES));
+
+        return applicationPropertiesCandidates.stream().filter(Files::exists).map(PropertiesUtils::toMap).findFirst()
+                .orElseGet(Collections::emptyMap);
+    }
+
+    private String propertyWithProfile(String name) {
+        return "%" + context.getJCloudContext().getRunningTestClassName() + "." + name;
     }
 
     private boolean isRunningOrFailed() {

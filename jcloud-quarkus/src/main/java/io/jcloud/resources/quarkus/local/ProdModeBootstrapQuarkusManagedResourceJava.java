@@ -1,14 +1,20 @@
 package io.jcloud.resources.quarkus.local;
 
+import static io.jcloud.utils.Ports.DEFAULT_SSL_PORT;
+import static io.jcloud.utils.QuarkusUtils.QUARKUS_GRPC_SERVER_PORT;
 import static io.jcloud.utils.QuarkusUtils.QUARKUS_HTTP_PORT_PROPERTY;
 import static io.jcloud.utils.QuarkusUtils.QUARKUS_SSL_PORT_PROPERTY;
 
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
 import io.jcloud.api.Dependency;
 import io.jcloud.core.ServiceContext;
 import io.jcloud.resources.local.JavaProcessManagedResource;
 import io.jcloud.resources.quarkus.common.BootstrapQuarkusResource;
+import io.jcloud.utils.Ports;
+import io.jcloud.utils.SocketUtils;
 
 public class ProdModeBootstrapQuarkusManagedResourceJava extends JavaProcessManagedResource {
 
@@ -36,11 +42,6 @@ public class ProdModeBootstrapQuarkusManagedResourceJava extends JavaProcessMana
     }
 
     @Override
-    protected String getSslPortProperty() {
-        return QUARKUS_SSL_PORT_PROPERTY;
-    }
-
-    @Override
     protected Path getRunner() {
         return resource.getRunner();
     }
@@ -62,7 +63,28 @@ public class ProdModeBootstrapQuarkusManagedResourceJava extends JavaProcessMana
     }
 
     @Override
-    protected boolean enableSsl() {
+    protected Map<Integer, Integer> assignCustomPorts() {
+        Map<Integer, Integer> customPorts = new HashMap<>();
+
+        // ssl port
+        if (isSslEnabled()) {
+            int assignedSslPort = getOrAssignPortByProperty(QUARKUS_SSL_PORT_PROPERTY);
+            Ports.SSL_PORTS.forEach(sslPort -> customPorts.put(DEFAULT_SSL_PORT, assignedSslPort));
+            propertiesToOverwrite.put(QUARKUS_SSL_PORT_PROPERTY, "" + assignedSslPort);
+        }
+
+        // grpc port
+        String grpcPort = getProperty(QUARKUS_GRPC_SERVER_PORT);
+        if (grpcPort != null) {
+            int assignedGrpcPort = SocketUtils.findAvailablePort(context.getOwner());
+            customPorts.put(Integer.parseInt(grpcPort), assignedGrpcPort);
+            propertiesToOverwrite.put(QUARKUS_GRPC_SERVER_PORT, "" + assignedGrpcPort);
+        }
+
+        return customPorts;
+    }
+
+    private boolean isSslEnabled() {
         return getAllComputedProperties().keySet().stream().anyMatch(p -> p.contains("quarkus.http.ssl"));
     }
 }

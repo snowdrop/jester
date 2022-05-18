@@ -7,7 +7,7 @@ public final class Ports {
 
     public static final int DEFAULT_HTTP_PORT = 8080;
     public static final int DEFAULT_SSL_PORT = 8443;
-    private static final List<Integer> SSL_PORTS = Arrays.asList(DEFAULT_SSL_PORT, 443);
+    public static final List<Integer> SSL_PORTS = Arrays.asList(DEFAULT_SSL_PORT, 443);
 
     private Ports() {
 
