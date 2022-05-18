@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -96,11 +97,12 @@ public final class KubectlClient {
      * Expose the service and port defined.
      *
      * @param service
-     * @param port
+     * @param ports
      */
-    public void expose(Service service, Integer port) {
+    public void expose(Service service, int... ports) {
         try {
-            new Command(KUBECTL, "expose", "deployment", service.getName(), "--port=" + port,
+            new Command(KUBECTL, "expose", "deployment", service.getName(),
+                    "--port=" + IntStream.of(ports).mapToObj(Integer::toString).collect(Collectors.joining(",")),
                     "--name=" + service.getName(), "-n", currentNamespace).runAndWait();
         } catch (Exception e) {
             throw new RuntimeException("Service failed to be exposed.", e);
@@ -218,8 +220,9 @@ public final class KubectlClient {
         }
 
         if (PORT_FORWARD_HOST.equalsIgnoreCase(host(service))) {
+            String svcPortForwardKey = serviceName + "-" + port;
             KeyValueEntry<Service, LocalPortForwardWrapper> portForwardByService = portForwardsByService
-                    .get(serviceName);
+                    .get(svcPortForwardKey);
             if (portForwardByService == null || portForwardByService.getValue().needsToRecreate()) {
                 closePortForward(portForwardByService);
                 LocalPortForward process = client.services().withName(serviceName).portForward(port,
@@ -227,7 +230,7 @@ public final class KubectlClient {
                 Log.trace(service, "Opening port forward from local port " + process.getLocalPort());
 
                 portForwardByService = new KeyValueEntry<>(service, new LocalPortForwardWrapper(process, service));
-                portForwardsByService.put(serviceName, portForwardByService);
+                portForwardsByService.put(svcPortForwardKey, portForwardByService);
             }
 
             return portForwardByService.getValue().localPort;

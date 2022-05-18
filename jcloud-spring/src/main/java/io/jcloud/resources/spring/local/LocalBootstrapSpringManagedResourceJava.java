@@ -52,9 +52,4 @@ public class LocalBootstrapSpringManagedResourceJava extends JavaProcessManagedR
         super.init(context);
         resource = new SpringResource(context, location, forceBuild, buildCommands);
     }
-
-    @Override
-    protected boolean enableSsl() {
-        return getAllComputedProperties().keySet().stream().anyMatch(p -> p.contains("server.ssl"));
-    }
 }

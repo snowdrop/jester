@@ -76,6 +76,23 @@ public abstract class BaseConfigurationBuilder<T extends Annotation, C> {
         return PropertiesUtils.get(properties, propertyKey);
     }
 
+    protected Optional<int[]> loadArrayOfIntegers(String propertyKey, Function<T, int[]> annotationMapper) {
+        // first annotation,
+        if (annotationConfig.isPresent()) {
+            return Optional.of(annotationMapper.apply(annotationConfig.get()));
+        }
+
+        // it not found in annotation, then property
+        return PropertiesUtils.get(properties, propertyKey).map(v -> v.trim().split(COMMA)).map(arrayOfStrings -> {
+            int[] arrayOfIntegers = new int[arrayOfStrings.length];
+            for (int i = 0; i < arrayOfStrings.length; i++) {
+                arrayOfIntegers[i] = Integer.parseInt(arrayOfStrings[i]);
+            }
+
+            return arrayOfIntegers;
+        });
+    }
+
     protected Optional<Integer> loadInteger(String propertyKey, Function<T, Integer> annotationMapper) {
         // first annotation,
         if (annotationConfig.isPresent()) {

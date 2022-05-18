@@ -39,7 +39,7 @@ public abstract class KubernetesManagedResource extends ManagedResource {
 
     protected abstract String getExpectedLog();
 
-    protected abstract Integer[] getPorts();
+    protected abstract int[] getPorts();
 
     @Override
     public String getDisplayName() {
@@ -130,9 +130,7 @@ public abstract class KubernetesManagedResource extends ManagedResource {
 
         applyDeployment();
 
-        for (int port : getPorts()) {
-            client.expose(context.getOwner(), port);
-        }
+        client.expose(context.getOwner(), getEffectivePorts());
     }
 
     protected void doUpdate() {
@@ -158,7 +156,7 @@ public abstract class KubernetesManagedResource extends ManagedResource {
             container.setCommand(Arrays.asList(getCommand()));
         }
 
-        for (int port : getPorts()) {
+        for (int port : getEffectivePorts()) {
             if (container.getPorts().stream().noneMatch(p -> p.getContainerPort() == port)) {
                 container.getPorts()
                         .add(new ContainerPortBuilder().withName("port-" + port).withContainerPort(port).build());
@@ -194,6 +192,19 @@ public abstract class KubernetesManagedResource extends ManagedResource {
 
     private boolean useInternalServiceAsUrl() {
         return context.getConfigurationAs(KubernetesServiceConfiguration.class).isUseInternalService();
+    }
+
+    private int[] getEffectivePorts() {
+        int[] appPorts = getPorts();
+        int[] additionalPorts = context.getConfigurationAs(KubernetesServiceConfiguration.class).getAdditionalPorts();
+        if (additionalPorts == null) {
+            return appPorts;
+        }
+
+        int[] result = new int[appPorts.length + additionalPorts.length];
+        System.arraycopy(appPorts, 0, result, 0, appPorts.length);
+        System.arraycopy(additionalPorts, 0, result, appPorts.length, additionalPorts.length);
+        return result;
     }
 
 }

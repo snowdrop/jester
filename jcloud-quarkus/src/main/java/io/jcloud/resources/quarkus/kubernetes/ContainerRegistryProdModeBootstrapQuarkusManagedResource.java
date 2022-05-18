@@ -1,7 +1,12 @@
 package io.jcloud.resources.quarkus.kubernetes;
 
 import static io.jcloud.utils.QuarkusUtils.HTTP_PORT_DEFAULT;
+import static io.jcloud.utils.QuarkusUtils.QUARKUS_GRPC_SERVER_PORT;
 import static io.jcloud.utils.QuarkusUtils.QUARKUS_HTTP_PORT_PROPERTY;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import io.jcloud.api.Dependency;
 import io.jcloud.core.ServiceContext;
@@ -42,9 +47,15 @@ public class ContainerRegistryProdModeBootstrapQuarkusManagedResource extends Ku
     }
 
     @Override
-    protected Integer[] getPorts() {
-        return new Integer[] { context.getOwner().getProperty(QUARKUS_HTTP_PORT_PROPERTY).map(Integer::parseInt)
-                .orElse(HTTP_PORT_DEFAULT) };
+    protected int[] getPorts() {
+        List<Integer> ports = new ArrayList<>();
+        ports.add(Optional.ofNullable(getProperty(QUARKUS_HTTP_PORT_PROPERTY)).map(Integer::parseInt)
+                .orElse(HTTP_PORT_DEFAULT));
+
+        Optional.ofNullable(getProperty(QUARKUS_GRPC_SERVER_PORT)).map(Integer::parseInt)
+                .ifPresent(grpcPort -> ports.add(grpcPort));
+
+        return ports.stream().mapToInt(Integer::intValue).toArray();
     }
 
     @Override

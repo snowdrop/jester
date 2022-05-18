@@ -2,7 +2,6 @@ package io.jcloud.resources.localproject.kubernetes;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 
 import io.jcloud.core.ServiceContext;
 import io.jcloud.resources.kubernetes.KubernetesManagedResource;
@@ -17,7 +16,7 @@ public class KubernetesLocalProjectManagedResource extends KubernetesManagedReso
     private final String dockerfile;
     private final String expectedLog;
     private final String[] command;
-    private final Integer[] ports;
+    private final int[] ports;
 
     private LocalProjectResource resource;
 
@@ -28,7 +27,7 @@ public class KubernetesLocalProjectManagedResource extends KubernetesManagedReso
         this.dockerfile = PropertiesUtils.resolveProperty(dockerfile);
         this.command = PropertiesUtils.resolveProperties(command);
         this.expectedLog = PropertiesUtils.resolveProperty(expectedLog);
-        this.ports = Arrays.stream(ports).boxed().toArray(Integer[]::new);
+        this.ports = ports;
     }
 
     @Override
@@ -63,7 +62,7 @@ public class KubernetesLocalProjectManagedResource extends KubernetesManagedReso
     }
 
     @Override
-    protected Integer[] getPorts() {
+    protected int[] getPorts() {
         return ports;
     }
 }

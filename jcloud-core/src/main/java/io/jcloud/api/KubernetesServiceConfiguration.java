@@ -23,7 +23,12 @@ public @interface KubernetesServiceConfiguration {
     /**
      * Use internal routing instead of exposed network interfaces. This is useful to integration several services that
      * are running as part of the same namespace or network. Fallback service property: "ts.services.<SERVICE
-     * NAME>.kubernetes.use-internal-service-as-url".
+     * NAME>.kubernetes.use-internal-service".
      */
     boolean useInternalService() default false;
+
+    /**
+     * Map additional ports to be used during the tests.
+     */
+    int[] additionalPorts() default {};
 }

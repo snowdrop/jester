@@ -39,8 +39,8 @@ public class ContainerRegistrySpringManagedResource extends KubernetesManagedRes
     }
 
     @Override
-    protected Integer[] getPorts() {
-        return new Integer[] {
+    protected int[] getPorts() {
+        return new int[] {
                 context.getOwner().getProperty(SERVER_HTTP_PORT).map(Integer::parseInt).orElse(HTTP_PORT_DEFAULT) };
     }
 

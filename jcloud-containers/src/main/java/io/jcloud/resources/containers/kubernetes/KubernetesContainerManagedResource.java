@@ -1,7 +1,5 @@
 package io.jcloud.resources.containers.kubernetes;
 
-import java.util.Arrays;
-
 import io.jcloud.resources.kubernetes.KubernetesManagedResource;
 import io.jcloud.utils.PropertiesUtils;
 
@@ -10,13 +8,13 @@ public class KubernetesContainerManagedResource extends KubernetesManagedResourc
     private final String image;
     private final String expectedLog;
     private final String[] command;
-    private final Integer[] ports;
+    private final int[] ports;
 
     public KubernetesContainerManagedResource(String image, String expectedLog, String[] command, int[] ports) {
         this.image = PropertiesUtils.resolveProperty(image);
         this.command = PropertiesUtils.resolveProperties(command);
         this.expectedLog = PropertiesUtils.resolveProperty(expectedLog);
-        this.ports = Arrays.stream(ports).boxed().toArray(Integer[]::new);
+        this.ports = ports;
     }
 
     @Override
@@ -35,7 +33,7 @@ public class KubernetesContainerManagedResource extends KubernetesManagedResourc
     }
 
     @Override
-    protected Integer[] getPorts() {
+    protected int[] getPorts() {
         return ports;
     }
 }
