@@ -44,7 +44,7 @@
     <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
     <maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>
     <formatter-maven-plugin.version>2.18.0</formatter-maven-plugin.version>
-    <impsort-maven-plugin.version>1.6.2</impsort-maven-plugin.version>
+    <impsort-maven-plugin.version>1.7.0</impsort-maven-plugin.version>
     <nexus-staging-maven-plugin.version>1.6.12</nexus-staging-maven-plugin.version>
     <!-- Declared Dependencies -->
     <junit.version>5.8.2</junit.version>
