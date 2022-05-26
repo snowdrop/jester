@@ -1,19 +1,19 @@
 <p align="center">
-    <a href="https://github.com/snowdrop/jcloud-unit/graphs/contributors" alt="Contributors">
-        <img src="https://img.shields.io/github/contributors/snowdrop/jcloud-unit"/></a>
-    <a href="https://github.com/snowdrop/jcloud-unit/pulse" alt="Activity">
-        <img src="https://img.shields.io/github/commit-activity/m/snowdrop/jcloud-unit"/></a>
-    <a href="https://github.com/snowdrop/jcloud-unit/actions/workflows/push.yaml" alt="Build Status">
-        <img src="https://github.com/snowdrop/jcloud-unit/actions/workflows/push.yaml/badge.svg"></a>
-    <a href="https://github.com/snowdrop/jcloud-unit" alt="Top Language">
-        <img src="https://img.shields.io/github/languages/top/snowdrop/jcloud-unit"></a>
-    <a href="https://github.com/snowdrop/jcloud-unit" alt="Coverage">
+    <a href="https://github.com/Sgitario/jester/graphs/contributors" alt="Contributors">
+        <img src="https://img.shields.io/github/contributors/Sgitario/jester"/></a>
+    <a href="https://github.com/Sgitario/jester/pulse" alt="Activity">
+        <img src="https://img.shields.io/github/commit-activity/m/Sgitario/jester"/></a>
+    <a href="https://github.com/Sgitario/jester/actions/workflows/push.yaml" alt="Build Status">
+        <img src="https://github.com/Sgitario/jester/actions/workflows/push.yaml/badge.svg"></a>
+    <a href="https://github.com/Sgitario/jester" alt="Top Language">
+        <img src="https://img.shields.io/github/languages/top/Sgitario/jester"></a>
+    <a href="https://github.com/Sgitario/jester" alt="Coverage">
         <img src=".github/badges/jacoco.svg"></a>
 </p>
 
-# jCloud Unit
+# Jester
 
-jCloud Unit is a [JUnit 5](https://junit.org/junit5) extension that allows us to test our applications in cloud environments
+Jester is a [JUnit 5](https://junit.org/junit5) extension that allows us to test our applications in cloud environments
 like Kubernetes.
 
 Main features:
@@ -24,18 +24,18 @@ Main features:
 - Test isolation: ephemeral namespace, configuration, ...
 
 Concepts:
-- `JCloud` - entry point for the jCloud JUnit 5 extension
+- `Jester` - entry point for the Jester JUnit 5 extension
 - `Services` - how to use services in your tests
 - `Managed Resource` - how resources are going to be deployed in the target test? The framework will locate the right managed resource and attach it to the service. This is transparently done for users. 
 
 Content:
 
 - [Getting Started](#getting-started)
-  - [With Containers](#jcloud-containers)
-  - [With Quarkus](#jcloud-quarkus)
-  - [With Spring Boot](#jcloud-spring)
-  - [With Operators](#jcloud-operators)
-  - [With JMH Benchmarks](#jcloud-benchmarks)
+  - [With Containers](#jester-containers)
+  - [With Quarkus](#jester-quarkus)
+  - [With Spring Boot](#jester-spring)
+  - [With Operators](#jester-operators)
+  - [With JMH Benchmarks](#jester-benchmarks)
 - [Services](#services)
   - [Default Service](#default-service)
   - [REST Service](#rest-service)
@@ -52,17 +52,17 @@ Content:
 
 ## Getting Started
 
-The framework has been designed to be fully extensible via jCloud dependencies. In addition, we can extend the
+The framework has been designed to be fully extensible via jester dependencies. In addition, we can extend the
 framework via the Extensions API to support new target environments and/or add new features.
 
-Let's find out the existing jCloud dependencies and their features:
+Let's find out the existing jester dependencies and their features:
 
 | Dependencies | Description | 
 |--------------|-------------| 
-| [jcloud-core](#jcloud-core)       | API, JUnit extension, allow using `@JCloud` and `@RunOnKubernetes` |
-| [jcloud-containers](#jcloud-containers) | Allow using `@Container` to run  and `@LocalProject` annotations |
-| [jcloud-quarkus](#jcloud-quarkus)    | Allow using `@Quarkus` annotation |
-| [jcloud-spring](#jcloud-spring)     | Allow using `@Spring` annotation |
+| [jester-core](#jester-core)       | API, JUnit extension, allow using `@Jester` and `@RunOnKubernetes` |
+| [jester-containers](#jester-containers) | Allow using `@Container` to run  and `@LocalProject` annotations |
+| [jester-quarkus](#jester-quarkus)    | Allow using `@Quarkus` annotation |
+| [jester-spring](#jester-spring)     | Allow using `@Spring` annotation |
 
 ### Requirements
 
@@ -71,24 +71,24 @@ Let's find out the existing jCloud dependencies and their features:
 - Docker
 - (for Kubernetes tests), you must be logged into the Kubernetes cluster.
 
-### jCloud Core
+### Jester Core
 
 This dependency is the minimal requirement to run the framework and includes all the necessary APIs to extend the functionality. 
 To know more about the API and the extension API, go to the [Architecture](#architecture) section.
 
-### jCloud Containers
+### Jester Containers
 
 This extension allows using containers to run tests on bare metal and/or Kubernetes. 
 
 In this guide, we'll use the image: `quay.io/<your username>/quarkus-test:latest` (to generate this image, you need to go to [this folder](images/quarkus-rest) and execute `mvn clean install -Dquarkus.container-image.push=true -Dquarkus.container-image.registry=quay.io -Dquarkus.container-image.group=<your username>`). 
 
-Let's start by adding the jCloud containers dependency into the Maven pom file:
+Let's start by adding the jester containers dependency into the Maven pom file:
 
 ```xml
 <dependencies>
   <dependency>
-    <groupId>io.jcloud</groupId>
-    <artifactId>jcloud-containers</artifactId>
+    <groupId>io.jester</groupId>
+    <artifactId>jester-containers</artifactId>
     <scope>test</scope>
   </dependency>
 <dependencies>
@@ -97,11 +97,11 @@ Let's start by adding the jCloud containers dependency into the Maven pom file:
 And add the test that will run the above image and map the container port 8080 to a local port:
 
 ```java
-import io.jcloud.api.Container;
-import io.jcloud.api.RestService;
-import io.jcloud.api.JCloud;
+import io.jester.api.Container;
+import io.jester.api.RestService;
+import io.jester.api.Jester;
 
-@JCloud
+@Jester
 public class ContainerTest {
 
     @Container(image = "quay.io/<your username>/quarkus-test:latest", ports = 8080, expectedLog = "Installed features")
@@ -143,7 +143,7 @@ public class KubernetesContainerIT extends ContainerTest {
 }
 ```
 
-Or we can run the test via command line using the property `ts.jcloud.target=kubernetes`.
+Or we can run the test via command line using the property `ts.jester.target=kubernetes`.
 
 Kubernetes will try to pull the image from a container registry (by default, it's `localhost:5000`). We can provide the registry via the property `ts.services.all.image.registry=quay.io`, or add this property in the `test.properties` or `global.properties` or configure your service using the `@ServiceConfiguration` annotation. More about how to configure your services in the [Configuration](#configuration) section.
 
@@ -151,7 +151,7 @@ When running the Kubernetes test, we should see the app logs again and also the 
 
 ```
 [14:15:05.347] [INFO] [greetings] Initialize service (quay.io/<your username>/quarkus-test:latest) 
-[14:15:05.414] [INFO] Running command: kubectl apply -f /home/jcarvaja/sources/snowdrop/jcloud-unit/jcloud-containers/target/KubernetesServiceLifecycleIT/greetings/kubernetes.yml -n ts-dnnsgsrtrj 
+[14:15:05.414] [INFO] Running command: kubectl apply -f /home/sources/jester/jester-containers/target/KubernetesServiceLifecycleIT/greetings/kubernetes.yml -n ts-dnnsgsrtrj 
 [14:15:05.600] [INFO] kubectl: deployment.apps/greetings created 
 [14:15:05.605] [INFO] Running command: kubectl expose deployment greetings --port=8080 --name=greetings -n ts-dnnsgsrtrj 
 [14:15:05.726] [INFO] kubectl: service/greetings exposed 
@@ -178,11 +178,11 @@ Find one example using Containers in [here](examples/quarkus-oidc).
 If your service can be shipped within a container and the sources are in a local folder, we can use the annotation `@LocalProject`. Let's see how to use the same services from the previous example but using this annotation:
 
 ```java
-import io.jcloud.api.LocalProject;
-import io.jcloud.api.RestService;
-import io.jcloud.api.JCloud;
+import io.jester.api.LocalProject;
+import io.jester.api.RestService;
+import io.jester.api.Jester;
 
-@JCloud
+@Jester
 public class LocalProjectTest {
 
     @LocalProject(location = "../images/quarkus-rest", 
@@ -203,19 +203,19 @@ public class LocalProjectTest {
 
 Using `@LocalProject`, we don't need to previously build and/or push the container. 
 
-### jCloud Quarkus
+### Jester Quarkus
 
 This extension allows testing Quarkus applications within the same module without the need of using containers. Let's see how to use it. It's important to note that this extension does not bring any Quarkus dependencies.
 
-The first thing you need is the Quarkus project where we'll add our tests using jCloud. To create a Quarkus project, follow the [Getting Started from Quarkus guide](https://quarkus.io/guides/getting-started).
+The first thing you need is the Quarkus project where we'll add our tests using jester. To create a Quarkus project, follow the [Getting Started from Quarkus guide](https://quarkus.io/guides/getting-started).
 
-Then, we need to add the jCloud Quarkus dependency into the Maven pom file:
+Then, we need to add the jester Quarkus dependency into the Maven pom file:
 
 ```xml
 <dependencies>
   <dependency>
-    <groupId>io.jcloud</groupId>
-    <artifactId>jcloud-quarkus</artifactId>
+    <groupId>io.jester</groupId>
+    <artifactId>jester-quarkus</artifactId>
     <scope>test</scope>
   </dependency>
 <dependencies>
@@ -224,7 +224,7 @@ Then, we need to add the jCloud Quarkus dependency into the Maven pom file:
 And now, let's write our first test:
 
 ```java
-@JCloud @Quarkus
+@Jester @Quarkus
 public class GreetingResourceTest {
 
     @Test
@@ -276,7 +276,7 @@ To configure the Quarkus services, go to the [Quarkus Configuration](#quarkus-se
 
 ### Native
 
-The jCloud Quarkus extension is fully compatible with Native compilation. We can enable the native configuration using the recommended approach by Quarkus via the `native` Maven profile:
+The Jester Quarkus extension is fully compatible with Native compilation. We can enable the native configuration using the recommended approach by Quarkus via the `native` Maven profile:
 
 ```xml
 <profile>
@@ -326,12 +326,12 @@ mvn clean verify -Dnative
 
 Quarkus performs many optimizations when building the Quarkus application to boost the application performance. These optimizations are based on build-time properties. The build-time properties are normal application properties but that are only taken into account when building the application. So, once the application is built, users can only configure applications runtime properties.
 
-To overcome this situation, the jCloud Quarkus extension will detect build-time properties provided by users at each test and if any, it will build the Quarkus application, so final users won't need to deal with build or runtime properties when testing Quarkus. If no build properties are provided, then the framework will reuse the binary generated by Maven. 
+To overcome this situation, the Jester Quarkus extension will detect build-time properties provided by users at each test and if any, it will build the Quarkus application, so final users won't need to deal with build or runtime properties when testing Quarkus. If no build properties are provided, then the framework will reuse the binary generated by Maven. 
 
 For example:
 
 ```java
-@JCloud
+@Jester
 public class PingPongResourceIT {
 
     @Quarkus
@@ -380,7 +380,7 @@ public class PongResource {
 Let's write our test:
 
 ```java
-@JCloud @Quarkus
+@Jester @Quarkus
 public class PingPongResourceIT {
     @Test
     public void shouldPingPongWorks() {
@@ -393,7 +393,7 @@ public class PingPongResourceIT {
 In this test, we're starting only 1 instance with all the resources, but what about if we want to create multiple instances with different sources. Let's see how we can do it using the test framework:
 
 ```java
-@JCloud
+@Jester
 public class PingPongResourceIT {
 
     @Quarkus(classes = PingResource.class)
@@ -431,7 +431,7 @@ public class PingPongResourceIT {
 We can also specify dependencies per Quarkus application that are not part of the Maven `pom.xml` file by doing:
 
 ```java
-@JCloud
+@Jester
 public class GreetingResourceIT {
 
     private static final String HELLO = "Hello";
@@ -463,7 +463,7 @@ This also can be used to append other dependencies apart from Quarkus.
 - On a Concrete Quarkus version:
 
 ```java
-@JCloud
+@Jester
 @DisabledOnQuarkusVersion(version = "1\\.13\\..*", reason = "https://github.com/quarkusio/quarkus/issues/XXX")
 public class GreetingResourceIT {
     
@@ -485,19 +485,19 @@ public class OnlyOnJvmIT {
 
 This test will be disabled if we run the test on Native. Similarly, we can enable tests to be run only on Native build by using the `@EnabledOnNative` annotation.
 
-### jCloud Spring
+### Jester Spring
 
 This extension allows testing Spring Boot applications within the same module without the need of using containers. Let's see how to use it. It's important to note that this extension does not bring any Spring Boot dependencies.
 
-The first thing you need is the Spring project where we'll add our tests using jCloud. To create a Spring Boot project, follow the [Getting Started from Spring Boot guide](https://spring.io/guides/gs/spring-boot/).
+The first thing you need is the Spring project where we'll add our tests using Jester. To create a Spring Boot project, follow the [Getting Started from Spring Boot guide](https://spring.io/guides/gs/spring-boot/).
 
-Then, we need to add the jCloud Spring dependency into the Maven pom file:
+Then, we need to add the Jester Spring dependency into the Maven pom file:
 
 ```xml
 <dependencies>
   <dependency>
-    <groupId>io.jcloud</groupId>
-    <artifactId>jcloud-spring</artifactId>
+    <groupId>io.jester</groupId>
+    <artifactId>jester-spring</artifactId>
     <scope>test</scope>
   </dependency>
 <dependencies>
@@ -506,7 +506,7 @@ Then, we need to add the jCloud Spring dependency into the Maven pom file:
 And now, let's write our first test:
 
 ```java
-@JCloud @Spring
+@Jester @Spring
 public class GreetingResourceTest {
 
     @Test
@@ -525,7 +525,7 @@ Output:
 
 ```
 [09:11:50.920] [INFO] [spring] Initialize service (Spring Boot) 
-[09:11:50.953] [INFO] [spring] Running command: java -Dserver.port=1101 -jar /home/jcarvaja/sources/snowdrop/jcloud-unit/examples/spring-greetings/target/examples-spring-greetings-0.0.0-SNAPSHOT.jar 
+[09:11:50.953] [INFO] [spring] Running command: java -Dserver.port=1101 -jar /home/sources/jester-unit/examples/spring-greetings/target/examples-spring-greetings-0.0.0-SNAPSHOT.jar 
 [09:11:55.011] [INFO] [spring]   .   ____          _            __ _ _ 
 [09:11:55.016] [INFO] [spring]  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \ 
 [09:11:55.018] [INFO] [spring] ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \ 
@@ -533,7 +533,7 @@ Output:
 [09:11:55.023] [INFO] [spring]   '  |____| .__|_| |_|_| |_\__, | / / / / 
 [09:11:55.025] [INFO] [spring]  =========|_|==============|___/=/_/_/_/ 
 [09:11:55.027] [INFO] [spring]  :: Spring Boot ::                (v2.6.4) 
-[09:11:55.029] [INFO] [spring] 2022-03-22 09:11:51.980  INFO 301749 --- [           main] i.j.e.s.greetings.GreetingApplication    : Starting GreetingApplication using Java 11.0.14.1 on localhost.localdomain with PID 301749 (/home/jcarvaja/sources/snowdrop/jcloud-unit/examples/spring-greetings/target/examples-spring-greetings-0.0.0-SNAPSHOT.jar started by jcarvaja in /home/jcarvaja/sources/snowdrop/jcloud-unit/examples/spring-greetings/target/GreetingApplicationIT/spring) 
+[09:11:55.029] [INFO] [spring] 2022-03-22 09:11:51.980  INFO 301749 --- [           main] i.j.e.s.greetings.GreetingApplication    : Starting GreetingApplication using Java 11.0.14.1 on localhost.localdomain with PID 301749 (/home/sources/jester/examples/spring-greetings/target/examples-spring-greetings-0.0.0-SNAPSHOT.jar started by jcarvaja in /home/sources/jester/examples/spring-greetings/target/GreetingApplicationIT/spring) 
 [09:11:55.031] [INFO] [spring] 2022-03-22 09:11:51.984  INFO 301749 --- [           main] i.j.e.s.greetings.GreetingApplication    : No active profile set, falling back to 1 default profile: "default" 
 [09:11:55.034] [INFO] [spring] 2022-03-22 09:11:53.007  INFO 301749 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 1101 (http) 
 [09:11:55.037] [INFO] [spring] 2022-03-22 09:11:53.017  INFO 301749 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat] 
@@ -556,17 +556,17 @@ Find this Spring example in [here](examples/spring-greetings).
 
 To configure the Spring services, go to the [Configuration](#spring-service-configuration) section.
 
-### jCloud Operators
+### Jester Operators
 
 This extension allows easily writing test cases with operators. 
 
-First, we need to add the jCloud Operators dependency into the Maven pom file:
+First, we need to add the Jester Operators dependency into the Maven pom file:
 
 ```xml
 <dependencies>
   <dependency>
-    <groupId>io.jcloud</groupId>
-    <artifactId>jcloud-operators</artifactId>
+    <groupId>io.jester</groupId>
+    <artifactId>jester-operators</artifactId>
     <scope>test</scope>
   </dependency>
 <dependencies>
@@ -586,7 +586,7 @@ spec:
 Now, we can create an OperatorService to load this YAML as part of an Operator installation:
 
 ```java
-@JCloud
+@Jester
 @RunInKubernetes
 @Operator(subscription = "my-operator", source = "...")
 public class OperatorExampleIT {
@@ -635,17 +635,17 @@ public class OperatorExampleIT {
 
 Now, the framework will wait for the operator to be installed and the custom resource named `kafka-instance` to be with a condition "Ready" as "True".
 
-### jCloud Benchmarks
+### Jester Benchmarks
 
-This extension allows easily writing benchmarks using [Java Microbenchmark Harness (JMH)](https://github.com/openjdk/jmh) with the benefit of setting up tests using the jCloud extensions.
+This extension allows easily writing benchmarks using [Java Microbenchmark Harness (JMH)](https://github.com/openjdk/jmh) with the benefit of setting up tests using the Jester extensions.
 
-First, we need to add the jCloud Benchmark dependency into the Maven pom file:
+First, we need to add the Jester Benchmark dependency into the Maven pom file:
 
 ```xml
 <dependencies>
   <dependency>
-    <groupId>io.jcloud</groupId>
-    <artifactId>jcloud-benchmark</artifactId>
+    <groupId>io.jester</groupId>
+    <artifactId>jester-benchmark</artifactId>
     <scope>test</scope>
   </dependency>
 <dependencies>
@@ -654,7 +654,7 @@ First, we need to add the jCloud Benchmark dependency into the Maven pom file:
 And now, we need to extend our test class with the interface `EnableBenchmark`:
 
 ```java
-@JCloud @Spring
+@Jester @Spring
 public class GreetingResourceBenchmark implements EnableBenchmark {
 
     @Benchmark // Annotations from JMH tool
@@ -684,7 +684,7 @@ Output:
 # Timeout: 10 min per iteration
 # Threads: 50 threads, will synchronize iterations
 # Benchmark mode: Throughput, ops/time
-# Benchmark: io.jcloud.examples.benchmark.apps.GreetingApplicationBenchmark.helloEndpointThroughput
+# Benchmark: io.jester.examples.benchmark.apps.GreetingApplicationBenchmark.helloEndpointThroughput
 
 # Run progress: 0,00% complete, ETA 00:00:40
 # Fork: N/A, test runs in the host VM
@@ -698,7 +698,7 @@ Iteration   1: 942,183 ops/s
 Iteration   2: 1783,304 ops/s
 Iteration   3: 3037,837 ops/s
 
-Result "io.jcloud.examples.benchmark.apps.GreetingApplicationBenchmark.helloEndpointThroughput":
+Result "io.jester.examples.benchmark.apps.GreetingApplicationBenchmark.helloEndpointThroughput":
   1921,108 ±(99.9%) 19239,854 ops/s [Average]
   (min, avg, max) = (942,183, 1921,108, 3037,837), stdev = 1054,601
   CI (99.9%): [≈ 0, 21160,962] (assumes normal distribution)
@@ -835,7 +835,7 @@ class MyParent {
 
 }
 
-@JCloud
+@Jester
 class MyChildIT extends MyParent {
     @Quarkus
     static final RestService firstAppInChild = new RestService();
@@ -858,7 +858,7 @@ class MyParent {
     static final RestService appInParent = new RestService().withProperty("x", () -> appInChild.getHost());
 }
 
-@JCloud
+@Jester
 class MyChildIT extends MyParent {
     @Quarkus
     static final RestService appInChild = new RestService();
@@ -879,7 +879,7 @@ This implementation is used when you do not need to interact with the managed re
 
 Example:
 ```java
-@JCloud
+@Jester
 public class PingPongResourceIT {
     @Quarkus
     DefaultService ping = new DefaultService();
@@ -894,7 +894,7 @@ The REST service implementation will automatically configure REST assured by you
 
 Example:
 ```java
-@JCloud
+@Jester
 public class PingPongResourceIT {
     @Quarkus
     static final RestService ping = new RestService();
@@ -923,7 +923,7 @@ public class YourCustomService extends BaseService<YourCustomService> {
 And use it:
 
 ```java
-@JCloud
+@Jester
 public class GreetingResourceIT {
 
     @Container // ... or @Quarkus ..
@@ -937,13 +937,13 @@ public class GreetingResourceIT {
 
 The Kafka operator service implementation will automatically install the Strimzi Kafka operator and create an instance of Kafka. 
 
-To use the Kafka Operator service, you need first to add the jCloud Service Kafka extension:
+To use the Kafka Operator service, you need first to add the Jester Service Kafka extension:
 
 ```xml
 <dependencies>
   <dependency>
-    <groupId>io.jcloud</groupId>
-    <artifactId>jcloud-service-kafka</artifactId>
+    <groupId>io.jester</groupId>
+    <artifactId>jester-service-kafka</artifactId>
     <scope>test</scope>
   </dependency>
 <dependencies>
@@ -953,7 +953,7 @@ And now, we can simply create our Kafka instance by doing:
 
 Example:
 ```java
-@JCloud
+@Jester
 @RunOnKubernetes
 @Operator(subscription = "strimzi-kafka-operator") // only if you don't have any kafka operator up and running
 public class KubernetesKafkaOperatorIT {
@@ -962,11 +962,11 @@ public class KubernetesKafkaOperatorIT {
 }
 ```
 
-See an example in [here](jcloud-service-kafka/src/test/java/io/jcloud/test/KubernetesKafkaOperatorIT.java).
+See an example in [here](jester-service-kafka/src/test/java/io/jester/test/KubernetesKafkaOperatorIT.java).
 
 #### Database Services
 
-JCloud includes an extension with some build-in database services for:
+Jester includes an extension with some build-in database services for:
 
 - MySQL service with `@MySqlContainer`
 - MariaDB service with `@MariaDbContainer`
@@ -974,13 +974,13 @@ JCloud includes an extension with some build-in database services for:
 - PostgreSQL service with `@PostgresqlContainer`
 - MongoDB service with `@MongoDbContainer`
 
-To use any of these services, you need first to add the jCloud Service Kafka extension:
+To use any of these services, you need first to add the Jester Service Kafka extension:
 
 ```xml
 <dependencies>
   <dependency>
-    <groupId>io.jcloud</groupId>
-    <artifactId>jcloud-service-database</artifactId>
+    <groupId>io.jester</groupId>
+    <artifactId>jester-service-database</artifactId>
     <scope>test</scope>
   </dependency>
 <dependencies>
@@ -989,7 +989,7 @@ To use any of these services, you need first to add the jCloud Service Kafka ext
 And now, let's see how to use it. In the following example, we'll configure a Quarkus application using a MySql database:
 
 ```java
-@JCloud
+@Jester
 public class MySqlDatabaseIT {
 
     @MySqlContainer
@@ -1010,10 +1010,10 @@ The `DatabaseService` service extends the Service API with the following methods
 - `getJdbcUrl`: to return the JDBC connection URL.
 - `getReactiveUrl`: to return the reactive way connection URL.
 
-The existing database services will use default images and ports that are tested as part of the jCloud ecosystem. However, you can overwrite the default settings by using the `@DatabaseContainer` annotation:
+The existing database services will use default images and ports that are tested as part of the Jester ecosystem. However, you can overwrite the default settings by using the `@DatabaseContainer` annotation:
 
 ```java
-@JCloud
+@Jester
 public class MySqlDatabaseIT {
 
     @MySqlContainer(image = "${mysql.80.image}", port = 1111, expectedLog = "Only MySQL server logs after this point")
@@ -1030,8 +1030,8 @@ Each service can be configured via (1) annotations, (2) file properties, and (3)
 For (1) annotations, we can annotate the test using `@ServiceConfiguration` (for common properties):
 
 ```java
-@JCloud
-@JCloudConfiguration(forService = "app", startupTimeout = "10s")
+@Jester
+@JesterConfiguration(forService = "app", startupTimeout = "10s")
 public class MyTest {
     @Quarkus
     static final RestService app = new RestService();
@@ -1039,14 +1039,14 @@ public class MyTest {
 }
 ```
 
-For jCloud extension configuration, there are additional annotations, for example: `@KubernetesServiceConfiguration`, `@DockerServiceConfiguration`, `@QuarkusServiceConfiguration`, ... 
+As part of the Jester extension configuration, there are additional annotations, for example: `@KubernetesServiceConfiguration`, `@DockerServiceConfiguration`, `@QuarkusServiceConfiguration`, ... 
 
 For (2) file properties, you can add a properties file named `test.properties` at the `src/test/resources` folder where to place the service's properties. To use the same properties file for a multi-module test suite, you specify it using the system property `-Dts.test.resources.file.location=path/to/custom-global.properties`.
 
 **Note**: The `<SERVICE NAME>` is the name of the service within the test. For example, in the following example, the `<SERVICE NAME>` value is `app`.
 
 ```java
-@JCloud
+@Jester
 public class PingPongResourceIT {
 
     @Quarkus
@@ -1119,20 +1119,20 @@ The framework has been designed to fully extend new features and/or customize th
 
 Extension API:
 
-- `Extension bootstrap point` - to set up common things along all the services. For example, [the Kubernetes extension bootstrap](jcloud-core/src/main/java/io/jcloud/core/extensions/KubernetesExtensionBootstrap.java) is used to create the Kubernetes namespace before running the tests and inject the Kubernetes client to all the services and tests. This extension is registered in [META-INF/services/io.jcloud.api.extensions.ExtensionBootstrap](jcloud-core/src/main/resources/META-INF/services/io.jcloud.api.extensions.ExtensionBootstrap).
-- `Extension binding point` - create your custom annotations to deploy custom resources. For example, the [Container annotation](jcloud-containers/src/main/java/io/jcloud/api/Container.java) is registered in [META-INF/services/io.jcloud.api.extensions.AnnotationBinding](jcloud-containers/src/main/resources/META-INF/services/io.jcloud.api.extensions.AnnotationBinding) using the binding [ContainerAnnotationBinding.java](jcloud-containers/src/main/java/io/jcloud/resources/containers/ContainerAnnotationBinding.java)
-- `Extension Managed Resources point` - deploy your resources into the target environment. Each extension binding point will deploy the resources locally, though we can easily extend it to deploy services in any kind of target environment. For example, for containers, we provide the [ContainerManagedResourceBinding.java](jcloud-containers/src/main/java/io/jcloud/api/extensions/ContainerManagedResourceBinding.java) extension point that we can provide to support other environments as we have done for [Kubernetes](jcloud-containers/src/main/java/io/jcloud/resources/containers/kubernetes/KubernetesContainerManagedResourceBinding.java).
+- `Extension bootstrap point` - to set up common things along all the services. For example, [the Kubernetes extension bootstrap](jester-core/src/main/java/io/jester/core/extensions/KubernetesExtensionBootstrap.java) is used to create the Kubernetes namespace before running the tests and inject the Kubernetes client to all the services and tests. This extension is registered in [META-INF/services/io.jester.api.extensions.ExtensionBootstrap](jester-core/src/main/resources/META-INF/services/io.jester.api.extensions.ExtensionBootstrap).
+- `Extension binding point` - create your custom annotations to deploy custom resources. For example, the [Container annotation](jester-containers/src/main/java/io/jester/api/Container.java) is registered in [META-INF/services/io.jester.api.extensions.AnnotationBinding](jester-containers/src/main/resources/META-INF/services/io.jester.api.extensions.AnnotationBinding) using the binding [ContainerAnnotationBinding.java](jester-containers/src/main/java/io/jester/resources/containers/ContainerAnnotationBinding.java)
+- `Extension Managed Resources point` - deploy your resources into the target environment. Each extension binding point will deploy the resources locally, though we can easily extend it to deploy services in any kind of target environment. For example, for containers, we provide the [ContainerManagedResourceBinding.java](jester-containers/src/main/java/io/jester/api/extensions/ContainerManagedResourceBinding.java) extension point that we can provide to support other environments as we have done for [Kubernetes](jester-containers/src/main/java/io/jester/resources/containers/kubernetes/KubernetesContainerManagedResourceBinding.java).
 
 ### Packages Convention
 
 Modules within the testing framework must conform to the following package naming conventions:
 
-- `io.jcloud.api` - the API to use services and resources
-- `io.jcloud.configuration` - configure the services and test configuration
-- `io.jcloud.core` - the core functionality of the framework
-- `io.jcloud.logging` - logging facilities and handlers
-- `io.jcloud.resources` - the supported resources within the current jcloud dependency
-- `io.jcloud.utils` - more utilities
+- `io.jester.api` - the API to use services and resources
+- `io.jester.configuration` - configure the services and test configuration
+- `io.jester.core` - the core functionality of the framework
+- `io.jester.logging` - logging facilities and handlers
+- `io.jester.resources` - the supported resources within the current jester dependency
+- `io.jester.utils` - more utilities
 - 
 ## Contributing
 

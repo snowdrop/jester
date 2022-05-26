@@ -3,13 +3,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>io.jcloud</groupId>
-    <artifactId>jcloud-parent</artifactId>
+    <groupId>io.jester</groupId>
+    <artifactId>jester-parent</artifactId>
     <version>0.0.0-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <artifactId>examples-apps-benchmark</artifactId>
-  <name>jCloud - Examples - Apps - Benchmark</name>
+  <name>Jester - Examples - Apps - Benchmark</name>
   <properties>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
@@ -35,8 +35,8 @@
       <version>${jboss-jaxrs-api_2.1_spec.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.jcloud</groupId>
-      <artifactId>jcloud-benchmark</artifactId>
+      <groupId>io.jester</groupId>
+      <artifactId>jester-benchmark</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
@@ -53,14 +53,14 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>io.jcloud</groupId>
-      <artifactId>jcloud-quarkus</artifactId>
+      <groupId>io.jester</groupId>
+      <artifactId>jester-quarkus</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>io.jcloud</groupId>
-      <artifactId>jcloud-spring</artifactId>
+      <groupId>io.jester</groupId>
+      <artifactId>jester-spring</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>

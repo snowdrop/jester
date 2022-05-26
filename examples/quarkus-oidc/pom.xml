@@ -4,13 +4,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>io.jcloud</groupId>
-    <artifactId>jcloud-parent</artifactId>
+    <groupId>io.jester</groupId>
+    <artifactId>jester-parent</artifactId>
     <version>0.0.0-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <artifactId>examples-quarkus-oidc</artifactId>
-  <name>jCloud - Examples - Quarkus - OIDC + Keycloak</name>
+  <name>Jester - Examples - Quarkus - OIDC + Keycloak</name>
   <properties>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
@@ -39,14 +39,14 @@
       <artifactId>quarkus-oidc</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.jcloud</groupId>
-      <artifactId>jcloud-quarkus</artifactId>
+      <groupId>io.jester</groupId>
+      <artifactId>jester-quarkus</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>io.jcloud</groupId>
-      <artifactId>jcloud-containers</artifactId>
+      <groupId>io.jester</groupId>
+      <artifactId>jester-containers</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>

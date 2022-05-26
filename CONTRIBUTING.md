@@ -23,7 +23,7 @@ documentation, examples... But first, read this page (including the small print 
 
 ## Legal
 
-All original contributions to jCloudUnit are licensed under the
+All original contributions to Jester are licensed under the
 [ASL - Apache License](https://www.apache.org/licenses/LICENSE-2.0), version 2.0 or later, or, if another license is specified
 as governing the file or directory being modified, such other license.
 
@@ -35,11 +35,11 @@ also included verbatim in the [dco.txt](dco.txt) file in the root directory of t
 This project uses GitHub issues to manage the issues. Open an issue directly in GitHub.
 
 If you believe you found a bug, and it's likely possible, please indicate a way to reproduce it, what you are seeing and what
-you would expect to see. Don't forget to indicate your jCloudUnit, Java, Maven/Gradle and GraalVM version.
+you would expect to see. Don't forget to indicate your Jester, Java, Maven/Gradle and GraalVM version.
 
 ## Checking an issue is fixed in main
 
-Sometimes a bug has been fixed in the `main` branch of jCloudUnit and you want to confirm it is fixed for your own application.
+Sometimes a bug has been fixed in the `main` branch of Jester and you want to confirm it is fixed for your own application.
 If you are interested in having more details, refer to the [Build section](#build) and the [Usage section](#usage).
 
 ### Building main
@@ -47,8 +47,8 @@ If you are interested in having more details, refer to the [Build section](#buil
 Just do the following:
 
 ```
-git clone git@github.com:snowdrop/jcloud-unit.git
-cd jcloud-unit
+git clone git@github.com:Sgitario/jester.git
+cd jester
 mvn clean install -Pframework
 ```
 
@@ -75,7 +75,7 @@ All submissions, including submissions by project members, need to be reviewed b
 
 * We decided to disallow `@author` tags in the JavaDoc: they are hard to maintain, especially in a very active project, and we
   use the Git history to track authorship. GitHub also
-  has [this nice page with your contributions](https://github.com/snowdrop/jcloud-unit/graphs/contributors).
+  has [this nice page with your contributions](https://github.com/Sgitario/jester/graphs/contributors).
 * Commits should be atomic and semantic. Please properly squash your pull requests before submitting them. Fixup commits can be
   used temporarily during the review process but things should be squashed at the end to have meaningful commits. We use merge
   commits so the GitHub Merge button cannot do that for us. If you don't know how to do that, just ask in your pull request, we
@@ -83,8 +83,8 @@ All submissions, including submissions by project members, need to be reviewed b
 
 ### Continuous Integration
 
-Because we are all humans, and to ensure jCloudUnit is stable for everyone, all changes must go through jCloudUnit continuous
-integration. jCloudUnit CI is based on GitHub Actions, which means that everyone has the ability to automatically execute CI in
+Because we are all humans, and to ensure Jester is stable for everyone, all changes must go through Jester continuous
+integration. Jester CI is based on GitHub Actions, which means that everyone has the ability to automatically execute CI in
 their forks as part of the process of making changes. We ask that all non-trivial changes go through this process, so that the
 contributor gets immediate feedback, while at the same time keeping our CI fast and healthy for everyone.
 
@@ -111,7 +111,7 @@ If you have not done so on this machine, you need to:
 
 ### Code Style
 
-jCloudUnit has a strictly enforced code style. Code formatting is done by the Checkstyle plugin, using the config
+Jester has a strictly enforced code style. Code formatting is done by the Checkstyle plugin, using the config
 file `checkstyle.xml`. By default when you run `mvn clean install` the code will be formatted automatically. When submitting a
 pull request the CI build will fail if running the formatter results in any code changes, so it is recommended that you always
 run a full Maven build before submitting a pull request.
@@ -122,7 +122,7 @@ After the build was successful, the artifacts are available in your local Maven 
 
 ### Test Coverage
 
-jCloudUnit uses JaCoCo to generate test coverage. If you would like to generate the report
+Jester uses JaCoCo to generate test coverage. If you would like to generate the report
 run `mvn install -Pframework,examples,coverage`, then change into the `coverage-report` directory and run `mvn package`. The
 code coverage report will be generated in
 `target/site/jacoco/`.

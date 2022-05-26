@@ -1,0 +1,5 @@
+io.jester.resources.containers.database.MariaDbContainerAnnotationBinding
+io.jester.resources.containers.database.MongoDbContainerAnnotationBinding
+io.jester.resources.containers.database.MySqlContainerAnnotationBinding
+io.jester.resources.containers.database.PostgresqlContainerAnnotationBinding
+io.jester.resources.containers.database.SqlServerContainerAnnotationBinding

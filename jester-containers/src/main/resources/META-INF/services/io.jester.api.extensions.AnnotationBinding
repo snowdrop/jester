@@ -1,0 +1,3 @@
+io.jester.resources.containers.ContainerAnnotationBinding
+io.jester.resources.localproject.LocalProjectAnnotationBinding
+io.jester.resources.gitremoteproject.GitRemoteProjectAnnotationBinding
