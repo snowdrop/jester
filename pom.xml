@@ -2,12 +2,12 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>io.jcloud</groupId>
-  <artifactId>jcloud-parent</artifactId>
+  <groupId>io.jester</groupId>
+  <artifactId>jester-parent</artifactId>
   <version>0.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>jCloud - Parent</name>
-  <description>jCloud - Cloud native test framework</description>
+  <name>jester - Parent</name>
+  <description>jester - Cloud Test Framework</description>
   <licenses>
     <license>
       <name>The Apache License, Version 2.0</name>
@@ -23,12 +23,12 @@
     </developer>
   </developers>
   <scm>
-    <connection>scm:git:git@github.com:snowdrop/jcloud-unit.git</connection>
-    <developerConnection>scm:git:git@github.com:snowdrop/jcloud-unit.git</developerConnection>
-    <url>https://github.com/snowdrop/jcloud-unit</url>
+    <connection>scm:git:git@github.com:Sgitario/jester.git</connection>
+    <developerConnection>scm:git:git@github.com:Sgitario/jester.git</developerConnection>
+    <url>https://github.com/Sgitario/jester</url>
     <tag>HEAD</tag>
   </scm>
-  <url>https://github.com/snowdrop/jcloud-unit/</url>
+  <url>https://github.com/Sgitario/jester/</url>
   <properties>
     <compiler-plugin.version>3.10.1</compiler-plugin.version>
     <source-plugin.version>3.2.1</source-plugin.version>
@@ -82,43 +82,43 @@
     <dependencies>
       <!-- Project Dependencies -->
       <dependency>
-        <groupId>io.jcloud</groupId>
-        <artifactId>jcloud-core</artifactId>
+        <groupId>io.jester</groupId>
+        <artifactId>jester-core</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>io.jcloud</groupId>
-        <artifactId>jcloud-benchmark</artifactId>
+        <groupId>io.jester</groupId>
+        <artifactId>jester-benchmark</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>io.jcloud</groupId>
-        <artifactId>jcloud-containers</artifactId>
+        <groupId>io.jester</groupId>
+        <artifactId>jester-containers</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>io.jcloud</groupId>
-        <artifactId>jcloud-operators</artifactId>
+        <groupId>io.jester</groupId>
+        <artifactId>jester-operators</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>io.jcloud</groupId>
-        <artifactId>jcloud-quarkus</artifactId>
+        <groupId>io.jester</groupId>
+        <artifactId>jester-quarkus</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>io.jcloud</groupId>
-        <artifactId>jcloud-spring</artifactId>
+        <groupId>io.jester</groupId>
+        <artifactId>jester-spring</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>io.jcloud</groupId>
-        <artifactId>jcloud-service-kafka</artifactId>
+        <groupId>io.jester</groupId>
+        <artifactId>jester-service-kafka</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>io.jcloud</groupId>
-        <artifactId>jcloud-service-database</artifactId>
+        <groupId>io.jester</groupId>
+        <artifactId>jester-service-database</artifactId>
         <version>${project.version}</version>
       </dependency>
       <!-- Declared Dependencies -->
@@ -320,14 +320,14 @@
         </property>
       </activation>
       <modules>
-        <module>jcloud-core</module>
-        <module>jcloud-benchmark</module>
-        <module>jcloud-containers</module>
-        <module>jcloud-operators</module>
-        <module>jcloud-quarkus</module>
-        <module>jcloud-spring</module>
-        <module>jcloud-service-database</module>
-        <module>jcloud-service-kafka</module>
+        <module>jester-core</module>
+        <module>jester-benchmark</module>
+        <module>jester-containers</module>
+        <module>jester-operators</module>
+        <module>jester-quarkus</module>
+        <module>jester-spring</module>
+        <module>jester-service-database</module>
+        <module>jester-service-kafka</module>
       </modules>
     </profile>
     <profile>
@@ -401,7 +401,7 @@
                 </goals>
                 <configuration>
                   <includes>
-                    <include>io.jcloud*</include>
+                    <include>io.jester*</include>
                   </includes>
                   <propertyName>jacoco.generated.agent.argLine</propertyName>
                 </configuration>

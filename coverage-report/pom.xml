@@ -2,10 +2,10 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>io.jcloud</groupId>
-  <artifactId>jcloud-coverage-report</artifactId>
+  <groupId>io.jester</groupId>
+  <artifactId>jester-coverage-report</artifactId>
   <version>0.0.0</version>
-  <name>jCloud Coverage Report</name>
+  <name>Jester Coverage Report</name>
   <description>Aggregates and compiles jacoco test coverage reports</description>
   <packaging>pom</packaging>
   <properties>
@@ -59,8 +59,8 @@
               <goal>report</goal>
             </goals>
             <configuration>
-              <title>jCloudTest</title>
-              <footer>Code Coverage Report for jCloudTest ${project.version}</footer>
+              <title>Jester</title>
+              <footer>Code Coverage Report for Jester ${project.version}</footer>
             </configuration>
           </execution>
         </executions>
