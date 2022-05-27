@@ -10,6 +10,7 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.ChainedOptionsBuilder;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
+import io.jester.configuration.BenchmarkConfiguration;
 import io.jester.utils.FileUtils;
 
 public interface EnableBenchmark {
@@ -19,8 +20,10 @@ public interface EnableBenchmark {
         // enable profiling (for Java processes only)
         context.getConfiguration().setProfilingEnabled(true);
 
+        BenchmarkConfiguration configuration = context.getConfigurationAs(BenchmarkConfiguration.class);
+
         // run benchmarks
-        Path result = Path.of("target", "benchmarks-results");
+        Path result = Path.of(configuration.getOutputLocation());
         FileUtils.createDirectoryIfDoesNotExist(result);
         ChainedOptionsBuilder jmhRunnerOptions = new OptionsBuilder().shouldDoGC(true).shouldFailOnError(true)
                 .shouldFailOnError(true).resultFormat(benchmarkResultFormat()).addProfiler(StackProfiler.class)

@@ -47,6 +47,7 @@ Content:
   - [Docker on Local](#docker-service-configuration)
   - [Quarkus](#quarkus-service-configuration)
   - [Spring](#spring-service-configuration)
+  - [Benchmarks](#benchmarks-configuration)
 - [Architecture](#architecture)
 - [Contributing](#contributing)
 
@@ -1112,6 +1113,14 @@ The configuration that is only available when running services annotated with `@
 | Name | Description | Default | Property | Annotation | 
 |------|-------------|---------|----------|------------| 
 | Expected Log | Configure the expected log for the Spring service | Started .* in .* seconds | `ts.services.<SERVICE NAME>.spring.expected-log=Started .* in .* seconds` | `@SpringServiceConfiguration(forService = "<SERVICE NAME>", expectedLog = "Started .* in .* seconds")` |
+
+### Benchmarks Configuration
+
+The configuration that is only available when running benchmarks is:
+
+| Name | Description | Default | Property | Annotation | 
+|------|-------------|---------|----------|------------| 
+| Output Location | Configure the output directory where all the benchmark results will be copied to | target/benchmarks-results | `ts.benchmark.output-location=target/benchmarks-results | `@BenchmarkConfiguration(outputLocation = "target/benchmarks-results")` |
 
 ## Architecture
 
