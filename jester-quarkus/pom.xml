@@ -13,8 +13,6 @@
   <properties>
     <!-- Declared Dependencies -->
     <shrinkwrap-depchain.version>2.0.0-beta-1</shrinkwrap-depchain.version>
-    <!-- Provided Dependencies -->
-    <quarkus.platform.version>2.9.2.Final</quarkus.platform.version>
     <!-- Test Dependencies -->
     <jboss-jaxrs-api_2.1_spec.version>2.0.2.Final</jboss-jaxrs-api_2.1_spec.version>
   </properties>
@@ -33,7 +31,6 @@
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-test-common</artifactId>
-      <version>${quarkus.platform.version}</version>
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>

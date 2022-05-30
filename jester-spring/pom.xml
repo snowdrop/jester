@@ -10,10 +10,6 @@
   </parent>
   <artifactId>jester-spring</artifactId>
   <name>Jester - Spring Boot</name>
-  <properties>
-    <!-- Provided Dependencies -->
-    <spring.version>2.7.0</spring.version>
-  </properties>
   <dependencies>
     <dependency>
       <groupId>io.jester</groupId>
@@ -23,7 +19,6 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
-      <version>${spring.version}</version>
       <scope>provided</scope>
     </dependency>
 
@@ -31,7 +26,6 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
-      <version>${spring.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
