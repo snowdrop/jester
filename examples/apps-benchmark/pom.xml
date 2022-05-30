@@ -11,10 +11,6 @@
   <artifactId>examples-apps-benchmark</artifactId>
   <name>Jester - Examples - Apps - Benchmark</name>
   <properties>
-    <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-    <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-    <quarkus.platform.version>2.9.2.Final</quarkus.platform.version>
-    <spring.boot.version>2.7.0</spring.boot.version>
     <jboss-jaxrs-api_2.1_spec.version>2.0.2.Final</jboss-jaxrs-api_2.1_spec.version>
   </properties>
   <dependencyManagement>
@@ -22,7 +18,7 @@
       <dependency>
         <groupId>${quarkus.platform.group-id}</groupId>
         <artifactId>${quarkus.platform.artifact-id}</artifactId>
-        <version>${quarkus.platform.version}</version>
+        <version>${quarkus.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -37,31 +33,21 @@
     <dependency>
       <groupId>io.jester</groupId>
       <artifactId>jester-benchmark</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-bootstrap-core</artifactId>
-      <version>${quarkus.platform.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-test-common</artifactId>
-      <version>${quarkus.platform.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.jester</groupId>
       <artifactId>jester-quarkus</artifactId>
-      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.jester</groupId>
       <artifactId>jester-spring</artifactId>
-      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -78,12 +64,12 @@
         <dependency>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-starter</artifactId>
-          <version>${spring.boot.version}</version>
+          <version>${spring.version}</version>
         </dependency>
         <dependency>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-starter-jersey</artifactId>
-          <version>${spring.boot.version}</version>
+          <version>${spring.version}</version>
         </dependency>
       </dependencies>
     </profile>
@@ -99,7 +85,7 @@
         <dependency>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-starter-web</artifactId>
-          <version>${spring.boot.version}</version>
+          <version>${spring.version}</version>
         </dependency>
       </dependencies>
     </profile>
@@ -135,7 +121,7 @@
           <plugin>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-maven-plugin</artifactId>
-            <version>${spring.boot.version}</version>
+            <version>${spring.version}</version>
             <executions>
               <execution>
                 <goals>
