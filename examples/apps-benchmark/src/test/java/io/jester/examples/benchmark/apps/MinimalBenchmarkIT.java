@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.net.http.HttpResponse;
 
-import org.junit.jupiter.api.condition.DisabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -21,7 +19,6 @@ import io.jester.api.Quarkus;
 import io.jester.core.EnableBenchmark;
 import io.jester.core.ServiceState;
 
-@DisabledOnOs(value = OS.WINDOWS, disabledReason = "Not supported on Windows")
 @Jester
 @Fork(1)
 @Warmup(iterations = 1)
@@ -30,7 +27,7 @@ import io.jester.core.ServiceState;
 @Threads(5)
 public class MinimalBenchmarkIT implements EnableBenchmark {
 
-    @Quarkus(dependencies = @Dependency(artifactId = "quarkus-resteasy-reactive", version = "${quarkus.platform.version:2.8.0.Final}"))
+    @Quarkus(dependencies = @Dependency(artifactId = "quarkus-resteasy-reactive"))
     public static HttpService quarkusReactive = new HttpService().setAutoStart(false);
 
     public static class QuarkusResteasyReactiveState extends ServiceState<HttpService> {
