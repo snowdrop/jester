@@ -59,7 +59,7 @@
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
     <quarkus.version>2.10.1.Final</quarkus.version>
-    <spring.version>2.7.1</spring.version>
+    <spring.version>2.7.2</spring.version>
     <!-- Format Settings -->
     <src.format.goal>format</src.format.goal>
     <src.sort.goal>sort</src.sort.goal>
