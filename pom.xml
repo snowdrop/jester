@@ -48,7 +48,7 @@
     <nexus-staging-maven-plugin.version>1.6.12</nexus-staging-maven-plugin.version>
     <!-- Declared Dependencies -->
     <junit.version>5.9.0</junit.version>
-    <rest-assured.version>4.5.1</rest-assured.version>
+    <rest-assured.version>5.1.1</rest-assured.version>
     <awaitility.version>4.2.0</awaitility.version>
     <apache.commons-io.version>2.11.0</apache.commons-io.version>
     <javax.xml.bind.version>2.4.0-b180830.0359</javax.xml.bind.version>
