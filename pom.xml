@@ -54,7 +54,7 @@
     <javax.xml.bind.version>2.4.0-b180830.0359</javax.xml.bind.version>
     <javax.inject.version>1</javax.inject.version>
     <kubernetes-client.version>6.0.0</kubernetes-client.version>
-    <jackson-annotations.version>2.13.3</jackson-annotations.version>
+    <jackson-annotations.version>2.13.4</jackson-annotations.version>
     <!-- Provided Dependencies -->
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
