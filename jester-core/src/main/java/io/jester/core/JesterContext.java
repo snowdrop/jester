@@ -48,7 +48,12 @@ public final class JesterContext {
     }
 
     public boolean isFailed() {
-        return failed;
+        if (failed || testContext == null) {
+            return failed;
+        }
+
+        // sometimes the failed flag has not been propagated yet, so we need to check the JUnit test context
+        return testContext.getExecutionException().isPresent();
     }
 
     public boolean isDebug() {

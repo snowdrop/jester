@@ -192,7 +192,7 @@ public class BaseService<T extends Service> implements Service {
         if (!context.getJesterContext().isDebug()) {
             stop();
             if (!context.getJesterContext().getConfiguration().isProfilingEnabled()
-                    && context.getConfiguration().isDeleteFolderOnClose()) {
+                    && !context.getJesterContext().isFailed() && context.getConfiguration().isDeleteFolderOnClose()) {
                 try {
                     FileUtils.deletePath(getServiceFolder());
                 } catch (Exception ex) {
