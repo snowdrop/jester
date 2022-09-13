@@ -9,7 +9,7 @@ jobs:
       matrix:
         java: [ 11 ]
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
       - name: Install JDK {{ matrix.java }}
         uses: actions/setup-java@v3
         with:
@@ -28,7 +28,7 @@ jobs:
       matrix:
         java: [ 11 ]
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
       - name: Reclaim Disk Space
         run: .github/ci-prerequisites.sh
       - name: Kubernetes KinD Cluster
@@ -65,7 +65,7 @@ jobs:
         run: |
           zip -R artifacts-linux-jvm${{ matrix.java }}.zip '*-reports/*'
       - name: Archive artifacts
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: ci-artifacts
           path: artifacts-linux-jvm${{ matrix.java }}.zip
@@ -77,7 +77,7 @@ jobs:
       matrix:
         java: [ 11 ]
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
       - name: Install JDK {{ matrix.java }}
         uses: actions/setup-java@v3
         with:
@@ -102,7 +102,7 @@ jobs:
           /usr/bin/find . -name '*-reports/*' -type d | tar -czf artifacts-windows-jvm${{ matrix.java }}.tar -T -
       - name: Archive artifacts
         if: failure()
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: ci-artifacts
           path: artifacts-windows-jvm${{ matrix.java }}.tar
