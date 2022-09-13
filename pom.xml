@@ -58,7 +58,7 @@
     <!-- Provided Dependencies -->
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-    <quarkus.version>2.10.1.Final</quarkus.version>
+    <quarkus.version>2.12.1.Final</quarkus.version>
     <spring.version>2.7.3</spring.version>
     <!-- Format Settings -->
     <src.format.goal>format</src.format.goal>
@@ -363,6 +363,7 @@
       </activation>
       <modules>
         <module>examples/quarkus-greetings</module>
+        <module>examples/quarkus-native</module>
         <module>examples/quarkus-ssl</module>
         <module>examples/quarkus-oidc</module>
         <module>examples/quarkus-jdbc-mysql</module>

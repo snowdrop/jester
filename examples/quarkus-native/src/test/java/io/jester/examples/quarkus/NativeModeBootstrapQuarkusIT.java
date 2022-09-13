@@ -1,4 +1,4 @@
-package io.jester.test;
+package io.jester.examples.quarkus;
 
 import static org.hamcrest.Matchers.is;
 
@@ -9,7 +9,7 @@ import io.jester.api.Dependency;
 import io.jester.api.Jester;
 import io.jester.api.Quarkus;
 import io.jester.api.RestService;
-import io.jester.test.samples.QuarkusPingApplication;
+import io.jester.examples.quarkus.samples.QuarkusPingApplication;
 
 @Tag("native")
 @Jester
