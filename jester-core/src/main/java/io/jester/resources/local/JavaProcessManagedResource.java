@@ -4,6 +4,7 @@ import static io.jester.utils.PropertiesUtils.RESOURCE_PREFIX;
 import static io.jester.utils.PropertiesUtils.SECRET_PREFIX;
 
 import java.io.File;
+import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,6 +34,7 @@ public abstract class JavaProcessManagedResource extends ManagedResource {
     private static final List<String> PREFIXES_TO_REPLACE = Arrays.asList(RESOURCE_PREFIX, SECRET_PREFIX);
     private static final String LOG_OUTPUT_FILE = "out.log";
     private static final String JAVA = "java";
+    private static final String JDWP = "jdwp=";
 
     protected Map<String, String> propertiesToOverwrite = new HashMap<>();
 
@@ -40,6 +42,7 @@ public abstract class JavaProcessManagedResource extends ManagedResource {
     private Process process;
     private LoggingHandler loggingHandler;
     private int assignedHttpPort;
+    private int assignedDebugPort;
     private Map<Integer, Integer> assignedCustomPorts;
 
     protected abstract String getHttpPortProperty();
@@ -137,6 +140,8 @@ public abstract class JavaProcessManagedResource extends ManagedResource {
                 command.addAll(getProfilingProperties());
             }
 
+            command.addAll(getDebugProperties());
+
             command.addAll(systemProperties);
             command.add("-jar");
             command.add(getRunner().toAbsolutePath().toString());
@@ -151,6 +156,18 @@ public abstract class JavaProcessManagedResource extends ManagedResource {
     protected Collection<String> getProfilingProperties() {
         return Arrays.asList("-XX:+FlightRecorder", "-XX:StartFlightRecording=filename="
                 + context.getServiceFolder().toAbsolutePath().resolve("profile.jfr"));
+    }
+
+    protected Collection<String> getDebugProperties() {
+        for (String arg : ManagementFactory.getRuntimeMXBean().getInputArguments()) {
+            if (arg.contains(JDWP) && arg.contains("suspend=y")) {
+                assignedDebugPort = SocketUtils.findAvailablePort(context.getOwner());
+                return Arrays.asList("-Xdebug",
+                        "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=" + assignedDebugPort);
+            }
+        }
+
+        return Collections.emptyList();
     }
 
     protected Map<Integer, Integer> assignCustomPorts() {
