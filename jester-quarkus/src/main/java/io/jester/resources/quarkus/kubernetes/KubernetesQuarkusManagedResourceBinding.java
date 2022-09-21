@@ -15,6 +15,6 @@ public class KubernetesQuarkusManagedResourceBinding implements QuarkusManagedRe
     @Override
     public ManagedResource init(Quarkus metadata) {
         return new ContainerRegistryProdModeBootstrapQuarkusManagedResource(metadata.location(), metadata.classes(),
-                metadata.dependencies());
+                metadata.dependencies(), metadata.forceBuild());
     }
 }

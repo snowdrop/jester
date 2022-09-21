@@ -63,7 +63,7 @@ public class BootstrapQuarkusResource extends QuarkusResource {
     private Map<String, String> propertiesSnapshot;
 
     public BootstrapQuarkusResource(ServiceContext context, String location, Class<?>[] classes,
-            Dependency[] forcedDependencies) {
+            Dependency[] forcedDependencies, boolean forceBuild) {
         super(context);
 
         this.location = Path.of(location);
@@ -96,6 +96,8 @@ public class BootstrapQuarkusResource extends QuarkusResource {
                 return new AppDependency(artifact, DEPENDENCY_SCOPE_DEFAULT);
             }).collect(Collectors.toList());
         }
+
+        requiresCustomBuild = requiresCustomBuild || forceBuild;
 
         runner = tryToReuseOrBuildRunner();
     }
