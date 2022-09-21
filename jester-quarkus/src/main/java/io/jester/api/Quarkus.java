@@ -15,11 +15,18 @@ public @interface Quarkus {
      */
     String location() default ".";
 
-    // By default, it will load all the classes in the classpath.
+    /**
+     * By default, it will load all the classes in the classpath.
+     */
     Class<?>[] classes() default {};
 
     /**
      * Add forced dependencies.
      */
     Dependency[] dependencies() default {};
+
+    /**
+     * @return if force a custom build when running the test. If enabled, it won't use the built JAR or Native binary.
+     */
+    boolean forceBuild() default false;
 }

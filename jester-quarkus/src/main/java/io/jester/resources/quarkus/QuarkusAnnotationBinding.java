@@ -33,7 +33,7 @@ public class QuarkusAnnotationBinding implements AnnotationBinding {
 
         // If none handler found, then the container will be running on localhost by default
         return new ProdModeBootstrapQuarkusManagedResourceJava(metadata.location(), metadata.classes(),
-                metadata.dependencies());
+                metadata.dependencies(), metadata.forceBuild());
     }
 
 }

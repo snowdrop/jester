@@ -21,14 +21,16 @@ public class ProdModeBootstrapQuarkusManagedResourceJava extends JavaProcessMana
     private final String location;
     private final Class<?>[] classes;
     private final Dependency[] forcedDependencies;
+    private final boolean forceBuild;
 
     private BootstrapQuarkusResource resource;
 
     public ProdModeBootstrapQuarkusManagedResourceJava(String location, Class<?>[] classes,
-            Dependency[] forcedDependencies) {
+            Dependency[] forcedDependencies, boolean forceBuild) {
         this.location = location;
         this.classes = classes;
         this.forcedDependencies = forcedDependencies;
+        this.forceBuild = forceBuild;
     }
 
     @Override
@@ -59,7 +61,7 @@ public class ProdModeBootstrapQuarkusManagedResourceJava extends JavaProcessMana
     @Override
     protected void init(ServiceContext context) {
         super.init(context);
-        resource = new BootstrapQuarkusResource(context, location, classes, forcedDependencies);
+        resource = new BootstrapQuarkusResource(context, location, classes, forcedDependencies, forceBuild);
     }
 
     @Override
