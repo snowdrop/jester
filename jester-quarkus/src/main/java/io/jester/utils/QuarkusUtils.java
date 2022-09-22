@@ -31,6 +31,7 @@ public final class QuarkusUtils {
     public static final String QUARKUS_HTTP_PORT_PROPERTY = "quarkus.http.port";
     public static final String QUARKUS_SSL_PORT_PROPERTY = "quarkus.http.ssl-port";
     public static final String QUARKUS_GRPC_SERVER_PORT = "quarkus.grpc.server.port";
+    public static final String QUARKUS_KUBERNETES_SPI_CUSTOM_PROJECT = "io.quarkus.kubernetes.spi.CustomProjectRootBuildItem";
     public static final int HTTP_PORT_DEFAULT = 8080;
     public static final String QUARKUS_JVM_S2I = System.getProperty("quarkus.s2i.base-jvm-image",
             "registry.access.redhat.com/ubi8/openjdk-11:latest");
