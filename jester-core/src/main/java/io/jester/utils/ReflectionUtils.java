@@ -21,6 +21,10 @@ public final class ReflectionUtils {
         return Modifier.isStatic(field.getModifiers());
     }
 
+    public static boolean isStatic(Method method) {
+        return Modifier.isStatic(method.getModifiers());
+    }
+
     public static boolean isInstance(Field field) {
         return !isStatic(field);
     }
@@ -89,5 +93,15 @@ public final class ReflectionUtils {
         }
 
         throw new RuntimeException("Method " + methodName + " not found in " + instance.getClass());
+    }
+
+    public static Object invokeStaticMethod(Class<?> clazz, String methodName, Object... args) {
+        for (Method method : clazz.getMethods()) {
+            if (methodName.equals(method.getName()) && isStatic(method)) {
+                return org.junit.platform.commons.util.ReflectionUtils.invokeMethod(method, null, args);
+            }
+        }
+
+        throw new RuntimeException("Method " + methodName + " not found in " + clazz);
     }
 }

@@ -196,7 +196,7 @@ public class BootstrapQuarkusResource extends QuarkusResource {
                 ReflectionUtils.invokeMethod(builder, "setForcedDependencies", forcedDependencies);
             }
 
-            // The method `setLocalProjectDiscovery` signature changed from `Boolean` to `boolean` and this might make
+            // The method `setLocalProjectDiscover y` signature changed from `Boolean` to `boolean` and this might make
             // to fail the tests at runtime when using different versions.
             // In order to workaround this, we need to invoke this method at runtime to let JVM unbox the arguments
             // properly.
@@ -204,9 +204,13 @@ public class BootstrapQuarkusResource extends QuarkusResource {
             // Another strategy could be to have our own version of Quarkus bootstrap.
             ReflectionUtils.invokeMethod(builder, "setLocalProjectDiscovery", true);
 
+            configureAdditionalBuildSteps(builder);
+
             AugmentResult result;
             try (CuratedApplication curatedApplication = builder.build().bootstrap()) {
-                AugmentAction action = curatedApplication.createAugmentor();
+                Map<String, Object> buildContext = new HashMap<>();
+                AugmentAction action = curatedApplication
+                        .createAugmentor(JesterBuildChainCustomizerProducer.class.getName(), buildContext);
                 result = action.createProductionApplication();
             }
 
@@ -214,6 +218,18 @@ public class BootstrapQuarkusResource extends QuarkusResource {
         } catch (Exception ex) {
             throw new RuntimeException("Failed to build Quarkus artifacts.", ex);
         }
+    }
+
+    private void configureAdditionalBuildSteps(QuarkusBootstrap.Builder builder) throws IOException {
+        // we need to make sure all the classes needed to support the customizer flow are available at bootstrap time
+        // for that purpose we add them to a new archive that is then added to Quarkus bootstrap
+        Path additionalDeploymentDir = Files
+                .createDirectories(context.getServiceFolder().resolve("additional-deployment"));
+        JavaArchive additionalDeploymentArchive = ShrinkWrap.create(JavaArchive.class).addClasses(
+                JesterBuildChainCustomizerProducer.class, JesterBuildChainCustomizerConsumer.class,
+                KubernetesCustomProjectBuildStep.class);
+        additionalDeploymentArchive.as(ExplodedExporter.class).exportExplodedInto(additionalDeploymentDir.toFile());
+        builder.addAdditionalDeploymentArchive(additionalDeploymentDir);
     }
 
     private void copyResourcesInFolderToAppFolder(Path folder) {
