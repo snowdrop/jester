@@ -11,7 +11,8 @@ import io.jester.api.Quarkus;
 import io.jester.api.ServiceConfiguration;
 
 @Jester
-@Quarkus(location = "../images/quarkus-rest")
+@Quarkus(location = "../images/quarkus-rest", buildCommands = { "mvn", "clean", "install", "-DskipTests",
+        "-Dquarkus.container-image.build=false" })
 @ServiceConfiguration(forService = "quarkus", deleteFolderOnClose = false)
 public class DifferentLocationQuarkusIT {
 

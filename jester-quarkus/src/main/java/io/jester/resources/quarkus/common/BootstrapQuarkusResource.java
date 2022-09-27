@@ -12,6 +12,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +32,7 @@ import org.junit.jupiter.api.condition.OS;
 import io.jester.api.Dependency;
 import io.jester.core.ServiceContext;
 import io.jester.utils.ClassPathUtils;
+import io.jester.utils.Command;
 import io.jester.utils.FileUtils;
 import io.jester.utils.MapUtils;
 import io.jester.utils.PathTestHelper;
@@ -47,14 +50,16 @@ public class BootstrapQuarkusResource extends QuarkusResource {
 
     private static final String NATIVE_RUNNER = "-runner";
     private static final String EXE = ".exe";
-    private static final String JVM_RUNNER = "-runner.jar";
+    private static final String JAR = ".jar";
+    private static final String JVM_RUNNER = "-runner" + JAR;
     private static final String QUARKUS_APP = "quarkus-app";
-    private static final String QUARKUS_RUN = "quarkus-run.jar";
+    private static final String QUARKUS_RUN = "quarkus-run" + JAR;
     private static final String DEPENDENCY_SCOPE_DEFAULT = "compile";
     private static final String QUARKUS_GROUP_ID_DEFAULT = "io.quarkus";
     private static final int DEPENDENCY_DIRECT_FLAG = 0b000010;
 
     private final Path location;
+    private final String[] buildCommands;
     private final Path runner;
 
     private Class<?>[] appClasses;
@@ -62,11 +67,12 @@ public class BootstrapQuarkusResource extends QuarkusResource {
     private boolean requiresCustomBuild;
     private Map<String, String> propertiesSnapshot;
 
-    public BootstrapQuarkusResource(ServiceContext context, String location, Class<?>[] classes,
+    public BootstrapQuarkusResource(ServiceContext context, String location, String[] buildCommands, Class<?>[] classes,
             Dependency[] forcedDependencies, boolean forceBuild) {
         super(context);
 
         this.location = Path.of(location);
+        this.buildCommands = PropertiesUtils.resolveProperties(buildCommands);
         if (!Files.exists(this.location)) {
             throw new RuntimeException("Quarkus location does not exist.");
         }
@@ -109,19 +115,7 @@ public class BootstrapQuarkusResource extends QuarkusResource {
     private Path tryToReuseOrBuildRunner() {
         Optional<String> runnerLocation = Optional.empty();
         if (!containsBuildProperties() && !requiresCustomBuild) {
-            Path targetLocation = location.resolve(TARGET);
-            if (QuarkusUtils.isNativePackageType(context.getOwner())) {
-                String nativeRunnerExpectedLocation = NATIVE_RUNNER;
-                if (OS.WINDOWS.isCurrentOs()) {
-                    nativeRunnerExpectedLocation += EXE;
-                }
-
-                runnerLocation = findFile(targetLocation, nativeRunnerExpectedLocation);
-
-            } else {
-                runnerLocation = findFile(targetLocation, JVM_RUNNER)
-                        .or(() -> findFile(targetLocation.resolve(QUARKUS_APP), QUARKUS_RUN));
-            }
+            runnerLocation = resolveRunner(location);
         }
 
         if (runnerLocation.isEmpty()) {
@@ -129,6 +123,24 @@ public class BootstrapQuarkusResource extends QuarkusResource {
         } else {
             return Path.of(runnerLocation.get());
         }
+    }
+
+    private Optional<String> resolveRunner(Path path) {
+        Optional<String> runnerLocation;
+        Path targetLocation = path.resolve(TARGET);
+        if (QuarkusUtils.isNativePackageType(context.getOwner())) {
+            String nativeRunnerExpectedLocation = NATIVE_RUNNER;
+            if (OS.WINDOWS.isCurrentOs()) {
+                nativeRunnerExpectedLocation += EXE;
+            }
+
+            runnerLocation = findFile(targetLocation, nativeRunnerExpectedLocation);
+
+        } else {
+            runnerLocation = findFile(targetLocation, JVM_RUNNER)
+                    .or(() -> findFile(targetLocation.resolve(QUARKUS_APP), QUARKUS_RUN));
+        }
+        return runnerLocation;
     }
 
     private void copyResourcesToAppFolder() {
@@ -162,9 +174,27 @@ public class BootstrapQuarkusResource extends QuarkusResource {
     }
 
     private Path buildRunner() {
+        if (appClasses.length == 0 && buildCommands.length > 0) {
+            FileUtils.copyDirectoryTo(location, context.getServiceFolder());
+            FileUtils.deletePath(context.getServiceFolder().resolve(TARGET));
+            FileUtils.deletePath(context.getServiceFolder().resolve("src").resolve("test").resolve("java"));
+            List<String> effectiveCommands = new ArrayList<>();
+            effectiveCommands.addAll(Arrays.asList(buildCommands));
+            effectiveCommands.addAll(Arrays.asList("-DskipTests", "-Dformatter.skip", "-Dcheckstyle.skip"));
+            try {
+                new Command(effectiveCommands).onDirectory(context.getServiceFolder().toString()).runAndWait();
+            } catch (Exception ex) {
+                throw new RuntimeException("Error running build commands for service " + context.getName(), ex);
+            }
+
+            Optional<String> runner = resolveRunner(context.getServiceFolder());
+            if (runner.isPresent()) {
+                return Path.of(runner.get());
+            }
+        }
+
         if (appClasses.length == 0) {
-            throw new RuntimeException("No classes were found at " + location
-                    + ". You need to build the application before running the tests.");
+            throw new RuntimeException("No classes were found at " + location);
         }
 
         if (!QuarkusUtils.isBootstrapDependencyAdded()) {

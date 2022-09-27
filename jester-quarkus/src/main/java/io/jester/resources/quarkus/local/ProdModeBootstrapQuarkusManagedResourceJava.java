@@ -19,15 +19,17 @@ import io.jester.utils.SocketUtils;
 public class ProdModeBootstrapQuarkusManagedResourceJava extends JavaProcessManagedResource {
 
     private final String location;
+    private final String[] buildCommands;
     private final Class<?>[] classes;
     private final Dependency[] forcedDependencies;
     private final boolean forceBuild;
 
     private BootstrapQuarkusResource resource;
 
-    public ProdModeBootstrapQuarkusManagedResourceJava(String location, Class<?>[] classes,
+    public ProdModeBootstrapQuarkusManagedResourceJava(String location, String[] buildCommands, Class<?>[] classes,
             Dependency[] forcedDependencies, boolean forceBuild) {
         this.location = location;
+        this.buildCommands = buildCommands;
         this.classes = classes;
         this.forcedDependencies = forcedDependencies;
         this.forceBuild = forceBuild;
@@ -61,7 +63,8 @@ public class ProdModeBootstrapQuarkusManagedResourceJava extends JavaProcessMana
     @Override
     protected void init(ServiceContext context) {
         super.init(context);
-        resource = new BootstrapQuarkusResource(context, location, classes, forcedDependencies, forceBuild);
+        resource = new BootstrapQuarkusResource(context, location, buildCommands, classes, forcedDependencies,
+                forceBuild);
     }
 
     @Override

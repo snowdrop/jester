@@ -16,6 +16,11 @@ public @interface Quarkus {
     String location() default ".";
 
     /**
+     * @return the build commands to be used to compile the project when a location is set.
+     */
+    String[] buildCommands() default {};
+
+    /**
      * By default, it will load all the classes in the classpath.
      */
     Class<?>[] classes() default {};
