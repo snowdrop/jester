@@ -44,6 +44,7 @@ jobs:
           mvn -s .github/mvn-settings.xml clean install -Pframework -Dexamples -Dcoverage -Dvalidate-format \
             -Dsamples.container-image.registry=$KIND_REGISTRY \
             -Dts.services.all.image.registry=$KIND_REGISTRY \
+            -Denvironment.ci=true \
             -Dexclude.kubernetes.tests=no
       - name: Generate Jacoco Report
         run: |
