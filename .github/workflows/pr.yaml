@@ -51,7 +51,7 @@ jobs:
           java-version: ${{ matrix.java }}
           check-latest: true
           cache: 'maven'
-      - name: Generate Images
+      - name: Generate Images for Kubernetes
         run: |
           cd images
           mvn -s ../.github/mvn-settings.xml clean install -Dsamples.container-image.registry=$KIND_REGISTRY -Dsamples.container-image.push=true
@@ -86,11 +86,6 @@ jobs:
           java-version: ${{ matrix.java }}
           check-latest: true
           cache: 'maven'
-      - name: Build images
-        shell: bash
-        run: |
-          cd images
-          mvn -s ../.github/mvn-settings.xml clean install -Dquarkus.container-image.build=false
       - name: Build
         shell: bash
         run: |

@@ -22,7 +22,7 @@ public class KubernetesKafkaOperatorIT {
     @KafkaResource
     static final KafkaOperatorService kafka = new KafkaOperatorService();
 
-    @Container(image = "${sample.messaging-kafka.image:server.io/test/quarkus-messaging-kafka:latest}", ports = 8080, expectedLog = "Installed features")
+    @Container(image = "${sample.messaging-kafka.image:quay.io/jcarvaja/quarkus-messaging-kafka:latest}", ports = 8080, expectedLog = "Installed features")
     static final RestService app = new RestService().withProperty("kafka.bootstrap.servers", kafka::getBootstrapUrl);
 
     @Test

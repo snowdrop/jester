@@ -5,8 +5,8 @@ package io.jester.test.samples;
  * samples in your local machine, execute: `mvn clean install` at ../samples.
  */
 public final class ContainerSamples {
-    public static final String QUARKUS_REST_IMAGE = "${sample.quarkus-rest.image:server.io/test/quarkus-rest:latest}";
-    public static final String QUARKUS_JSON_IMAGE = "${sample.quarkus-json.image:server.io/test/quarkus-json:latest}";
+    public static final String QUARKUS_REST_IMAGE = "${sample.quarkus-rest.image:quay.io/jcarvaja/quarkus-rest:latest}";
+    public static final String QUARKUS_JSON_IMAGE = "${sample.quarkus-json.image:quay.io/jcarvaja/quarkus-json:latest}";
     public static final String QUARKUS_REST_LOCATION = "images/quarkus-rest";
 
     public static final int SAMPLES_DEFAULT_PORT = 8080;
