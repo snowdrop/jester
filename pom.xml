@@ -368,6 +368,7 @@
         <module>examples/quarkus-oidc</module>
         <module>examples/quarkus-jdbc-mysql</module>
         <module>examples/quarkus-grpc</module>
+        <module>examples/quarkus-reactive-mysql</module>
         <module>examples/spring-greetings</module>
         <module>examples/spring-ssl</module>
         <module>examples/apps-benchmark</module>
