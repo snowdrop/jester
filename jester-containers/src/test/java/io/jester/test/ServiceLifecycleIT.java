@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 
 import io.jester.api.Container;
 import io.jester.api.Jester;
@@ -53,6 +54,7 @@ public class ServiceLifecycleIT {
         POST_START_COUNTER.set(0);
     }
 
+    @DisabledIfSystemProperty(named = "environment.ci", matches = "true", disabledReason = "In the GitHub runner, this test is flaky")
     @Test
     public void testServiceIsUpAndRunning() {
         thenServiceIsUpAndRunning(greetings.given());
@@ -85,6 +87,7 @@ public class ServiceLifecycleIT {
         assertEquals(1, POST_START_COUNTER.get(), "service.onPostStart() is not working!");
     }
 
+    @DisabledIfSystemProperty(named = "environment.ci", matches = "true", disabledReason = "In the GitHub runner, this test is flaky")
     @Test
     @Order(2)
     public void testRestart() {
@@ -95,6 +98,7 @@ public class ServiceLifecycleIT {
         assertEquals(1, POST_START_COUNTER.get(), "service.onPostStart() is not working!");
     }
 
+    @DisabledIfSystemProperty(named = "environment.ci", matches = "true", disabledReason = "In the GitHub runner, this test is flaky")
     @Test
     @Order(3)
     public void testStopAndStart() {

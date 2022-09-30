@@ -16,6 +16,7 @@ import java.util.Optional;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 
 import io.jester.api.Jester;
 import io.jester.api.LocalProject;
@@ -37,6 +38,7 @@ public class LocalProjectLifecycleIT {
                     + "/src/main/docker/Dockerfile.jvm", ports = SAMPLES_DEFAULT_PORT, expectedLog = QUARKUS_STARTUP_EXPECTED_LOG)
     static RestService greetings = new RestService().withProperty(MY_PROPERTY, MY_PROPERTY_EXPECTED_VALUE);
 
+    @DisabledIfSystemProperty(named = "environment.ci", matches = "true", disabledReason = "In the GitHub runner, this test is flaky")
     @Test
     public void testServiceIsUpAndRunning() {
         thenServiceIsUpAndRunning();
@@ -61,6 +63,7 @@ public class LocalProjectLifecycleIT {
         assertEquals(MY_PROPERTY_EXPECTED_VALUE, property.get(), "Property value not expected in service!");
     }
 
+    @DisabledIfSystemProperty(named = "environment.ci", matches = "true", disabledReason = "In the GitHub runner, this test is flaky")
     @Test
     public void testStopAndStart() {
         greetings.stop();
