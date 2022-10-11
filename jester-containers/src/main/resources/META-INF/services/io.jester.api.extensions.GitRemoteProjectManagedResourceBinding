@@ -1,1 +1,2 @@
 io.jester.resources.gitremoteproject.kubernetes.KubernetesGitRemoteProjectManagedResourceBinding
+io.jester.resources.gitremoteproject.openshift.OpenShiftGitRemoteProjectManagedResourceBinding
