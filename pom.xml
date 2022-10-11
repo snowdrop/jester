@@ -389,6 +389,20 @@
       </properties>
     </profile>
     <profile>
+      <!-- You need to be connected to an Openshift instance to activate
+          this profile! -->
+      <id>openshift</id>
+      <activation>
+        <property>
+          <name>openshift</name>
+        </property>
+      </activation>
+      <properties>
+        <include.tests>${exclude.openshift.tests}</include.tests>
+        <exclude.kubernetes.tests>no</exclude.kubernetes.tests>
+      </properties>
+    </profile>
+    <profile>
       <id>validate-format</id>
       <activation>
         <property>
