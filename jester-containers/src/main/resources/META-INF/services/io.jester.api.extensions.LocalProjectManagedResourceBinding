@@ -1,1 +1,2 @@
 io.jester.resources.localproject.kubernetes.KubernetesLocalProjectManagedResourceBinding
+io.jester.resources.localproject.openshift.OpenShiftLocalProjectManagedResourceBinding
