@@ -32,7 +32,7 @@ jobs:
       - name: Reclaim Disk Space
         run: .github/ci-prerequisites.sh
       - name: Kubernetes KinD Cluster
-        uses: container-tools/kind-action@v1
+        uses: container-tools/kind-action@v2
         with:
           version: v0.11.1
           registry: true
