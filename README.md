@@ -956,12 +956,14 @@ Example:
 ```java
 @Jester
 @RunOnKubernetes
-@Operator(subscription = "strimzi-kafka-operator") // only if you don't have any kafka operator up and running
+@Operator(subscription = "strimzi-kafka-operator", channel = "strimzi-0.31.x") // only if you don't have any kafka operator up and running
 public class KubernetesKafkaOperatorIT {
     @KafkaResource
     static final KafkaOperatorService kafka = new KafkaOperatorService();
 }
 ```
+
+**Note:** The default version of the Kafka resource that will be installed is compatible with the Strimzi Kafka operator 0.31.x.
 
 See an example in [here](jester-service-kafka/src/test/java/io/jester/test/KubernetesKafkaOperatorIT.java).
 
