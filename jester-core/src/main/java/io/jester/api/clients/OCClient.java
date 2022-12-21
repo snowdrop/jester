@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
@@ -19,10 +18,11 @@ import java.util.stream.IntStream;
 import org.apache.commons.lang3.StringUtils;
 
 import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.LocalPortForward;
+import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.client.DefaultOpenShiftClient;
 import io.fabric8.openshift.client.NamespacedOpenShiftClient;
 import io.jester.api.Service;
@@ -38,7 +38,7 @@ public final class OCClient {
     private static final int PROJECT_CREATION_RETRIES = 5;
 
     private static final String OC = "oc";
-    private static final int HTTP_PORT_DEFAULT = 80;
+
     private static final String PORT_FORWARD_HOST = "localhost";
 
     private final String currentProject;
@@ -104,12 +104,27 @@ public final class OCClient {
      * @param ports
      */
     public void expose(Service service, int... ports) {
+        List portList = IntStream.of(ports).mapToObj(Integer::toString).collect(Collectors.toList());
+        portList.forEach(port -> {
+            try {
+                new Command(OC, "expose", "dc", service.getName(), "--port=" + port,
+                        String.format("--target-port=%s", port), "--name=" + service.getName(), "-n", currentProject)
+                                .runAndWait();
+                new Command(OC, "expose", "svc", service.getName(), "--port=" + port, "--name=" + service.getName(),
+                        "-n", currentProject).runAndWait();
+            } catch (Exception e) {
+                throw new RuntimeException("Service failed to be exposed.", e);
+            }
+        });
+    }
+
+    public void rollout(DeploymentConfig deploymentConfig) {
         try {
-            new Command(OC, "expose", "deployment", service.getName(),
-                    "--port=" + IntStream.of(ports).mapToObj(Integer::toString).collect(Collectors.joining(",")),
-                    "--name=" + service.getName(), "-n", currentProject).runAndWait();
+            new Command(OC, "rollout", "latest",
+                    deploymentConfig.getFullResourceName() + "/" + deploymentConfig.getMetadata().getName(), "-n",
+                    currentProject).runAndWait();
         } catch (Exception e) {
-            throw new RuntimeException("Service failed to be exposed.", e);
+            throw new RuntimeException("Service failed to be rolled out.", e);
         }
     }
 
@@ -121,14 +136,22 @@ public final class OCClient {
      */
     public void scaleTo(Service service, int replicas) {
         try {
-            new Command(OC, "scale", "deployment/" + service.getName(), "--replicas=" + replicas, "-n", currentProject)
+            new Command(OC, "scale", "dc/" + service.getName(), "--replicas=" + replicas, "-n", currentProject)
                     .runAndWait();
-
+            final String rcName = service.getName() + "-1";
             AwaitilityUtils.untilIsTrue(
-                    () -> client.apps().deployments().withName(service.getName()).get().getSpec()
-                            .getReplicas() == replicas,
+                    () -> (replicas == 0)
+                            ? client.replicationControllers().list().getItems().stream().collect(Collectors.toList())
+                                    .stream().allMatch(replicationController -> replicationController.getStatus()
+                                            .getReadyReplicas() == null)
+                            : client.replicationControllers().list().getItems().stream().collect(Collectors.toList())
+                                    .stream()
+                                    .anyMatch(replicationController -> replicationController.getStatus()
+                                            .getReadyReplicas() != null
+                                            && replicationController.getStatus().getReadyReplicas() == replicas),
                     AwaitilityUtils.AwaitilitySettings.defaults().withService(service));
         } catch (Exception e) {
+            Log.error(e.getMessage(), e);
             throw new RuntimeException("Service failed to be scaled.", e);
         }
     }
@@ -188,25 +211,23 @@ public final class OCClient {
      */
     public String host(Service service) {
         String serviceName = service.getName();
-        io.fabric8.kubernetes.api.model.Service serviceModel = client.services().withName(serviceName).get();
-        if (serviceModel == null || serviceModel.getStatus() == null
-                || serviceModel.getStatus().getLoadBalancer() == null
-                || serviceModel.getStatus().getLoadBalancer().getIngress() == null) {
+
+        Route routeModel = client.routes().withName(serviceName).get();
+        if (routeModel == null || routeModel.getStatus() == null || routeModel.getStatus().getIngress() == null) {
             return PORT_FORWARD_HOST;
         }
 
         // IP detection rules:
         // 1.- Try Ingress IP
         // 2.- Try Ingress Hostname
-        Optional<String> ip = serviceModel.getStatus().getLoadBalancer().getIngress().stream()
-                .map(ingress -> StringUtils.defaultIfBlank(ingress.getIp(), ingress.getHostname()))
+        Optional<String> host = routeModel.getStatus().getIngress().stream().map(ingress -> ingress.getHost())
                 .filter(StringUtils::isNotEmpty).findFirst();
-
-        if (ip.isEmpty()) {
+        Log.info(service, "### host:  " + host);
+        if (host.isEmpty()) {
             return PORT_FORWARD_HOST;
         }
 
-        return ip.get();
+        return host.get();
     }
 
     /**
@@ -218,8 +239,8 @@ public final class OCClient {
      */
     public int port(Service service, int port) {
         String serviceName = service.getName();
-        io.fabric8.kubernetes.api.model.Service serviceModel = client.services().withName(serviceName).get();
-        if (serviceModel == null || serviceModel.getSpec() == null || serviceModel.getSpec().getPorts() == null) {
+        Route routeModel = client.routes().withName(serviceName).get();
+        if (routeModel == null || routeModel.getSpec() == null || routeModel.getSpec().getPort() == null) {
             throw new RuntimeException("Service " + serviceName + " not found");
         }
 
@@ -240,9 +261,7 @@ public final class OCClient {
             return portForwardByService.getValue().localPort;
         }
 
-        return serviceModel.getSpec().getPorts().stream().filter(Objects::nonNull)
-                .filter(s -> s.getTargetPort().getIntVal() == port).map(ServicePort::getPort).findFirst()
-                .orElse(HTTP_PORT_DEFAULT);
+        return routeModel.getSpec().getPort().getTargetPort().getIntVal();
     }
 
     /**

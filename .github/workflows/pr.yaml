@@ -21,7 +21,7 @@ jobs:
         run: |
           mvn -V -B -s .github/mvn-settings.xml verify -Pframework -Dexamples -Dvalidate-format -DskipTests -DskipITs
   linux-build-jvm:
-    name: PR - Linux - JVM build
+    name: PR - Linux - JVM build - Kind
     runs-on: ubuntu-latest
     needs: validate-format
     strategy:
@@ -107,3 +107,137 @@ jobs:
         with:
           name: ci-artifacts
           path: artifacts-windows-jvm${{ matrix.java }}.tar
+  openshift:
+    name: PR - Linux - JVM build - OCP
+#    needs: cache
+    # the action "manusa/actions-setup-openshift@v1.1.4" only works in ubuntu-20.04
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        openshift: [v3.11.0]
+        java: [ 8 ]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Reclaim Disk Space
+        run: .github/ci-prerequisites.sh
+#      - name: Allow insecure docker registries
+#        run: |
+#          ls -la ${HOME}/.docker/
+#          if ! test -f "${HOME}/.docker/config.json"; then
+#            echo "{}" > ${HOME}/.docker/config.json
+#          fi
+#          cat ${HOME}/.docker/config.json
+#          for AUX_DOCKER_INSEC_HOST in {"0.0.0.0:5000","172.17.0.0/16"}
+#          do
+#            echo "$(jq --arg host "${AUX_DOCKER_INSEC_HOST}" '."insecure-registries" += [$host]' ${HOME}/.docker/config.json) " > ${HOME}/.docker/config.json
+#          done
+#          cat ${HOME}/.docker/config.json
+      - name: Kubernetes KinD Cluster
+        uses: container-tools/kind-action@v2
+        with:
+          version: v0.11.1
+          registry: true
+      - name: Setup OpenShift
+        uses: manusa/actions-setup-openshift@v1.1.4
+        with:
+          oc version: ${{ matrix.openshift }}
+          dns ip: 1.1.1.1
+          enable: 'service-catalog,registry,-web-console,-router,-persistent-volumes,-sample-templates'
+#      - name: Get OCP cluster information
+#        run: |
+#          oc whoami
+#          oc get nodes
+
+#          oc -n default get pod
+#          oc -n default expose service docker-registry
+#          oc -n default get service docker-registry
+#          oc -n default get service docker-registry -o json
+#          oc -n default describe service docker-registry
+#      - name: Deploy OCP image registry
+#        run: |
+#          oc -n default get pod
+#          i=0
+#          set +e
+#          while oc -n default get pod docker-registry-1-deploy
+#          do
+#            echo "Something's fishy as the Docker registry deploy pod is still running..."
+#            ((i++))
+#            if [[ $i -gt 10 ]]; then
+#              oc -n default describe pod docker-registry-1-deploy
+#              oc -n default get pod docker-registry-1-deploy -o json
+#              break
+#            fi
+#            echo "...(${i}) waiting for next try..."
+#            sleep 10
+#          done
+#          oc -n default get endpoints
+#          oc -n default get endpoints -o json
+#          ocp_registry_address=$(oc -n default get endpoints -o json | jq -r '.items[] | select (.metadata.name == "docker-registry").subsets[0].addresses[0].ip'):$(oc -n default get endpoints -o json | jq '.items[] | select (.metadata.name == "docker-registry").subsets[0].ports[0].port')
+#          echo "ocp_registry_address: ${ocp_registry_address}"
+#          echo "ocp_registry_address=$(oc -n default get endpoints -o json | jq -r '.items[] | select (.metadata.name == "docker-registry").subsets[0].addresses[0].ip'):$(oc -n default get endpoints -o json | jq '.items[] | select (.metadata.name == "docker-registry").subsets[0].ports[0].port')" >> $GITHUB_ENV
+#          echo "$(jq --arg host "${ocp_registry_address}" '."insecure-registries" += [$host]' ${HOME}/.docker/config.json) " > ${HOME}/.docker/config.json
+#          cat ${HOME}/.docker/config.json
+#          docker login ${ocp_registry_address} -u admin -p admin
+#          ping -c 10 ${ocp_registry_address}
+#          docker login "$(oc -n default get endpoints -o json | jq -r '.items[] | select (.metadata.name == "docker-registry").subsets[0].addresses[0].ip'):$(oc -n default get endpoints -o json | jq '.items[] | select (.metadata.name == "docker-registry").subsets[0].ports[0].port')" -u admin -p admin
+#          /home/runner/work/_temp/faec9851-94b2-413e-b4a9-d80af6b9e3c5.sh: line 11: /etc/docker/daemon.json: Permission denied
+#          cat /etc/docker/daemon.json | jq --arg host "${ocp_registry_address}" '. + {"insecure-registries":"$host"}' > /etc/docker/daemon.json
+#          oc get image.config.openshift.io/cluster - error: the server doesn't have a resource type "image"
+#      - name: Deploy OCP image registry (oc adm)
+#        run: |
+#          oc project default
+#          oc adm registry --daemonset --service-account=registry --images='registry.access.redhat.com/openshift3/ose-${component}:${version}'
+#          oc expose service docker-registry
+#          oc get service docker-registry
+#          oc get service docker-registry -o json
+#          oc describe service docker-registry
+#          sleep 120
+#          oc get pod
+#          oc get endpoints
+#          oc get endpoints -o json
+#          echo "ocp_registry_address=$(oc get endpoints -o json | jq -r '.items[] | select (.metadata.name == "docker-registry").subsets[0].addresses[0].ip'):$(oc get endpoints -o json | jq '.items[] | select (.metadata.name == "docker-registry").subsets[0].ports[0].port')" >> $GITHUB_ENV
+#          echo ${ocp_registry_address}
+#          ping -c 10 $(oc get endpoints -o json | jq -r '.items[] | select (.metadata.name == "docker-registry").subsets[0].addresses[0].ip')
+#          docker login "$(oc get endpoints -o json | jq -r '.items[] | select (.metadata.name == "docker-registry").subsets[0].addresses[0].ip'):$(oc get endpoints -o json | jq '.items[] | select (.metadata.name == "docker-registry").subsets[0].ports[0].port')" -u admin -p admin
+      - name: Install JDK {{ matrix.java }}
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'adopt'
+          java-version: '11'
+      # 127.0.0.1:5000 -
+      # docker-registry.default.svc.cluster.local:5000 - Get "https://docker-registry.default.svc.cluster.local:5000/v2/": dial tcp: lookup docker-registry.default.svc.cluster.local: Temporary failure in name resolution
+      # docker-registry.default.svc:5000 - Get "https://docker-registry.default.svc:5000/v2/": dial tcp: lookup docker-registry.default.svc: no such host
+      # image-registry.openshift-image-registry.svc:5000 - Get "https://image-registry.openshift-image-registry.svc:5000/v2/": dial tcp: lookup image-registry.openshift-image-registry.svc: no such host
+      # REGISTRY_OPENSHIFT_SERVER_ADDR -
+      # env.ocp_registry_address - Get "http://172.30.183.66:5000/v2/": dial tcp 172.30.183.66:5000: connect: connection refused
+      - name: Generate Images
+        run: |
+          oc project myproject
+          echo "${{ env.ocp_registry_address }}"
+          cd images
+          mvn -s ../.github/mvn-settings.xml clean install -Dsamples.container-image.registry=$KIND_REGISTRY -Dsamples.container-image.push=true
+      - name: Build
+        run: |
+          mvn -s .github/mvn-settings.xml clean install -Pframework -Dexamples -Dcoverage \
+            -Denvironment.ci=true \
+            -Dsamples.container-image.registry=$KIND_REGISTRY \
+            -Dts.services.all.image.registry=$KIND_REGISTRY \
+            -Dexclude.openshift.tests=no
+      - name: Zip Artifacts
+        run: |
+          zip -R artifacts-linux-jvm${{ matrix.java }}.zip '*-reports/*'
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ci-artifacts
+          path: artifacts-linux-jvm${{ matrix.java }}.zip
+      - name: Zip Artifacts
+        if: failure()
+        run: |
+          zip -R manifests-ocp-jvm${{ matrix.java }}.zip 'classes/META-INF/dekorate/*'
+      - uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: ci-manifests
+          path: manifests-ocp-jvm${{ matrix.java }}.zip
