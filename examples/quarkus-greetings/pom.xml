@@ -36,11 +36,6 @@
       <artifactId>jester-quarkus</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>io.jester</groupId>
-      <artifactId>jester-containers</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
   <build>
     <plugins>

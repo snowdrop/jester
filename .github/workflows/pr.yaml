@@ -21,7 +21,7 @@ jobs:
         run: |
           mvn -V -B -s .github/mvn-settings.xml verify -Pframework -Dexamples -Dvalidate-format -DskipTests -DskipITs
   linux-build-jvm:
-    name: PR - Linux - JVM build
+    name: PR - Linux - JVM build - Kind
     runs-on: ubuntu-latest
     needs: validate-format
     strategy:
@@ -108,14 +108,15 @@ jobs:
           name: ci-artifacts
           path: artifacts-windows-jvm${{ matrix.java }}.tar
   openshift:
-    name: Openshift Build
-    needs: cache
+    name: PR - Linux - JVM build - OCP
+#    needs: cache
     # the action "manusa/actions-setup-openshift@v1.1.4" only works in ubuntu-20.04
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
         openshift: [v3.11.0]
+        java: [ 8 ]
     steps:
       - uses: actions/checkout@v3
       - name: Reclaim Disk Space
@@ -124,31 +125,70 @@ jobs:
         uses: manusa/actions-setup-openshift@v1.1.4
         with:
           oc version: ${{ matrix.openshift }}
-#          github token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Install OPM and Operator SDK tool
-        uses: redhat-actions/openshift-tools-installer@v1
-        with:
-          source: "github"
-          opm: "latest"
-          operator-sdk: "latest"
-      - name: Install Operator Lifecycle Manager and Operator SDK into Kind
-        run: operator-sdk olm install
+          dns ip: 1.1.1.1
+#          enable: 'service-catalog,registry,-web-console,-router,-persistent-volumes,-sample-templates'
+          enable: 'service-catalog,-registry,-web-console,-router,-persistent-volumes,-sample-templates'
+      - name: Get OCP cluster information
+        id: ocp_cluster_information
+        run: |
+          oc whoami
+          oc expose service docker-registry -n default
+          oc get service docker-registry --template='{{.spec}}'
+          oc get service docker-registry --template='{{.spec.clusterIP}}'
+          echo "ocp_registry_address=$(oc get service docker-registry --template='{{.spec.clusterIP}}:{{(index .spec.ports 0).port}}')" >> $GITHUB_ENV
+#          oc adm registry --service-account=registry --images='registry.access.redhat.com/openshift3/ose-${component}:${version}'
+#          oc create route passthrough --service registry-console --port registry-console -n default
+#          export OCP_REGISTRY_ADDRESS=$(oc get service docker-registry --template='{{.spec.clusterIP}}')
+#          echo "::set-output name=registry_address::${OCP_REGISTRY_ADDRESS}"
+#          echo ${REGISTRY_OPENSHIFT_SERVER_ADDR}
+#          oc get nodes
+#          oc create route passthrough --service registry-console --port registry-console -n default
+#          oc get projects
+#          oc api-resources
+#          oc adm registry --service-account=registry --images='registry.access.redhat.com/openshift3/ose-${component}:${version}'
+#          oc adm --help
+#          oc adm registry
+#          oc api-resources | grep 'servicecatalog.k8s.io'
+#          oc logs dc/docker-registry
+#          oc patch configs.imageregistry.operator.openshift.io/cluster --patch '{"spec":{"defaultRoute":true}}' --type=merge
+#          oc login -u admin -p admin
+#          oc get nodes
+#          oc get projects
+#        outputs:
+#          registry_address: ${{ steps.ocp_cluster_information.outputs.registry_address }}
+#      - name: Deploy OCP image registry
+#        run: oc adm registry --service-account=registry --images='registry.redhat.io/openshift3/ose-${component}:${version}'
+      #          github token: ${{ secrets.GITHUB_TOKEN }}
+#      - name: Install OPM and Operator SDK tool
+#        uses: redhat-actions/openshift-tools-installer@v1
+#        with:
+#          source: "github"
+#          opm: "latest"
+#          operator-sdk: "latest"
+#      - name: Install Operator Lifecycle Manager and Operator SDK into Kind
+#        run: operator-sdk olm install
       - name: Install JDK {{ matrix.java }}
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: ${{ matrix.java }}
-          check-latest: true
-          cache: 'maven'
+          distribution: 'adopt'
+          java-version: '11'
+      # 127.0.0.1:5000 -
+      # docker-registry.default.svc.cluster.local:5000 - Get "https://docker-registry.default.svc.cluster.local:5000/v2/": dial tcp: lookup docker-registry.default.svc.cluster.local: Temporary failure in name resolution
+      # docker-registry.default.svc:5000 - Get "https://docker-registry.default.svc:5000/v2/": dial tcp: lookup docker-registry.default.svc: no such host
+      # image-registry.openshift-image-registry.svc:5000 - Get "https://image-registry.openshift-image-registry.svc:5000/v2/": dial tcp: lookup image-registry.openshift-image-registry.svc: no such host
+      # REGISTRY_OPENSHIFT_SERVER_ADDR -
+      # env.ocp_registry_address - Get "http://172.30.183.66:5000/v2/": dial tcp 172.30.183.66:5000: connect: connection refused
       - name: Generate Images
+#        needs: first-job
         run: |
+          echo "${{ env.ocp_registry_address }}"
           cd images
-          mvn -s ../.github/mvn-settings.xml clean install -Dsamples.container-image.registry=image-registry.openshift-image-registry.svc:5000 -Dsamples.container-image.push=true
+          mvn -s ../.github/mvn-settings.xml clean install -Dsamples.container-image.push=true \
+            -Dsamples.container-image.registry=${{ env.ocp_registry_address }} \
+            -Dts.services.all.image.registry=${{ env.ocp_registry_address }} \
       - name: Build
         run: |
           mvn -s .github/mvn-settings.xml clean install -Pframework -Dexamples -Dcoverage \
-            -Dsamples.container-image.registry=image-registry.openshift-image-registry.svc:5000 \
-            -Dts.services.all.image.registry=image-registry.openshift-image-registry.svc:5000 \
             -Denvironment.ci=true \
             -Dexclude.openshift.tests=no
       - name: Zip Artifacts
@@ -159,14 +199,6 @@ jobs:
         with:
           name: ci-artifacts
           path: artifacts-linux-jvm${{ matrix.java }}.zip
-
-      - name: Integration Tests
-        run: |
-          oc login -u admin -p admin
-          oc new-project itests
-          oc import-image fabric8/s2i-java:2.3 --from=docker.io/fabric8/s2i-java:2.3 --confirm
-          oc tag --source docker docker.io/fabric8/s2i-java:2.3 s2i-java:2.3
-          ./mvnw -B clean install -Presources -Pwith-examples -Pwith-tests -Duser.name=dekorateio -Dformat.skip=true
       - name: Zip Artifacts
         if: failure()
         run: |
