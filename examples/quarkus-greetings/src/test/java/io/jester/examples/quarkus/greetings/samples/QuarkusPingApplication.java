@@ -1,4 +1,4 @@
-package io.jester.test.samples;
+package io.jester.examples.quarkus.greetings.samples;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

@@ -1,4 +1,4 @@
-package io.jester.test;
+package io.jester.examples.quarkus.greetings;
 
 import io.jester.api.RunOnKubernetes;
 
