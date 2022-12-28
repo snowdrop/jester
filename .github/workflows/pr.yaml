@@ -128,21 +128,22 @@ jobs:
           dns ip: 1.1.1.1
 #          enable: 'service-catalog,registry,-web-console,-router,-persistent-volumes,-sample-templates'
           enable: 'service-catalog,-registry,-web-console,-router,-persistent-volumes,-sample-templates'
-      - name: Get OCP cluster information
-        id: ocp_cluster_information
+      - name: Deploy OCP image registry
         run: |
-          oc whoami
+          oc adm registry --service-account=registry --images='registry.redhat.io/openshift3/ose-${component}:${version}'
           oc expose service docker-registry -n default
-          oc get service docker-registry --template='{{.spec}}'
-          oc get service docker-registry --template='{{.spec.clusterIP}}'
           echo "ocp_registry_address=$(oc get service docker-registry --template='{{.spec.clusterIP}}:{{(index .spec.ports 0).port}}')" >> $GITHUB_ENV
 #          oc adm registry --service-account=registry --images='registry.access.redhat.com/openshift3/ose-${component}:${version}'
 #          oc create route passthrough --service registry-console --port registry-console -n default
+      - name: Get OCP cluster information
+        run: |
+          oc whoami
+          oc get nodes
+          oc get service docker-registry --template='{{.spec}}'
+          oc get service docker-registry --template='{{.spec.clusterIP}}'
 #          export OCP_REGISTRY_ADDRESS=$(oc get service docker-registry --template='{{.spec.clusterIP}}')
 #          echo "::set-output name=registry_address::${OCP_REGISTRY_ADDRESS}"
 #          echo ${REGISTRY_OPENSHIFT_SERVER_ADDR}
-#          oc get nodes
-#          oc create route passthrough --service registry-console --port registry-console -n default
 #          oc get projects
 #          oc api-resources
 #          oc adm registry --service-account=registry --images='registry.access.redhat.com/openshift3/ose-${component}:${version}'
@@ -179,7 +180,6 @@ jobs:
       # REGISTRY_OPENSHIFT_SERVER_ADDR -
       # env.ocp_registry_address - Get "http://172.30.183.66:5000/v2/": dial tcp 172.30.183.66:5000: connect: connection refused
       - name: Generate Images
-#        needs: first-job
         run: |
           echo "${{ env.ocp_registry_address }}"
           cd images
