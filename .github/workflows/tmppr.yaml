@@ -15,11 +15,18 @@ jobs:
       - uses: actions/checkout@v3
       - name: Reclaim Disk Space
         run: .github/ci-prerequisites.sh
-      - name: Kubernetes KinD Cluster
-        uses: container-tools/kind-action@v2
-        with:
-          version: v0.11.1
-          registry: true
+      - name: Configure Registry
+        run: |
+          mkdir ~/registry
+          cd ~/registry
+          mkdir data
+          docker run -d --restart unless-stopped --network host -e REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY=/data -v $PWD/data:/data registry:2
+      - name: Add host
+        run: |
+          cp /etc/hosts local_hosts
+          echo '127.0.0.1 container-registry.org' >> local_hosts
+          cat local_hosts
+          sudo cp local_hosts /etc/hosts
       - name: Setup OpenShift
         uses: manusa/actions-setup-openshift@v1.1.4
         with:
@@ -33,11 +40,11 @@ jobs:
       - name: Generate Images
         run: |
           cd images
-          mvn -s ../.github/mvn-settings.xml clean install -Dsamples.container-image.registry=$KIND_REGISTRY -Dsamples.container-image.push=true
+          mvn -s ../.github/mvn-settings.xml clean install -Dsamples.container-image.registry=container-registry.org:5000 -Dsamples.container-image.push=true
       - name: Build
         run: |
           mvn -s .github/mvn-settings.xml clean install -Pframework -Dexamples -Dcoverage \
             -Denvironment.ci=true \
-            -Dsamples.container-image.registry=$KIND_REGISTRY \
-            -Dts.services.all.image.registry=$KIND_REGISTRY \
+            -Dsamples.container-image.registry=container-registry.org:5000 \
+            -Dts.services.all.image.registry=container-registry.org:5000 \
             -Dexclude.openshift.tests=no
