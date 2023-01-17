@@ -31,11 +31,12 @@ jobs:
       - uses: actions/checkout@v3
       - name: Reclaim Disk Space
         run: .github/ci-prerequisites.sh
+      - uses: Sgitario/setup-container-registry@v1  
       - name: Kubernetes KinD Cluster
         uses: container-tools/kind-action@v2
         with:
           version: v0.11.1
-          registry: true
+          registry: false
       - name: Install OPM and Operator SDK tool
         uses: redhat-actions/openshift-tools-installer@v1
         with:
@@ -54,12 +55,12 @@ jobs:
       - name: Generate Images
         run: |
           cd images
-          mvn -s ../.github/mvn-settings.xml clean install -Dsamples.container-image.registry=$KIND_REGISTRY -Dsamples.container-image.push=true
+          mvn -s ../.github/mvn-settings.xml clean install -Dsamples.container-image.registry=$CONTAINER_REGISTRY_URL -Dsamples.container-image.push=true
       - name: Build
         run: |
           mvn -s .github/mvn-settings.xml clean install -Pframework -Dexamples -Dcoverage \
-            -Dsamples.container-image.registry=$KIND_REGISTRY \
-            -Dts.services.all.image.registry=$KIND_REGISTRY \
+            -Dsamples.container-image.registry=$CONTAINER_REGISTRY_URL \
+            -Dts.services.all.image.registry=$CONTAINER_REGISTRY_URL \
             -Denvironment.ci=true \
             -Dexclude.kubernetes.tests=no
       - name: Zip Artifacts
