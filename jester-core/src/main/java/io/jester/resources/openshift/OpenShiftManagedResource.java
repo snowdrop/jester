@@ -1,5 +1,12 @@
 package io.jester.resources.openshift;
 
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import org.apache.commons.lang3.StringUtils;
+
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerPortBuilder;
 import io.fabric8.kubernetes.api.model.ReplicationControllerBuilder;
@@ -16,12 +23,6 @@ import io.jester.logging.LoggingHandler;
 import io.jester.logging.OpenShiftLoggingHandler;
 import io.jester.utils.FileUtils;
 import io.jester.utils.ManifestsUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 public abstract class OpenShiftManagedResource extends ManagedResource {
 
