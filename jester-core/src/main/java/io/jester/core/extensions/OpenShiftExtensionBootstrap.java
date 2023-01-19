@@ -78,7 +78,8 @@ public class OpenShiftExtensionBootstrap implements ExtensionBootstrap {
     @Override
     public List<Class<?>> supportedParameters() {
 
-        return Arrays.asList(OpenshiftClient.class, OpenShiftClient.class, DeploymentConfig.class, Service.class, Route.class);
+        return Arrays.asList(OpenshiftClient.class, OpenShiftClient.class, DeploymentConfig.class, Service.class,
+                Route.class);
     }
 
     @Override

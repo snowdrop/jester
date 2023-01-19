@@ -1,13 +1,14 @@
 package io.jester.test;
 
-import io.fabric8.openshift.client.OpenShiftClient;
-import io.jester.api.RunOnOpenShift;
-import io.jester.api.clients.OpenshiftClient;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import javax.inject.Inject;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.junit.jupiter.api.Test;
+
+import io.fabric8.openshift.client.OpenShiftClient;
+import io.jester.api.RunOnOpenShift;
+import io.jester.api.clients.OpenshiftClient;
 
 @RunOnOpenShift
 public class OpenShiftServiceLifecycleIT extends ServiceLifecycleIT {
