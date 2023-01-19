@@ -4,13 +4,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import io.jester.api.Service;
-import io.jester.api.clients.OCClient;
+import io.jester.api.clients.OpenshiftClient;
 import io.jester.core.ServiceContext;
 import io.jester.core.extensions.OpenShiftExtensionBootstrap;
 
 public class OpenShiftLoggingHandler extends ServiceLoggingHandler {
 
-    private final OCClient client;
+    private final OpenshiftClient client;
     private final Service service;
 
     private Map<String, String> oldLogs;

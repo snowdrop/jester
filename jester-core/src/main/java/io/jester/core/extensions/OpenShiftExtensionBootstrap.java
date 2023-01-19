@@ -14,7 +14,7 @@ import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.jester.api.RunOnOpenShift;
-import io.jester.api.clients.OCClient;
+import io.jester.api.clients.OpenshiftClient;
 import io.jester.api.extensions.ExtensionBootstrap;
 import io.jester.configuration.JesterConfiguration;
 import io.jester.configuration.OpenShiftConfiguration;
@@ -29,7 +29,7 @@ public class OpenShiftExtensionBootstrap implements ExtensionBootstrap {
     public static final String CLIENT = "oc-client";
     public static final String TARGET_OPENSHIFT = "openshift";
 
-    private OCClient client;
+    private OpenshiftClient client;
 
     @Override
     public boolean appliesFor(JesterContext context) {
@@ -46,9 +46,9 @@ public class OpenShiftExtensionBootstrap implements ExtensionBootstrap {
         context.setDebug(!configuration.isDeleteProjectAfterAll() && !configuration.isEphemeralStorageEnabled());
 
         if (configuration.isEphemeralStorageEnabled()) {
-            client = OCClient.createClientUsingANewNamespace();
+            client = OpenshiftClient.createClientUsingANewNamespace();
         } else {
-            client = OCClient.createClientUsingCurrentNamespace();
+            client = OpenshiftClient.createClientUsingCurrentNamespace();
         }
 
         if (configuration.getAdditionalResources() != null) {
@@ -78,12 +78,12 @@ public class OpenShiftExtensionBootstrap implements ExtensionBootstrap {
     @Override
     public List<Class<?>> supportedParameters() {
 
-        return Arrays.asList(OCClient.class, OpenShiftClient.class, DeploymentConfig.class, Service.class, Route.class);
+        return Arrays.asList(OpenshiftClient.class, OpenShiftClient.class, DeploymentConfig.class, Service.class, Route.class);
     }
 
     @Override
     public Optional<Object> getParameter(DependencyContext dependency) {
-        if (dependency.getType() == OCClient.class) {
+        if (dependency.getType() == OpenshiftClient.class) {
             return Optional.of(client);
         } else if (dependency.getType() == OpenShiftClient.class) {
             return Optional.of(client.underlyingClient());

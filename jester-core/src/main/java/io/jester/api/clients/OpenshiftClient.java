@@ -32,7 +32,7 @@ import io.jester.utils.Command;
 import io.jester.utils.KeyValueEntry;
 import io.jester.utils.SocketUtils;
 
-public final class OCClient {
+public final class OpenshiftClient {
 
     private static final int PROJECT_NAME_SIZE = 10;
     private static final int PROJECT_CREATION_RETRIES = 5;
@@ -48,7 +48,7 @@ public final class OCClient {
     private final NamespacedOpenShiftClient client;
     private final Map<String, KeyValueEntry<Service, LocalPortForwardWrapper>> portForwardsByService = new HashMap<>();
 
-    private OCClient(String namespace) {
+    private OpenshiftClient(String namespace) {
         currentProject = namespace;
         Config config = new ConfigBuilder().withTrustCerts(true).withNamespace(currentProject).build();
         masterClient = new DefaultOpenShiftClient(config);
@@ -347,11 +347,11 @@ public final class OCClient {
         }
     }
 
-    public static OCClient createClientUsingCurrentNamespace() {
-        return new OCClient(new DefaultOpenShiftClient().getNamespace());
+    public static OpenshiftClient createClientUsingCurrentNamespace() {
+        return new OpenshiftClient(new DefaultOpenShiftClient().getNamespace());
     }
 
-    public static OCClient createClientUsingANewNamespace() {
+    public static OpenshiftClient createClientUsingANewNamespace() {
         boolean namespaceCreated = false;
 
         String namespace = generateRandomNamespaceName();
@@ -370,7 +370,7 @@ public final class OCClient {
             throw new RuntimeException("Namespace cannot be created. Review your OpenShift installation.");
         }
 
-        return new OCClient(namespace);
+        return new OpenshiftClient(namespace);
     }
 
     private static boolean doCreateNamespace(String namespaceName) {
