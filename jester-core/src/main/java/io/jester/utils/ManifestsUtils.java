@@ -29,7 +29,6 @@ import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.LabelSelector;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
-import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.SecretVolumeSourceBuilder;
 import io.fabric8.kubernetes.api.model.Volume;
 import io.fabric8.kubernetes.api.model.VolumeBuilder;
@@ -162,77 +161,6 @@ public final class ManifestsUtils {
         }
         deployment.getSpec().getTemplate().getMetadata().setNamespace(client.getNamespace());
 
-        // add selector
-        // if (deployment.getSpec().getSelector() == null) {
-        // deployment.getSpec().setSelector(new LabelSelector());
-        // }
-        // if (deployment.getSpec().getSelector().getMatchLabels() == null) {
-        // deployment.getSpec().getSelector().setMatchLabels(new HashMap<>());
-        // }
-        // deployment.getSpec().getSelector().getMatchLabels().put(LABEL_DEPLOYMENT, service.getName());
-
-        // add labels
-        if (deployment.getSpec().getTemplate().getMetadata().getLabels() == null) {
-            deployment.getSpec().getTemplate().getMetadata().setLabels(new HashMap<>());
-        }
-        Map<String, String> templateMetadataLabels = deployment.getSpec().getTemplate().getMetadata().getLabels();
-        templateMetadataLabels.put(LABEL_DEPLOYMENT_CONFIG, service.getName());
-        templateMetadataLabels.put(LABEL_TO_WATCH_FOR_LOGS, service.getName());
-        templateMetadataLabels.put(LABEL_CONTEXT_ID, service.getContextId());
-
-        // add env var properties
-        Map<String, String> enrichProperties = enrichProperties(client, service.getProperties(), deployment);
-        enrichProperties.putAll(extraTemplateProperties);
-        deployment.getSpec().getTemplate().getSpec().getContainers()
-                .forEach(container -> enrichProperties.entrySet().forEach(property -> {
-                    String key = property.getKey();
-                    EnvVar envVar = getEnvVarByKey(key, container);
-                    if (envVar == null) {
-                        container.getEnv().add(new EnvVar(key, property.getValue(), null));
-                    } else {
-                        envVar.setValue(property.getValue());
-                    }
-                }));
-    }
-
-    public static void enrichReplicationController(NamespacedKubernetesClient client, ReplicationController deployment,
-            Service service) {
-        enrichReplicationController(client, deployment, service, Collections.emptyMap());
-    }
-
-    public static void enrichReplicationController(NamespacedKubernetesClient client, ReplicationController deployment,
-            Service service, Map<String, String> extraTemplateProperties) {
-        if (deployment.getMetadata() == null) {
-            deployment.setMetadata(new ObjectMeta());
-        }
-
-        // set namespace
-        deployment.getMetadata().setNamespace(client.getNamespace());
-        Map<String, String> objMetadataLabels = Optional.ofNullable(deployment.getMetadata().getLabels())
-                .orElse(new HashMap<>());
-
-        objMetadataLabels.put(LABEL_DEPLOYMENT_CONFIG, service.getName());
-        objMetadataLabels.put(LABEL_CONTEXT_ID, service.getContextId());
-        deployment.getMetadata().setLabels(objMetadataLabels);
-
-        // set deployment name
-        deployment.getMetadata().setName(service.getName());
-
-        // set metadata to template
-        if (deployment.getSpec().getTemplate().getMetadata() == null) {
-            deployment.getSpec().getTemplate().setMetadata(new ObjectMeta());
-        }
-        deployment.getSpec().getTemplate().getMetadata().setNamespace(client.getNamespace());
-
-        // add selector
-        // if (deployment.getSpec().getSelector() == null) {
-        // deployment.getSpec().setSelector(new LabelSelector());
-        // }
-        // if (deployment.getSpec().getSelector().getMatchLabels() == null) {
-        // deployment.getSpec().getSelector().setMatchLabels(new HashMap<>());
-        // }
-        // deployment.getSpec().getSelector().getMatchLabels().put(LABEL_DEPLOYMENT, service.getName());
-
         // add labels
         if (deployment.getSpec().getTemplate().getMetadata().getLabels() == null) {
             deployment.getSpec().getTemplate().getMetadata().setLabels(new HashMap<>());
@@ -317,64 +245,6 @@ public final class ManifestsUtils {
 
     private static Map<String, String> enrichProperties(NamespacedKubernetesClient client,
             Map<String, String> properties, DeploymentConfig deployment) {
-        // mount path x volume
-        Map<String, Volume> volumes = new HashMap<>();
-
-        Map<String, String> output = new HashMap<>();
-        for (Map.Entry<String, String> entry : properties.entrySet()) {
-            String value = entry.getValue();
-            if (isResource(entry.getValue())) {
-                String path = entry.getValue().replace(RESOURCE_PREFIX, StringUtils.EMPTY);
-                String mountPath = getMountPath(path);
-                String filename = getFileName(path);
-                String configMapName = normalizeName(mountPath);
-
-                // Update config map
-                createOrUpdateConfigMap(client, configMapName, filename, getFileContent(path));
-
-                // Add the volume
-                if (!volumes.containsKey(mountPath)) {
-                    Volume volume = new VolumeBuilder().withName(configMapName)
-                            .withConfigMap(new ConfigMapVolumeSourceBuilder().withName(configMapName).build()).build();
-                    volumes.put(mountPath, volume);
-                }
-
-                value = mountPath + SLASH + filename;
-            } else if (isSecret(entry.getValue())) {
-                String path = entry.getValue().replace(SECRET_PREFIX, StringUtils.EMPTY);
-                String mountPath = getMountPath(path);
-                String filename = getFileName(path);
-                String secretName = normalizeName(path);
-
-                // Push secret file
-                doCreateSecretFromFile(client, secretName, getFilePath(path));
-
-                // Add the volume
-                Volume volume = new VolumeBuilder().withName(secretName)
-                        .withSecret(new SecretVolumeSourceBuilder().withSecretName(secretName).build()).build();
-                volumes.put(mountPath, volume);
-
-                value = mountPath + SLASH + filename;
-            }
-
-            output.put(entry.getKey(), value);
-        }
-
-        for (Map.Entry<String, Volume> volume : volumes.entrySet()) {
-            deployment.getSpec().getTemplate().getSpec().getVolumes().add(volume.getValue());
-
-            // Configure all the containers to map the volume
-            deployment.getSpec().getTemplate().getSpec().getContainers()
-                    .forEach(container -> container.getVolumeMounts()
-                            .add(new VolumeMountBuilder().withName(volume.getValue().getName()).withReadOnly(true)
-                                    .withMountPath(volume.getKey()).build()));
-        }
-
-        return output;
-    }
-
-    private static Map<String, String> enrichProperties(NamespacedKubernetesClient client,
-            Map<String, String> properties, ReplicationController deployment) {
         // mount path x volume
         Map<String, Volume> volumes = new HashMap<>();
 
