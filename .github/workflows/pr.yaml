@@ -143,7 +143,7 @@ jobs:
         with:
           oc version: ${{ matrix.openshift }}
           dns ip: 1.1.1.1
-          enable: 'service-catalog,registry,-web-console,-router,-persistent-volumes,-sample-templates'
+          enable: 'service-catalog,registry,-web-console,router,-persistent-volumes,-sample-templates'
 #      - name: Get OCP cluster information
 #        run: |
 #          oc whoami
