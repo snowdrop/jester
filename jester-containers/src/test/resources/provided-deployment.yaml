@@ -13,25 +13,3 @@ spec:
           ports:
             - containerPort: 6000
               name: "custom-port"
----
-apiVersion: "apps/v1"
-kind: ReplicationController
-metadata:
-  labels
-    my-label: "label-from-template"
-spec:
-  replicas: 1
-#  selector:
-#    name: frontend
-  template:
-#    metadata:
-#      labels:
-#        name: frontend
-    spec:
-      containers:
-        - image: openshift/hello-openshift
-          name: helloworld
-          ports:
-            - containerPort: 8080
-              protocol: TCP
-      restartPolicy: Always
