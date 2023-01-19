@@ -211,8 +211,12 @@ public final class OpenshiftClient {
      */
     public String host(Service service) {
         String serviceName = service.getName();
-
+        client.routes().list().getItems().forEach(route -> {
+            Log.info("route.resourcename: " + route.getFullResourceName());
+            Log.info("route.status: " + route.getStatus());
+        });
         Route routeModel = client.routes().withName(serviceName).get();
+        Log.info(service, "routeModel:  " + routeModel);
         if (routeModel == null || routeModel.getStatus() == null || routeModel.getStatus().getIngress() == null) {
             return PORT_FORWARD_HOST;
         }
