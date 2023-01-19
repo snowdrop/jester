@@ -1,20 +1,19 @@
 package io.jester.test;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import io.fabric8.openshift.client.OpenShiftClient;
+import io.jester.api.RunOnOpenShift;
+import io.jester.api.clients.OpenshiftClient;
+import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 
-import org.junit.jupiter.api.Test;
-
-import io.fabric8.openshift.client.OpenShiftClient;
-import io.jester.api.RunOnOpenShift;
-import io.jester.api.clients.OCClient;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @RunOnOpenShift
 public class OpenShiftServiceLifecycleIT extends ServiceLifecycleIT {
 
     @Inject
-    static OCClient clientAsStaticInstance;
+    static OpenshiftClient clientAsStaticInstance;
 
     @Inject
     static OpenShiftClient fabric8OpenShiftClient;
@@ -26,7 +25,7 @@ public class OpenShiftServiceLifecycleIT extends ServiceLifecycleIT {
     }
 
     @Test
-    public void shouldInjectOpenShiftClientAsField(OCClient clientAsField) {
+    public void shouldInjectOpenShiftClientAsField(OpenshiftClient clientAsField) {
         assertNotNull(clientAsField);
     }
 }

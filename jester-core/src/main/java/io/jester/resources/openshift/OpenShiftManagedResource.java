@@ -13,7 +13,7 @@ import io.fabric8.kubernetes.api.model.ReplicationControllerBuilder;
 import io.fabric8.kubernetes.client.utils.Serialization;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.DeploymentConfigBuilder;
-import io.jester.api.clients.OCClient;
+import io.jester.api.clients.OpenshiftClient;
 import io.jester.configuration.OpenShiftServiceConfiguration;
 import io.jester.configuration.OpenShiftServiceConfigurationBuilder;
 import io.jester.core.ManagedResource;
@@ -28,7 +28,7 @@ public abstract class OpenShiftManagedResource extends ManagedResource {
 
     private static final String DEPLOYMENT = "openshift.yml";
 
-    private OCClient client;
+    private OpenshiftClient client;
     private LoggingHandler loggingHandler;
     private boolean init;
     private boolean running;
