@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import io.jester.logging.LoggingHandler;
-import io.jester.utils.AwaitilityUtils;
+import io.jester.utils.AwaitilitySettings;
 import io.jester.utils.PropertiesUtils;
 
 public abstract class ManagedResource {
@@ -103,7 +103,7 @@ public abstract class ManagedResource {
         Duration startupCheckInterval = context.getConfiguration().getStartupCheckPollInterval();
         Duration startupTimeout = context.getConfiguration().getStartupTimeout();
         untilIsTrue(this::isRunningOrFailed,
-                AwaitilityUtils.AwaitilitySettings.using(startupCheckInterval, startupTimeout).doNotIgnoreExceptions()
+                AwaitilitySettings.using(startupCheckInterval, startupTimeout).doNotIgnoreExceptions()
                         .withService(context.getOwner())
                         .timeoutMessage("Service didn't start in %s minutes", startupTimeout));
         if (getLoggingHandler() != null) {

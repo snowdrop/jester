@@ -15,11 +15,15 @@ public class LogsVerifier {
     }
 
     public void assertContains(String expectedLog) {
+        assertContains(expectedLog, AwaitilitySettings.defaults());
+    }
+
+    public void assertContains(String expectedLog, AwaitilitySettings settings) {
         AwaitilityUtils.untilAsserted(() -> {
             List<String> actualLogs = service.getLogs();
             Assertions.assertTrue(actualLogs.stream().anyMatch(line -> line.contains(expectedLog)),
                     "Log does not contain " + expectedLog + ". Full logs: " + actualLogs);
-        });
+        }, settings);
     }
 
     public void assertDoesNotContain(String unexpectedLog) {

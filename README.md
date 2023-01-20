@@ -459,6 +459,26 @@ If no group ID and no version are provided, the framework will assume that the d
 
 This also can be used to append other dependencies apart from Quarkus.
 
+### Override Quarkus Version at tests
+
+We can also override the current Quarkus version per Quarkus application by doing:
+
+```java
+@Jester
+public class GreetingResourceIT {
+
+    @Quarkus(version = "2.15.2.Final")
+    static final RestService app = new RestService();
+
+    @Test
+    public void shouldRunAppUsingVersion() {
+        // ...
+    }
+}
+```
+
+This feature is very useful when troubleshooting different behaviours among Quarkus releases for the same tests. 
+
 ### Disable Tests annotations
 
 - On a Concrete Quarkus version:

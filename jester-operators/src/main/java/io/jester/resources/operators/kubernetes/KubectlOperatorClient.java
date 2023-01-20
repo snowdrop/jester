@@ -20,7 +20,7 @@ import io.jester.api.model.CustomResourceStatus;
 import io.jester.configuration.OperatorServiceConfiguration;
 import io.jester.core.ServiceContext;
 import io.jester.logging.Log;
-import io.jester.utils.AwaitilityUtils;
+import io.jester.utils.AwaitilitySettings;
 import io.jester.utils.ManifestsUtils;
 
 public class KubectlOperatorClient {
@@ -80,7 +80,7 @@ public class KubectlOperatorClient {
             String csvStatus = operatorService.getStatus().getPhase();
             Log.debug(service.getOwner(), "Operator CSV status: " + csvStatus);
             return OPERATOR_PHASE_INSTALLED.equals(csvStatus);
-        }, AwaitilityUtils.AwaitilitySettings.defaults().withService(service.getOwner())
+        }, AwaitilitySettings.defaults().withService(service.getOwner())
                 .usingTimeout(service.getConfigurationAs(OperatorServiceConfiguration.class).getInstallTimeout()));
         Log.info(service.getOwner(), "Operator installed");
     }

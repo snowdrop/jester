@@ -21,16 +21,18 @@ public class ContainerRegistryProdModeBootstrapQuarkusManagedResource extends Ku
     private final Class<?>[] classes;
     private final Dependency[] forcedDependencies;
     private final boolean forceBuild;
+    private final String version;
 
     private BootstrapQuarkusResource resource;
     private String image;
 
     public ContainerRegistryProdModeBootstrapQuarkusManagedResource(String location, Class<?>[] classes,
-            Dependency[] forcedDependencies, boolean forceBuild) {
+            Dependency[] forcedDependencies, boolean forceBuild, String version) {
         this.location = location;
         this.classes = classes;
         this.forcedDependencies = forcedDependencies;
         this.forceBuild = forceBuild;
+        this.version = version;
     }
 
     @Override
@@ -64,7 +66,7 @@ public class ContainerRegistryProdModeBootstrapQuarkusManagedResource extends Ku
     protected void init(ServiceContext context) {
         super.init(context);
 
-        resource = new BootstrapQuarkusResource(context, location, classes, forcedDependencies, forceBuild);
+        resource = new BootstrapQuarkusResource(context, location, classes, forcedDependencies, forceBuild, version);
         image = createImageAndPush();
     }
 
