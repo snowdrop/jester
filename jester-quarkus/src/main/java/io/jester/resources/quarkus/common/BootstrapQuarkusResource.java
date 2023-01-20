@@ -7,6 +7,8 @@ import static io.jester.utils.QuarkusUtils.APPLICATION_PROPERTIES;
 import static io.jester.utils.QuarkusUtils.RESOURCES_FOLDER;
 import static io.jester.utils.QuarkusUtils.TEST_RESOURCES_FOLDER;
 import static io.jester.utils.QuarkusUtils.isQuarkusVersion2Dot3OrAbove;
+import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,11 +19,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.exporter.ExplodedExporter;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -56,6 +58,7 @@ public class BootstrapQuarkusResource extends QuarkusResource {
 
     private final Path location;
     private final Path runner;
+    private final String quarkusVersion;
 
     private Class<?>[] appClasses;
     private List<AppDependency> forcedDependencies = Collections.emptyList();
@@ -63,10 +66,11 @@ public class BootstrapQuarkusResource extends QuarkusResource {
     private Map<String, String> propertiesSnapshot;
 
     public BootstrapQuarkusResource(ServiceContext context, String location, Class<?>[] classes,
-            Dependency[] forcedDependencies, boolean forceBuild) {
+            Dependency[] forcedDependencies, boolean forceBuild, String quarkusVersion) {
         super(context);
 
         this.location = Path.of(location);
+        this.quarkusVersion = quarkusVersion;
         if (!Files.exists(this.location)) {
             throw new RuntimeException("Quarkus location does not exist.");
         }
@@ -83,8 +87,9 @@ public class BootstrapQuarkusResource extends QuarkusResource {
         if (forcedDependencies != null && forcedDependencies.length > 0) {
             requiresCustomBuild = true;
             this.forcedDependencies = Stream.of(forcedDependencies).map(d -> {
-                String groupId = StringUtils.defaultIfEmpty(resolveProperty(d.groupId()), QUARKUS_GROUP_ID_DEFAULT);
-                String version = StringUtils.defaultIfEmpty(resolveProperty(d.version()), QuarkusUtils.getVersion());
+                String groupId = defaultIfEmpty(resolveProperty(d.groupId()), QUARKUS_GROUP_ID_DEFAULT);
+                String version = defaultIfEmpty(resolveProperty(d.version()),
+                        defaultIfEmpty(quarkusVersion, QuarkusUtils.getVersion()));
                 AppArtifact artifact = new AppArtifact(groupId, d.artifactId(), version);
                 // Quarkus introduces a breaking change in 2.3:
                 // https://github.com/quarkusio/quarkus/commit/0c85b27c4046c894c181ffea367fca503d1c682c
@@ -97,7 +102,7 @@ public class BootstrapQuarkusResource extends QuarkusResource {
             }).collect(Collectors.toList());
         }
 
-        requiresCustomBuild = requiresCustomBuild || forceBuild;
+        requiresCustomBuild = requiresCustomBuild || forceBuild || isNotEmpty(quarkusVersion);
 
         runner = tryToReuseOrBuildRunner();
     }
@@ -186,6 +191,12 @@ public class BootstrapQuarkusResource extends QuarkusResource {
             QuarkusBootstrap.Builder builder = QuarkusBootstrap.builder().setApplicationRoot(appFolder)
                     .setMode(QuarkusBootstrap.Mode.PROD).addExcludedPath(testLocation).setIsolateDeployment(true)
                     .setProjectRoot(testLocation).setBaseName(context.getName()).setTargetDirectory(appFolder);
+
+            if (isNotEmpty(quarkusVersion)) {
+                Properties properties = new Properties();
+                properties.put("quarkus.application.version", quarkusVersion);
+                builder.setBuildSystemProperties(properties);
+            }
 
             if (!forcedDependencies.isEmpty()) {
                 // The method setForcedDependencies signature changed from `List<AppDependency>` to `List<Dependency>`

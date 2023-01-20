@@ -1,6 +1,5 @@
 package io.jester.utils;
 
-import java.time.Duration;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -16,16 +15,12 @@ import org.awaitility.core.TimeoutEvent;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
-import io.jester.api.Service;
 import io.jester.logging.Log;
 
 /**
  * Awaitility utils to make a long or repeatable operation.
  */
 public final class AwaitilityUtils {
-
-    private static final int POLL_SECONDS = 1;
-    private static final int TIMEOUT_SECONDS = 30;
 
     private AwaitilityUtils() {
 
@@ -223,47 +218,6 @@ public final class AwaitilityUtils {
             } else {
                 Log.warn(message);
             }
-        }
-    }
-
-    public static final class AwaitilitySettings {
-
-        Duration interval = Duration.ofSeconds(POLL_SECONDS);
-        Duration timeout = Duration.ofSeconds(TIMEOUT_SECONDS);
-        Service service;
-        String timeoutMessage = StringUtils.EMPTY;
-        boolean doNotIgnoreExceptions = false;
-
-        public static AwaitilitySettings defaults() {
-            return new AwaitilitySettings();
-        }
-
-        public static AwaitilitySettings usingTimeout(Duration timeout) {
-            AwaitilitySettings settings = defaults();
-            settings.timeout = timeout;
-            return settings;
-        }
-
-        public static AwaitilitySettings using(Duration interval, Duration timeout) {
-            AwaitilitySettings settings = defaults();
-            settings.interval = interval;
-            settings.timeout = timeout;
-            return settings;
-        }
-
-        public AwaitilitySettings withService(Service service) {
-            this.service = service;
-            return this;
-        }
-
-        public AwaitilitySettings timeoutMessage(String message, Object... args) {
-            this.timeoutMessage = String.format(message, args);
-            return this;
-        }
-
-        public AwaitilitySettings doNotIgnoreExceptions() {
-            this.doNotIgnoreExceptions = true;
-            return this;
         }
     }
 }

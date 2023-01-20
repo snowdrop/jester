@@ -29,4 +29,10 @@ public @interface Quarkus {
      * @return if force a custom build when running the test. If enabled, it won't use the built JAR or Native binary.
      */
     boolean forceBuild() default false;
+
+    /**
+     * @return concrete Quarkus version to build the Quarkus app. If sets, it will force the app to be built at test
+     *         time.
+     */
+    String version() default "";
 }
