@@ -1,18 +1,23 @@
 package io.jester.resources.openshift;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 
+import io.fabric8.kubernetes.api.model.Capabilities;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerPortBuilder;
-import io.fabric8.kubernetes.api.model.ReplicationControllerBuilder;
+import io.fabric8.kubernetes.api.model.PodSecurityContext;
+import io.fabric8.kubernetes.api.model.PodSpec;
+import io.fabric8.kubernetes.api.model.PodTemplateSpec;
+import io.fabric8.kubernetes.api.model.SecurityContext;
+import io.fabric8.kubernetes.api.model.apps.Deployment;
+import io.fabric8.kubernetes.api.model.apps.DeploymentSpec;
 import io.fabric8.kubernetes.client.utils.Serialization;
-import io.fabric8.openshift.api.model.DeploymentConfig;
-import io.fabric8.openshift.api.model.DeploymentConfigBuilder;
 import io.jester.api.clients.OpenshiftClient;
 import io.jester.configuration.OpenShiftServiceConfiguration;
 import io.jester.configuration.OpenShiftServiceConfigurationBuilder;
@@ -125,33 +130,24 @@ public abstract class OpenShiftManagedResource extends ManagedResource {
     protected void doInit() {
         this.client = context.get(OpenShiftExtensionBootstrap.CLIENT);
 
-        // applyReplicationController();
-        applyDeploymentConfig();
+        applyDeployment();
 
         client.expose(context.getOwner(), getEffectivePorts());
     }
 
     protected void doUpdate() {
-        // applyReplicationController();
-        applyDeploymentConfig();
+        applyDeployment();
     }
 
-    private static ReplicationControllerBuilder initReplicationControllerBuilder() {
-        return new ReplicationControllerBuilder().withNewSpec().withReplicas(1).withNewTemplate().withNewSpec()
-                .addNewContainer().endContainer().endSpec().endTemplate().endSpec();
-    }
-
-    private void applyDeploymentConfig() {
-        DeploymentConfigBuilder deploymentConfigBuilder = Optional
+    private void applyDeployment() {
+        Deployment deployment = Optional
                 .ofNullable(context.getConfigurationAs(OpenShiftServiceConfiguration.class).getTemplate())
                 .filter(StringUtils::isNotEmpty)
-                .map(f -> Serialization.unmarshal(FileUtils.loadFile(f), DeploymentConfigBuilder.class))
-                .orElseGet(DeploymentConfigBuilder::new);
+                .map(f -> Serialization.unmarshal(FileUtils.loadFile(f), Deployment.class)).orElseGet(Deployment::new);
+
         // Set service data
-        initDeploymentConfig(deploymentConfigBuilder);
-        DeploymentConfig deploymentConfig = deploymentConfigBuilder.build();
-        deploymentConfig.getSpec().getTemplate().getSpec().getSecurityContext().setRunAsNonRoot(true);
-        Container container = deploymentConfig.getSpec().getTemplate().getSpec().getContainers().get(0);
+        initDeployment(deployment);
+        Container container = deployment.getSpec().getTemplate().getSpec().getContainers().get(0);
         container.setName(context.getName());
         if (StringUtils.isEmpty(container.getImage())) {
             container.setImage(getImage());
@@ -161,35 +157,50 @@ public abstract class OpenShiftManagedResource extends ManagedResource {
                 && getCommand().length > 0) {
             container.setCommand(Arrays.asList(getCommand()));
         }
+
         for (int port : getEffectivePorts()) {
             if (container.getPorts().stream().noneMatch(p -> p.getContainerPort() == port)) {
-                container.getPorts().add(new ContainerPortBuilder().withContainerPort(port).build());
+                container.getPorts()
+                        .add(new ContainerPortBuilder().withName("port-" + port).withContainerPort(port).build());
             }
         }
 
         // Enrich it
-        ManifestsUtils.enrichDeployment(client.underlyingClient(), deploymentConfig, context.getOwner());
+        ManifestsUtils.enrichDeployment(client.underlyingClient(), deployment, context.getOwner());
 
         // Apply it
         Path target = context.getServiceFolder().resolve(DEPLOYMENT);
-        ManifestsUtils.writeFile(target, deploymentConfig);
+        ManifestsUtils.writeFile(target, deployment);
         client.apply(target);
-        client.rollout(deploymentConfig);
     }
 
-    private void initDeploymentConfig(DeploymentConfigBuilder deployment) {
-        if (deployment.editOrNewSpec().withReplicas(1).editOrNewTemplate().editOrNewSpec().hasContainers()) {
-            deployment.editOrNewSpec().withReplicas(1).editOrNewTemplate().editOrNewSpec().editFirstContainer()
-                    .editOrNewSecurityContext().withAllowPrivilegeEscalation(false).editOrNewCapabilities()
-                    .addToDrop("ALL").endCapabilities().endSecurityContext().endContainer().editOrNewSecurityContext()
-                    .editOrNewSeccompProfile().withType("RuntimeDefault").endSeccompProfile().withRunAsNonRoot(true)
-                    .endSecurityContext().endSpec().endTemplate().endSpec();
-        } else {
-            deployment.editOrNewSpec().withReplicas(1).editOrNewTemplate().editOrNewSpec().addNewContainer()
-                    .editOrNewSecurityContext().withAllowPrivilegeEscalation(false).editOrNewCapabilities()
-                    .addToDrop("ALL").endCapabilities().endSecurityContext().endContainer().editOrNewSecurityContext()
-                    .editOrNewSeccompProfile().withType("RuntimeDefault").endSeccompProfile().withRunAsNonRoot(true)
-                    .endSecurityContext().endSpec().endTemplate().endSpec();
+    private void initDeployment(Deployment deployment) {
+        if (deployment.getSpec() == null) {
+            deployment.setSpec(new DeploymentSpec());
+        }
+        if (deployment.getSpec().getTemplate() == null) {
+            deployment.getSpec().setTemplate(new PodTemplateSpec());
+        }
+        if (deployment.getSpec().getTemplate().getSpec() == null) {
+            deployment.getSpec().getTemplate().setSpec(new PodSpec());
+        }
+        if (deployment.getSpec().getTemplate().getSpec().getSecurityContext() == null) {
+            deployment.getSpec().getTemplate().getSpec().setSecurityContext(new PodSecurityContext());
+            deployment.getSpec().getTemplate().getSpec().getSecurityContext().setRunAsNonRoot(true);
+        }
+        if (deployment.getSpec().getTemplate().getSpec().getContainers() == null) {
+            deployment.getSpec().getTemplate().getSpec().setContainers(new ArrayList<>());
+        }
+        if (deployment.getSpec().getTemplate().getSpec().getContainers().isEmpty()) {
+            deployment.getSpec().getTemplate().getSpec().getContainers().add(new Container());
+            deployment.getSpec().getTemplate().getSpec().getContainers().get(0)
+                    .setSecurityContext(new SecurityContext());
+            deployment.getSpec().getTemplate().getSpec().getContainers().get(0).getSecurityContext()
+                    .setAllowPrivilegeEscalation(false);
+            Capabilities capabilities = new Capabilities();
+            capabilities.setDrop(Arrays.asList("ALL"));
+            deployment.getSpec().getTemplate().getSpec().getContainers().get(0).getSecurityContext()
+                    .setCapabilities(capabilities);
         }
     }
 
