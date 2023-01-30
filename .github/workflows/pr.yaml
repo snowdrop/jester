@@ -110,6 +110,7 @@ jobs:
   openshift:
     name: PR - Linux - JVM build - OCP
     runs-on: ubuntu-20.04
+    needs: validate-format
     strategy:
       fail-fast: false
       matrix:

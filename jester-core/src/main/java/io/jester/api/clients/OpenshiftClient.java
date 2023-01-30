@@ -28,6 +28,7 @@ import io.fabric8.openshift.client.DefaultOpenShiftClient;
 import io.fabric8.openshift.client.NamespacedOpenShiftClient;
 import io.jester.api.Service;
 import io.jester.logging.Log;
+import io.jester.utils.AwaitilitySettings;
 import io.jester.utils.AwaitilityUtils;
 import io.jester.utils.Command;
 import io.jester.utils.KeyValueEntry;
@@ -147,10 +148,8 @@ public final class OpenshiftClient {
             new Command(OC, "scale", "deployment/" + service.getName(), "--replicas=" + replicas, "-n", currentProject)
                     .runAndWait();
             final String rcName = service.getName() + "-1";
-            AwaitilityUtils.untilIsTrue(
-                    () -> client.apps().deployments().withName(service.getName()).get().getSpec()
-                            .getReplicas() == replicas,
-                    AwaitilityUtils.AwaitilitySettings.defaults().withService(service));
+            AwaitilityUtils.untilIsTrue(() -> client.apps().deployments().withName(service.getName()).get().getSpec()
+                    .getReplicas() == replicas, AwaitilitySettings.defaults().withService(service));
         } catch (Exception e) {
             Log.error(e.getMessage(), e);
             throw new RuntimeException("Service failed to be scaled.", e);
