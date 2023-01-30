@@ -18,6 +18,7 @@ import java.util.stream.IntStream;
 import org.apache.commons.lang3.StringUtils;
 
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.LocalPortForward;
@@ -43,7 +44,6 @@ public final class OpenshiftClient {
 
     private final String currentProject;
     private final DefaultOpenShiftClient masterClient;
-    // private final io.fabric8.openshift.client.OpenShiftClient masterClient;
 
     private final NamespacedOpenShiftClient client;
     private final Map<String, KeyValueEntry<Service, LocalPortForwardWrapper>> portForwardsByService = new HashMap<>();
@@ -52,8 +52,6 @@ public final class OpenshiftClient {
         currentProject = namespace;
         Config config = new ConfigBuilder().withTrustCerts(true).withNamespace(currentProject).build();
         masterClient = new DefaultOpenShiftClient(config);
-        // masterClient = new
-        // KubernetesClientBuilder().build().adapt(io.fabric8.openshift.client.OpenShiftClient.class);
         client = masterClient.inNamespace(currentProject);
     }
 
@@ -107,7 +105,7 @@ public final class OpenshiftClient {
         List portList = IntStream.of(ports).mapToObj(Integer::toString).collect(Collectors.toList());
         portList.forEach(port -> {
             try {
-                new Command(OC, "expose", "dc", service.getName(), "--port=" + port,
+                new Command(OC, "expose", "deployment", service.getName(), "--port=" + port,
                         String.format("--target-port=%s", port), "--name=" + service.getName(), "-n", currentProject)
                                 .runAndWait();
                 new Command(OC, "expose", "svc", service.getName(), "--port=" + port, "--name=" + service.getName(),
@@ -128,6 +126,16 @@ public final class OpenshiftClient {
         }
     }
 
+    public void rollout(Deployment deployment) {
+        try {
+            new Command(OC, "rollout", "latest",
+                    deployment.getFullResourceName() + "/" + deployment.getMetadata().getName(), "-n", currentProject)
+                            .runAndWait();
+        } catch (Exception e) {
+            throw new RuntimeException("Service failed to be rolled out.", e);
+        }
+    }
+
     /**
      * Scale the service to the replicas.
      *
@@ -136,19 +144,12 @@ public final class OpenshiftClient {
      */
     public void scaleTo(Service service, int replicas) {
         try {
-            new Command(OC, "scale", "dc/" + service.getName(), "--replicas=" + replicas, "-n", currentProject)
+            new Command(OC, "scale", "deployment/" + service.getName(), "--replicas=" + replicas, "-n", currentProject)
                     .runAndWait();
             final String rcName = service.getName() + "-1";
             AwaitilityUtils.untilIsTrue(
-                    () -> (replicas == 0)
-                            ? client.replicationControllers().list().getItems().stream().collect(Collectors.toList())
-                                    .stream().allMatch(replicationController -> replicationController.getStatus()
-                                            .getReadyReplicas() == null)
-                            : client.replicationControllers().list().getItems().stream().collect(Collectors.toList())
-                                    .stream()
-                                    .anyMatch(replicationController -> replicationController.getStatus()
-                                            .getReadyReplicas() != null
-                                            && replicationController.getStatus().getReadyReplicas() == replicas),
+                    () -> client.apps().deployments().withName(service.getName()).get().getSpec()
+                            .getReplicas() == replicas,
                     AwaitilityUtils.AwaitilitySettings.defaults().withService(service));
         } catch (Exception e) {
             Log.error(e.getMessage(), e);

@@ -10,7 +10,7 @@ import java.util.Optional;
 import javax.inject.Named;
 
 import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.jester.api.RunOnOpenShift;
@@ -77,8 +77,7 @@ public class OpenShiftExtensionBootstrap implements ExtensionBootstrap {
 
     @Override
     public List<Class<?>> supportedParameters() {
-
-        return Arrays.asList(OpenshiftClient.class, OpenShiftClient.class, DeploymentConfig.class, Service.class,
+        return Arrays.asList(OpenshiftClient.class, OpenShiftClient.class, Deployment.class, Service.class,
                 Route.class);
     }
 
@@ -94,8 +93,8 @@ public class OpenShiftExtensionBootstrap implements ExtensionBootstrap {
                     .orElseThrow(() -> new RuntimeException(
                             "To inject Openshift resources, need to provide the name using @Named. Problematic field: "
                                     + dependency.getName()));
-            if (dependency.getType() == DeploymentConfig.class) {
-                return Optional.of(client.underlyingClient().deploymentConfigs().withName(named.value()).get());
+            if (dependency.getType() == Deployment.class) {
+                return Optional.of(client.underlyingClient().apps().deployments().withName(named.value()).get());
             } else if (dependency.getType() == Service.class) {
                 return Optional.of(client.underlyingClient().services().withName(named.value()).get());
             } else if (dependency.getType() == Route.class) {

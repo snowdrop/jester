@@ -1,8 +1,11 @@
 package io.jester.test;
 
 import static io.jester.test.samples.ContainerSamples.QUARKUS_REST_IMAGE;
+import static io.jester.test.samples.ContainerSamples.QUARKUS_STARTUP_EXPECTED_LOG;
 import static io.jester.test.samples.ContainerSamples.SAMPLES_DEFAULT_PORT;
 import static io.jester.test.samples.ContainerSamples.SAMPLES_DEFAULT_REST_PATH;
+import static io.jester.test.samples.ContainerSamples.SAMPLES_DEFAULT_REST_PATH_OUTPUT;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -13,12 +16,11 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.http.HttpStatus;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
 import io.fabric8.kubernetes.api.model.ContainerPort;
 import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.jester.api.Container;
 import io.jester.api.Jester;
 import io.jester.api.RestService;
@@ -29,12 +31,12 @@ import io.jester.core.extensions.OpenShiftExtensionBootstrap;
 @ServiceConfiguration(forService = "templated", deleteFolderOnClose = false)
 public class OpenShiftWithCustomTemplateIT {
 
-    @Container(image = QUARKUS_REST_IMAGE, ports = SAMPLES_DEFAULT_PORT, expectedLog = "serving on")
+    @Container(image = QUARKUS_REST_IMAGE, ports = SAMPLES_DEFAULT_PORT, expectedLog = QUARKUS_STARTUP_EXPECTED_LOG)
     static RestService templated = new RestService();
 
     @Inject
     @Named("templated")
-    static DeploymentConfig deploymentOfTemplated;
+    static Deployment deploymentOfTemplated;
 
     @Inject
     @Named("templated")
@@ -43,7 +45,7 @@ public class OpenShiftWithCustomTemplateIT {
     @Test
     public void testServiceIsUpAndRunning() {
         templated.given().log().all().get(SAMPLES_DEFAULT_REST_PATH).then().log().all().statusCode(HttpStatus.SC_OK)
-                .body(Matchers.containsString("Hello OpenShift!"));
+                .body(is(SAMPLES_DEFAULT_REST_PATH_OUTPUT));
     }
 
     @Test
