@@ -43,7 +43,7 @@ jobs:
           opm: "latest"
           operator-sdk: "latest"
       - name: Install Operator Lifecycle Manager and Operator SDK into Kind
-        run: operator-sdk olm install
+        run: operator-sdk olm install --version v0.23.0
       - name: Install JDK {{ matrix.java }}
         uses: actions/setup-java@v3
         with:
