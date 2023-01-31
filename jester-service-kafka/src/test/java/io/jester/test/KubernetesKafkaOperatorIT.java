@@ -16,7 +16,7 @@ import io.jester.api.RunOnKubernetes;
 
 @Jester
 @RunOnKubernetes
-@Operator(subscription = "strimzi-kafka-operator", channel = "strimzi-0.31.x")
+@Operator(subscription = "strimzi-kafka-operator", channel = "strimzi-0.33.x")
 public class KubernetesKafkaOperatorIT {
 
     @KafkaResource
