@@ -1,1 +1,2 @@
 io.jester.resources.containers.kubernetes.KubernetesContainerManagedResourceBinding
+io.jester.resources.containers.openshift.OpenShiftContainerManagedResourceBinding
