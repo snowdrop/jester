@@ -43,7 +43,7 @@
     <failsafe-plugin.version>2.22.2</failsafe-plugin.version>
     <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
     <maven-checkstyle-plugin.version>3.2.1</maven-checkstyle-plugin.version>
-    <formatter-maven-plugin.version>2.21.0</formatter-maven-plugin.version>
+    <formatter-maven-plugin.version>2.22.0</formatter-maven-plugin.version>
     <impsort-maven-plugin.version>1.8.0</impsort-maven-plugin.version>
     <nexus-staging-maven-plugin.version>1.6.12</nexus-staging-maven-plugin.version>
     <!-- Declared Dependencies -->
