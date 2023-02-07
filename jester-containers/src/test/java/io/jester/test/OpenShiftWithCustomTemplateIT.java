@@ -44,7 +44,7 @@ public class OpenShiftWithCustomTemplateIT {
 
     @Test
     public void testServiceIsUpAndRunning() {
-        templated.given().log().all().get(SAMPLES_DEFAULT_REST_PATH).then().log().all().statusCode(HttpStatus.SC_OK)
+        templated.given().get(SAMPLES_DEFAULT_REST_PATH).then().statusCode(HttpStatus.SC_OK)
                 .body(is(SAMPLES_DEFAULT_REST_PATH_OUTPUT));
     }
 

@@ -2,6 +2,9 @@ package io.jester.api;
 
 import static io.jester.utils.Ports.DEFAULT_HTTP_PORT;
 import static io.jester.utils.Ports.DEFAULT_SSL_PORT;
+import static io.restassured.RestAssured.given;
+
+import org.apache.http.HttpStatus;
 
 import io.jester.core.BaseService;
 import io.jester.logging.Log;
@@ -52,5 +55,14 @@ public class RestService extends BaseService<RestService> {
     public void stop() {
         super.stop();
         RestAssured.reset();
+    }
+
+    @Override
+    public boolean isRunning() {
+        return super.isRunning() && isReachable();
+    }
+
+    private boolean isReachable() {
+        return given().get().getStatusCode() != HttpStatus.SC_SERVICE_UNAVAILABLE;
     }
 }

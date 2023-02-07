@@ -9,13 +9,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import org.apache.commons.lang3.StringUtils;
 
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
@@ -211,27 +208,12 @@ public final class OpenshiftClient {
      */
     public String host(Service service) {
         String serviceName = service.getName();
-        client.routes().list().getItems().forEach(route -> {
-            Log.info("route.resourcename: " + route.getFullResourceName());
-            Log.info("route.status: " + route.getStatus());
-        });
-        Route routeModel = client.routes().withName(serviceName).get();
-        Log.info(service, "routeModel:  " + routeModel);
-        if (routeModel == null || routeModel.getStatus() == null || routeModel.getStatus().getIngress() == null) {
+        Route route = client.routes().withName(serviceName).get();
+        if (route == null || route.getSpec() == null) {
             return PORT_FORWARD_HOST;
         }
 
-        // IP detection rules:
-        // 1.- Try Ingress IP
-        // 2.- Try Ingress Hostname
-        Optional<String> host = routeModel.getStatus().getIngress().stream().map(ingress -> ingress.getHost())
-                .filter(StringUtils::isNotEmpty).findFirst();
-        Log.info(service, "### host:  " + host);
-        if (host.isEmpty()) {
-            return PORT_FORWARD_HOST;
-        }
-
-        return host.get();
+        return route.getSpec().getHost();
     }
 
     /**
@@ -243,8 +225,8 @@ public final class OpenshiftClient {
      */
     public int port(Service service, int port) {
         String serviceName = service.getName();
-        Route routeModel = client.routes().withName(serviceName).get();
-        if (routeModel == null || routeModel.getSpec() == null || routeModel.getSpec().getPort() == null) {
+        Route route = client.routes().withName(serviceName).get();
+        if (route == null || route.getSpec() == null || route.getSpec().getPort() == null) {
             throw new RuntimeException("Service " + serviceName + " not found");
         }
 
@@ -265,7 +247,7 @@ public final class OpenshiftClient {
             return portForwardByService.getValue().localPort;
         }
 
-        return routeModel.getSpec().getPort().getTargetPort().getIntVal();
+        return route.getSpec().getPort().getTargetPort().getIntVal();
     }
 
     /**
