@@ -16,6 +16,9 @@ public class JesterBuildChainCustomizerConsumer implements Consumer<BuildChainBu
             Class<?> customProjectForKubernetes = cl.loadClass(QuarkusUtils.QUARKUS_KUBERNETES_SPI_CUSTOM_PROJECT);
             builder.addBuildStep(new KubernetesCustomProjectBuildStep(customProjectForKubernetes))
                     .produces((Class<? extends BuildItem>) customProjectForKubernetes).build();
+            Class<?> customProjectForOpenShift = cl.loadClass(QuarkusUtils.QUARKUS_OPENSHIFT_SPI_CUSTOM_PROJECT);
+            builder.addBuildStep(new OpenShiftCustomProjectBuildStep(customProjectForOpenShift))
+                    .produces((Class<? extends BuildItem>) customProjectForOpenShift).build();
         } catch (ClassNotFoundException ignored) {
 
         }

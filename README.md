@@ -58,12 +58,12 @@ framework via the Extensions API to support new target environments and/or add n
 
 Let's find out the existing jester dependencies and their features:
 
-| Dependencies | Description | 
-|--------------|-------------| 
-| [jester-core](#jester-core)       | API, JUnit extension, allow using `@Jester` and `@RunOnKubernetes` |
-| [jester-containers](#jester-containers) | Allow using `@Container` to run  and `@LocalProject` annotations |
-| [jester-quarkus](#jester-quarkus)    | Allow using `@Quarkus` annotation |
-| [jester-spring](#jester-spring)     | Allow using `@Spring` annotation |
+| Dependencies | Description                                                                           | 
+|--------------|---------------------------------------------------------------------------------------| 
+| [jester-core](#jester-core)       | API, JUnit extension, allow using `@Jester`, `@RunOnKubernetes` and `@RunOnOpenShift` |
+| [jester-containers](#jester-containers) | Allow using `@Container` to run  and `@LocalProject` annotations                      |
+| [jester-quarkus](#jester-quarkus)    | Allow using `@Quarkus` annotation                                                     |
+| [jester-spring](#jester-spring)     | Allow using `@Spring` annotation                                                      |
 
 ### Requirements
 
@@ -1162,11 +1162,25 @@ The configuration that is only available for Kubernetes deployments is:
 |------|-------------|---------|----------|------------|
 | Print cluster info on failures | Print pods, events and status when there are test failures | true  | `ts.kubernetes.print.info.on.error=true` | `@RunOnKubernetes(printInfoOnError = true)` |
 | Delete namespace after all tests | Delete namespace after running all the tests | true  | `ts.kubernetes.delete.namespace.after.all=true` | `@RunOnKubernetes(deleteNamespaceAfterAll = true)` |
-| Use ephemeral namespaces or the current logged namespace | Run the tests on Kubernetes in an ephemeral namespace that will be deleted afterwards | true  | `ts.kubernetes.ephemeral.namespaces.enabled=true` | `@RunOnKubernetes(ephemeralNamespaceEnabled = true)` |
+| Use ephemeral namespaces or the current logged namespace | Run the tests on Kubernetes in an ephemeral namespace that will be deleted afterwards | true  | `ts.openstack.ephemeral.storage.enabled=true` | `@RunOnKubernetes(ephemeralNamespaceEnabled = true)` |
 | Load additional resources | Load the additional resources before running all the tests |  | `ts.kubernetes.additional-resources` | `@RunOnKubernetes(additionalResources = [...])` |
 | Template | Template for the initial deployment resource. The custom template should be located at the `src/test/resources` folder |  | `ts.services.<SERVICE NAME>.kubernetes.template=/custom-deployment.yaml` | `@KubernetesServiceConfiguration(forService = "<SERVICE NAME>", template = "/custom-deployment.yaml")` |
 | Use as internal service | Use internal routing instead of exposed network interfaces. This is useful to integration several services that are running as part of the same namespace or network |  | `ts.services.<SERVICE NAME>.kubernetes.use-internal-service=false` | `@KubernetesServiceConfiguration(forService = "<SERVICE NAME>", useInternalService = false)` |
 | Custom additional ports | Add custom additional ports to be used during the tests |  | `ts.services.<SERVICE NAME>.kubernetes.additional-ports=8001,8002` | `@KubernetesServiceConfiguration(forService = "<SERVICE NAME>", additionalPorts = [8001, 8002])` |
+
+### OpenShift Configuration
+
+The configuration that is only available for OpenShift deployments is:
+
+| Name | Description | Default | Property                                                                 | Annotation | 
+|------|-------------|---------|--------------------------------------------------------------------------|------------|
+| Print cluster info on failures | Print pods, events and status when there are test failures | true  | `ts.openshift.print.info.on.error=true`                                  | `@RunOnOpenShift(printInfoOnError = true)` |
+| Delete namespace after all tests | Delete namespace after running all the tests | true  | `ts.openshift.delete.namespace.after.all=true`                          | `@RunOnOpenShift(deleteNamespaceAfterAll = true)` |
+| Use ephemeral namespaces or the current logged namespace | Run the tests on OpenShift in an ephemeral namespace that will be deleted afterwards | true  | `ts.openshift.ephemeral.namespaces.enabled=true`                        | `@RunOnOpenShift(ephemeralNamespaceEnabled = true)` |
+| Load additional resources | Load the additional resources before running all the tests |  | `ts.openshift.additional-resources`                                     | `@RunOnOpenShift(additionalResources = [...])` |
+| Template | Template for the initial deployment resource. The custom template should be located at the `src/test/resources` folder |  | `ts.services.<SERVICE NAME>.openshift.template=/custom-deployment.yaml` | `@OpenShiftServiceConfiguration(forService = "<SERVICE NAME>", template = "/custom-deployment.yaml")` |
+| Use as internal service | Use internal routing instead of exposed network interfaces. This is useful to integration several services that are running as part of the same namespace or network |  | `ts.services.<SERVICE NAME>.openshift.use-internal-service=false`       | `@OpenShiftServiceConfiguration(forService = "<SERVICE NAME>", useInternalService = false)` |
+| Custom additional ports | Add custom additional ports to be used during the tests |  | `ts.services.<SERVICE NAME>.openshift.additional-ports=8001,8002`       | `@OpenShiftServiceConfiguration(forService = "<SERVICE NAME>", additionalPorts = [8001, 8002])` |
 
 ### Docker Service Configuration
 

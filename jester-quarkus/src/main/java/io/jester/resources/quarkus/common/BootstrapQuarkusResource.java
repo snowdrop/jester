@@ -238,7 +238,7 @@ public class BootstrapQuarkusResource extends QuarkusResource {
                 .createDirectories(context.getServiceFolder().resolve("additional-deployment"));
         JavaArchive additionalDeploymentArchive = ShrinkWrap.create(JavaArchive.class).addClasses(
                 JesterBuildChainCustomizerProducer.class, JesterBuildChainCustomizerConsumer.class,
-                KubernetesCustomProjectBuildStep.class);
+                KubernetesCustomProjectBuildStep.class, OpenShiftCustomProjectBuildStep.class);
         additionalDeploymentArchive.as(ExplodedExporter.class).exportExplodedInto(additionalDeploymentDir.toFile());
         builder.addAdditionalDeploymentArchive(additionalDeploymentDir);
     }
