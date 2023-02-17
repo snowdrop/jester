@@ -3,7 +3,7 @@ package io.jester.configuration;
 public final class OpenShiftConfiguration {
     private boolean printInfoOnError = true;
     private boolean deleteProjectAfterAll = true;
-    private boolean ephemeralStorageEnabled = true;
+    private boolean ephemeralProjectEnabled = true;
     private String[] additionalResources;
 
     public boolean isPrintInfoOnError() {
@@ -22,12 +22,12 @@ public final class OpenShiftConfiguration {
         this.deleteProjectAfterAll = deleteProjectAfterAll;
     }
 
-    public boolean isEphemeralStorageEnabled() {
-        return ephemeralStorageEnabled;
+    public boolean isEphemeralProjectEnabled() {
+        return ephemeralProjectEnabled;
     }
 
-    public void setEphemeralStorageEnabled(boolean ephemeralStorageEnabled) {
-        this.ephemeralStorageEnabled = ephemeralStorageEnabled;
+    public void setEphemeralProjectEnabled(boolean ephemeralProjectEnabled) {
+        this.ephemeralProjectEnabled = ephemeralProjectEnabled;
     }
 
     public String[] getAdditionalResources() {
