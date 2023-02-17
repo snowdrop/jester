@@ -43,9 +43,9 @@ public class OpenShiftExtensionBootstrap implements ExtensionBootstrap {
 
         // if deleteNamespace and ephemeral namespaces are disabled then we are in debug mode. This mode is going to
         // keep all resources in order to allow you to debug by yourself
-        context.setDebug(!configuration.isDeleteProjectAfterAll() && !configuration.isEphemeralStorageEnabled());
+        context.setDebug(!configuration.isDeleteProjectAfterAll() && !configuration.isEphemeralProjectEnabled());
 
-        if (configuration.isEphemeralStorageEnabled()) {
+        if (configuration.isEphemeralProjectEnabled()) {
             client = OpenshiftClient.createClientUsingANewNamespace();
         } else {
             client = OpenshiftClient.createClientUsingCurrentNamespace();
@@ -62,7 +62,7 @@ public class OpenShiftExtensionBootstrap implements ExtensionBootstrap {
     public void afterAll(JesterContext context) {
         OpenShiftConfiguration configuration = context.getConfigurationAs(OpenShiftConfiguration.class);
         if (configuration.isDeleteProjectAfterAll()) {
-            if (configuration.isEphemeralStorageEnabled()) {
+            if (configuration.isEphemeralProjectEnabled()) {
                 client.deleteNamespace();
             } else {
                 client.deleteResourcesInJesterContext(context.getId());

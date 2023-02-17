@@ -399,7 +399,7 @@
       </activation>
       <properties>
         <include.tests>${exclude.openshift.tests}</include.tests>
-        <exclude.kubernetes.tests>no</exclude.kubernetes.tests>
+        <exclude.openshift.tests>no</exclude.openshift.tests>
       </properties>
     </profile>
     <profile>

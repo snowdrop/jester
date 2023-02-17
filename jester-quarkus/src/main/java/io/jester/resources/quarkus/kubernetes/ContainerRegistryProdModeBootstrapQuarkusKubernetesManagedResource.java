@@ -15,7 +15,7 @@ import io.jester.resources.quarkus.common.BootstrapQuarkusResource;
 import io.jester.utils.DockerUtils;
 import io.jester.utils.QuarkusUtils;
 
-public class ContainerRegistryProdModeBootstrapQuarkusManagedResource extends KubernetesManagedResource {
+public class ContainerRegistryProdModeBootstrapQuarkusKubernetesManagedResource extends KubernetesManagedResource {
 
     private final String location;
     private final Class<?>[] classes;
@@ -26,7 +26,7 @@ public class ContainerRegistryProdModeBootstrapQuarkusManagedResource extends Ku
     private BootstrapQuarkusResource resource;
     private String image;
 
-    public ContainerRegistryProdModeBootstrapQuarkusManagedResource(String location, Class<?>[] classes,
+    public ContainerRegistryProdModeBootstrapQuarkusKubernetesManagedResource(String location, Class<?>[] classes,
             Dependency[] forcedDependencies, boolean forceBuild, String version) {
         this.location = location;
         this.classes = classes;

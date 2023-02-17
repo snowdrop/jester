@@ -16,15 +16,15 @@ public @interface RunOnOpenShift {
     boolean printInfoOnError() default true;
 
     /**
-     * Delete project after running all the tests. Fallback property `ts.openstack.delete.project.after.all`.
+     * Delete project after running all the tests. Fallback property `ts.openshift.delete.project.after.all`.
      */
     boolean deleteProjectAfterAll() default true;
 
     /**
      * Run the tests using OpenStack ephemeral storage. namespace that will be deleted afterwards. Fallback property
-     * `ts.openstack.ephemeral.storage.enabled`.
+     * `ts.openshift.ephemeral.project.enabled`.
      */
-    boolean ephemeralStorageEnabled() default true;
+    boolean ephemeralProjectEnabled() default true;
 
     /**
      * Load the additional resources before running all the tests. Fallback property

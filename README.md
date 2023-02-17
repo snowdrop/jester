@@ -58,12 +58,12 @@ framework via the Extensions API to support new target environments and/or add n
 
 Let's find out the existing jester dependencies and their features:
 
-| Dependencies | Description | 
-|--------------|-------------| 
-| [jester-core](#jester-core)       | API, JUnit extension, allow using `@Jester` and `@RunOnKubernetes` |
-| [jester-containers](#jester-containers) | Allow using `@Container` to run  and `@LocalProject` annotations |
-| [jester-quarkus](#jester-quarkus)    | Allow using `@Quarkus` annotation |
-| [jester-spring](#jester-spring)     | Allow using `@Spring` annotation |
+| Dependencies | Description                                                                           | 
+|--------------|---------------------------------------------------------------------------------------| 
+| [jester-core](#jester-core)       | API, JUnit extension, allow using `@Jester`, `@RunOnKubernetes` and `@RunOnOpenShift` |
+| [jester-containers](#jester-containers) | Allow using `@Container` to run  and `@LocalProject` annotations                      |
+| [jester-quarkus](#jester-quarkus)    | Allow using `@Quarkus` annotation                                                     |
+| [jester-spring](#jester-spring)     | Allow using `@Spring` annotation                                                      |
 
 ### Requirements
 
@@ -71,6 +71,7 @@ Let's find out the existing jester dependencies and their features:
 - Maven 3+
 - Docker
 - (for Kubernetes tests), you must be logged into the Kubernetes cluster.
+- (for OpenShift tests), you must be logged into an OpenShift cluster.
 
 ### Jester Core
 
@@ -79,7 +80,7 @@ To know more about the API and the extension API, go to the [Architecture](#arch
 
 ### Jester Containers
 
-This extension allows using containers to run tests on bare metal and/or Kubernetes. 
+This extension allows using containers to run tests on bare metal, Kubernetes and/or OpenShift.
 
 In this guide, we'll use the image: `quay.io/<your username>/quarkus-test:latest` (to generate this image, you need to go to [this folder](images/quarkus-rest) and execute `mvn clean install -Dquarkus.container-image.push=true -Dquarkus.container-image.registry=quay.io -Dquarkus.container-image.group=<your username>`). 
 
@@ -135,6 +136,8 @@ When running the test, it should pass, and we should see the app logs:
 [14:12:49.858] [INFO] [greetings] Service stopped (quay.io/<your username>/quarkus-test:latest)
 ```
 
+#### Run the containers on Kubernetes
+
 Now, let's reuse the same test to run it in Kubernetes. For doing this, we can either extend our test `ContainerTest` with a new test class and the annotation `@RunOnKubernetes`:
 
 ```java
@@ -173,6 +176,63 @@ When running the Kubernetes test, we should see the app logs again and also the 
 **Note**: the generated resources are placed at `target/<SERVICE NAME>/kubernetes.yml`
 
 Find one example using Containers in [here](examples/quarkus-oidc).
+
+#### Run the containers on OpenShift
+
+To run the same test on OpenShift, we can either extend our test `ContainerTest` with a new test class and the annotation `@RunOnOpenShift`:
+
+```java
+@RunOnOpenShift
+public class OpenShiftContainerIT extends ContainerTest {
+    
+}
+```
+
+Or we can run the test via command line using the property `ts.jester.target=openshift`.
+
+OpenShift will try to pull the image from a container registry (by default, it's `localhost:5000`). We can provide the registry via the property `ts.services.all.image.registry=quay.io`, or add this property in the `test.properties` or `global.properties` or configure your service using the `@ServiceConfiguration` annotation. More about how to configure your services in the [Configuration](#configuration) section.
+
+When running the OpenShift test, we should see the app logs again and also the OpenShift commands that the framework used:
+
+```
+INFO] Running io.jester.test.OpenShiftServiceLifecycleIT
+[11:03:02.216] [INFO] Running command: oc create namespace ts-hjagudinyk 
+[11:03:02.897] [INFO] oc: namespace/ts-hjagudinyk created 
+[11:03:02.916] [INFO] [greetings] Initialize service (quay.io/antcosta/quarkus-rest:latest) 
+[11:03:02.916] [FINE] [greetings] Starting service (quay.io/antcosta/quarkus-rest:latest) 
+[11:03:02.920] [INFO] Running command: oc apply -f /z/dev/client/redhat/forks-github/jester/jester-containers/target/OpenShiftServiceLifecycleIT/greetings/openshift.yml -n ts-hjagudinyk 
+[11:03:04.251] [INFO] oc: W0208 11:03:04.251493   47302 warnings.go:70] would violate PodSecurity "restricted:v1.24": seccompProfile (pod or container "greetings" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost") 
+[11:03:04.252] [INFO] oc: deployment.apps/greetings created 
+[11:03:04.287] [INFO] Running command: oc expose deployment greetings --port=8080 --target-port=8080 --name=greetings -n ts-hjagudinyk 
+[11:03:05.080] [INFO] oc: service/greetings exposed 
+[11:03:05.106] [INFO] Running command: oc expose svc greetings --port=8080 --name=greetings -n ts-hjagudinyk 
+[11:03:05.927] [INFO] oc: route.route.openshift.io/greetings exposed 
+[11:03:05.948] [INFO] Running command: oc scale deployment/greetings --replicas=1 -n ts-hjagudinyk 
+[11:03:06.668] [INFO] oc: deployment.apps/greetings scaled 
+[11:03:08.396] [INFO] [greetings] [greetings-db66875cd-pcg65] Starting the Java application using /opt/jboss/container/java/run/run-java.sh ... 
+[11:03:08.396] [INFO] [greetings] INFO exec  java -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError -cp "." -jar /deployments/quarkus-run.jar  
+[11:03:12.579] [INFO] [greetings] __  ____  __  _____   ___  __ ____  ______  
+[11:03:12.580] [INFO] [greetings]  --/ __ \/ / / / _ | / _ \/ //_/ / / / __/  
+[11:03:12.580] [INFO] [greetings]  -/ /_/ / /_/ / __ |/ , _/ ,< / /_/ /\ \    
+[11:03:12.580] [INFO] [greetings] --\___\_\____/_/ |_/_/|_/_/|_|\____/___/    
+[11:03:12.581] [INFO] [greetings] 2023-02-08 10:03:09,481 WARN  [io.qua.run.con.ConfigRecorder] (main) Build time property cannot be changed at runtime: 
+[11:03:12.581] [INFO] [greetings]  - quarkus.container-image.group is set to 'antcosta' but it is build time fixed to 'test'. Did you change the property quarkus.container-image.group after building the application? 
+[11:03:12.582] [INFO] [greetings]  - quarkus.container-image.push is set to 'true' but it is build time fixed to 'false'. Did you change the property quarkus.container-image.push after building the application? 
+[11:03:12.582] [INFO] [greetings]  - quarkus.container-image.registry is set to 'quay.io' but it is build time fixed to 'server.io'. Did you change the property quarkus.container-image.registry after building the application? 
+[11:03:12.582] [INFO] [greetings] 2023-02-08 10:03:09,667 INFO  [io.quarkus] (main) quarkus-rest 1.0.0-SNAPSHOT on JVM (powered by Quarkus 2.7.4.Final) started in 1.496s. Listening on: http://0.0.0.0:8080 
+[11:03:12.583] [INFO] [greetings] 2023-02-08 10:03:09,672 INFO  [io.quarkus] (main) Profile prod activated.  
+[11:03:12.583] [INFO] [greetings] 2023-02-08 10:03:09,673 INFO  [io.quarkus] (main) Installed features: [cdi, resteasy-reactive, smallrye-context-propagation, vertx] 
+[11:03:15.339] [INFO] [greetings] Service started (quay.io/antcosta/quarkus-rest:latest) 
+[11:03:15.514] [FINE] [greetings] REST service running at http://greetings-ts-hjagudinyk.snowdrop-eu-de-1-bx2-4x16-0c576f1a70d464f092d8591997631748-0000.eu-de.containers.appdomain.cloud:80 
+[11:03:15.519] [INFO] ## Running test OpenShiftServiceLifecycleIT.testActionHooks() 
+[11:03:15.925] [INFO] ## Running test OpenShiftServiceLifecycleIT.testRestart() 
+[11:03:16.327] [FINE] [greetings] Stopping service (quay.io/antcosta/quarkus-rest:latest) 
+[11:03:17.537] [INFO] Running command: oc scale deployment/greetings --replicas=0 -n ts-hjagudinyk 
+[11:03:18.089] [INFO] oc: deployment.apps/greetings scaled 
+[11:03:19.186] [INFO] [greetings] Service stopped (quay.io/antcosta/quarkus-rest:latest) 
+```
+
+**Note**: the generated resources are placed at `target/<SERVICE NAME>/openshift.yml`
 
 #### Containers from a local project
 
@@ -571,7 +631,7 @@ Output:
 [09:11:59.456] [INFO] [spring] Service stopped (Spring Boot) 
 ```
 
-The same test works locally and in Kubernetes.
+The same test works locally and in Kubernetes/OpenShift.
 
 Find this Spring example in [here](examples/spring-greetings).
 
@@ -1111,6 +1171,21 @@ The configuration that is only available for Kubernetes deployments is:
 | Template | Template for the initial deployment resource. The custom template should be located at the `src/test/resources` folder |  | `ts.services.<SERVICE NAME>.kubernetes.template=/custom-deployment.yaml` | `@KubernetesServiceConfiguration(forService = "<SERVICE NAME>", template = "/custom-deployment.yaml")` |
 | Use as internal service | Use internal routing instead of exposed network interfaces. This is useful to integration several services that are running as part of the same namespace or network |  | `ts.services.<SERVICE NAME>.kubernetes.use-internal-service=false` | `@KubernetesServiceConfiguration(forService = "<SERVICE NAME>", useInternalService = false)` |
 | Custom additional ports | Add custom additional ports to be used during the tests |  | `ts.services.<SERVICE NAME>.kubernetes.additional-ports=8001,8002` | `@KubernetesServiceConfiguration(forService = "<SERVICE NAME>", additionalPorts = [8001, 8002])` |
+
+### OpenShift Configuration
+
+The configuration that is only available for OpenShift deployments is:
+
+| Name                                                   | Description                                                                                                                                                          | Default | Property                                                                | Annotation                                                                                            | 
+|--------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|-------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|
+| Print cluster info on failures                         | Print pods, events and status when there are test failures                                                                                                           | true  | `ts.openshift.print.info.on.error=true`                                 | `@RunOnOpenShift(printInfoOnError = true)`                                                            |
+| Delete project after all tests                         | Delete project after running all the tests                                                                                                                           | true  | `ts.openshift.delete.project.after.all=true`                            | `@RunOnOpenShift(deleteProjectAfterAll = true)`                                                       |
+| Use ephemeral projects or the current logged namespace | Run the tests on OpenShift in an ephemeral project that will be deleted afterwards                                                                                   | true  | `ts.openshift.ephemeral.project.enabled=true`                           | `@RunOnOpenShift(ephemeralProjectEnabled = true)`                                                     |
+| Load additional resources                              | Load the additional resources before running all the tests                                                                                                           |  | `ts.openshift.additional-resources`                                     | `@RunOnOpenShift(additionalResources = [...])`                                                        |
+| Template                                               | Template for the initial deployment resource. The custom template should be located at the `src/test/resources` folder                                               |  | `ts.services.<SERVICE NAME>.openshift.template=/custom-deployment.yaml` | `@OpenShiftServiceConfiguration(forService = "<SERVICE NAME>", template = "/custom-deployment.yaml")` |
+| Use as internal service                                | Use internal routing instead of exposed network interfaces. This is useful to integration several services that are running as part of the same namespace or network |  | `ts.services.<SERVICE NAME>.openshift.use-internal-service=false`       | `@OpenShiftServiceConfiguration(forService = "<SERVICE NAME>", useInternalService = false)`           |
+| Custom additional ports                                | Add custom additional ports to be used during the tests                                                                                                              |  | `ts.services.<SERVICE NAME>.openshift.additional-ports=8001,8002`       | `@OpenShiftServiceConfiguration(forService = "<SERVICE NAME>", additionalPorts = [8001, 8002])`       |
+
 
 ### Docker Service Configuration
 
