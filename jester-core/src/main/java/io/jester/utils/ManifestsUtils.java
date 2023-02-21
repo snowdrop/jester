@@ -34,7 +34,7 @@ import io.fabric8.kubernetes.api.model.Volume;
 import io.fabric8.kubernetes.api.model.VolumeBuilder;
 import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
-import io.fabric8.kubernetes.client.NamespacedKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.utils.Serialization;
 import io.jester.api.Service;
 
@@ -68,11 +68,11 @@ public final class ManifestsUtils {
         }
     }
 
-    public static void enrichDeployment(NamespacedKubernetesClient client, Deployment deployment, Service service) {
+    public static void enrichDeployment(KubernetesClient client, Deployment deployment, Service service) {
         enrichDeployment(client, deployment, service, Collections.emptyMap());
     }
 
-    public static void enrichDeployment(NamespacedKubernetesClient client, Deployment deployment, Service service,
+    public static void enrichDeployment(KubernetesClient client, Deployment deployment, Service service,
             Map<String, String> extraTemplateProperties) {
         if (deployment.getMetadata() == null) {
             deployment.setMetadata(new ObjectMeta());
@@ -129,8 +129,8 @@ public final class ManifestsUtils {
                 }));
     }
 
-    private static Map<String, String> enrichProperties(NamespacedKubernetesClient client,
-            Map<String, String> properties, Deployment deployment) {
+    private static Map<String, String> enrichProperties(KubernetesClient client, Map<String, String> properties,
+            Deployment deployment) {
         // mount path x volume
         Map<String, Volume> volumes = new HashMap<>();
 
@@ -247,7 +247,7 @@ public final class ManifestsUtils {
         return StringUtils.removeStart(name, SLASH).replaceAll(Pattern.quote("."), "-").replaceAll(SLASH, "-");
     }
 
-    private static void createOrUpdateConfigMap(NamespacedKubernetesClient client, String configMapName, String key,
+    private static void createOrUpdateConfigMap(KubernetesClient client, String configMapName, String key,
             String value) {
         if (client.configMaps().withName(configMapName).get() != null) {
             // update existing config map by adding new file
@@ -262,7 +262,7 @@ public final class ManifestsUtils {
         }
     }
 
-    private static void doCreateSecretFromFile(NamespacedKubernetesClient client, String name, String filePath) {
+    private static void doCreateSecretFromFile(KubernetesClient client, String name, String filePath) {
         if (client.secrets().withName(name).get() == null) {
             try {
                 client.secrets().load(new FileInputStream(filePath));

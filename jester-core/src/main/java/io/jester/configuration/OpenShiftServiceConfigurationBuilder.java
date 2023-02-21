@@ -10,16 +10,17 @@ public final class OpenShiftServiceConfigurationBuilder
     private static final String DEPLOYMENT_TEMPLATE_PROPERTY = "openshift.template";
     private static final String USE_INTERNAL_SERVICE_PROPERTY = "openshift.use-internal-service";
     private static final String ADDITIONAL_PORTS_PROPERTY = "openshift.additional-ports";
+    private static final String USE_ROUTE = "openshift.use-route";
 
     @Override
     public OpenShiftServiceConfiguration build() {
-        OpenShiftServiceConfiguration serviceConfiguration = new OpenShiftServiceConfiguration();
-        loadString(DEPLOYMENT_TEMPLATE_PROPERTY, a -> a.template()).ifPresent(serviceConfiguration::setTemplate);
+        OpenShiftServiceConfiguration config = new OpenShiftServiceConfiguration();
+        loadString(DEPLOYMENT_TEMPLATE_PROPERTY, a -> a.template()).ifPresent(config::setTemplate);
         loadBoolean(USE_INTERNAL_SERVICE_PROPERTY, a -> a.useInternalService())
-                .ifPresent(serviceConfiguration::setUseInternalService);
-        loadArrayOfIntegers(ADDITIONAL_PORTS_PROPERTY, a -> a.additionalPorts())
-                .ifPresent(serviceConfiguration::setAdditionalPorts);
-        return serviceConfiguration;
+                .ifPresent(config::setUseInternalService);
+        loadArrayOfIntegers(ADDITIONAL_PORTS_PROPERTY, a -> a.additionalPorts()).ifPresent(config::setAdditionalPorts);
+        loadBoolean(USE_ROUTE, a -> a.useRoute()).ifPresent(config::setUseRoute);
+        return config;
     }
 
     @Override

@@ -11,6 +11,7 @@ import javax.inject.Named;
 
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.networking.v1.Ingress;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.jester.api.RunOnKubernetes;
 import io.jester.api.clients.KubectlClient;
@@ -44,10 +45,11 @@ public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
         // keep all resources in order to allow you to debug by yourself
         context.setDebug(!configuration.isDeleteNamespaceAfterAll() && !configuration.isEphemeralNamespaceEnabled());
 
+        client = new KubectlClient();
         if (configuration.isEphemeralNamespaceEnabled()) {
-            client = KubectlClient.createClientUsingANewNamespace();
+            client.initializeClientUsingANewNamespace();
         } else {
-            client = KubectlClient.createClientUsingCurrentNamespace();
+            client.initializeClientUsingNamespace(new DefaultKubernetesClient().getNamespace());
         }
 
         if (configuration.getAdditionalResources() != null) {

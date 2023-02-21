@@ -21,7 +21,7 @@ public @interface RunOnOpenShift {
     boolean deleteProjectAfterAll() default true;
 
     /**
-     * Run the tests using OpenStack ephemeral storage. namespace that will be deleted afterwards. Fallback property
+     * Run the tests using an ephemeral namespace that will be deleted afterwards. Fallback property
      * `ts.openshift.ephemeral.project.enabled`.
      */
     boolean ephemeralProjectEnabled() default true;
