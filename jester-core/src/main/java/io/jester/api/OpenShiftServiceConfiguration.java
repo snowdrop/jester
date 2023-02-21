@@ -31,4 +31,10 @@ public @interface OpenShiftServiceConfiguration {
      * Map additional ports to be used during the tests.
      */
     int[] additionalPorts() default {};
+
+    /**
+     * Expose the application using an OpenShift route. Fallback property `ts.services.<SERVICE
+     * NAME>.openshift.use-route`.
+     */
+    boolean useRoute() default false;
 }

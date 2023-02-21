@@ -1,5 +1,9 @@
 package io.jester.resources.openshift;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpStatus;
 
 import io.fabric8.kubernetes.api.model.Capabilities;
 import io.fabric8.kubernetes.api.model.Container;
@@ -26,6 +31,8 @@ import io.jester.core.ServiceContext;
 import io.jester.core.extensions.OpenShiftExtensionBootstrap;
 import io.jester.logging.LoggingHandler;
 import io.jester.logging.OpenShiftLoggingHandler;
+import io.jester.utils.AwaitilitySettings;
+import io.jester.utils.AwaitilityUtils;
 import io.jester.utils.FileUtils;
 import io.jester.utils.ManifestsUtils;
 
@@ -97,8 +104,11 @@ public abstract class OpenShiftManagedResource extends ManagedResource {
     public int getMappedPort(int port) {
         if (useInternalServiceAsUrl()) {
             return port;
+        } else if (context.getConfigurationAs(OpenShiftServiceConfiguration.class).isUseRoute()) {
+            return 80;
         }
-        return 80;
+
+        return client.port(context.getOwner(), port);
     }
 
     @Override
@@ -133,10 +143,31 @@ public abstract class OpenShiftManagedResource extends ManagedResource {
         applyDeployment();
 
         client.expose(context.getOwner(), getEffectivePorts());
+
+        if (context.getConfigurationAs(OpenShiftServiceConfiguration.class).isUseRoute()) {
+            client.exposeRoute(context.getOwner(), getEffectivePorts());
+            // wait until the route is reachable
+            waitForRoute();
+        }
     }
 
     protected void doUpdate() {
         applyDeployment();
+    }
+
+    private void waitForRoute() {
+        HttpClient client = HttpClient.newHttpClient();
+        AwaitilityUtils.untilIsTrue(() -> {
+            try {
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(String.format("http://%s:%s", getHost(), getFirstMappedPort()))).GET().build();
+
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                return response.statusCode() != HttpStatus.SC_SERVICE_UNAVAILABLE;
+            } catch (Exception ignored) {
+                return false;
+            }
+        }, AwaitilitySettings.defaults().withService(context.getOwner()));
     }
 
     private void applyDeployment() {

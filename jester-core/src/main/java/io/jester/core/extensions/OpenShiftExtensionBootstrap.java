@@ -11,6 +11,7 @@ import javax.inject.Named;
 
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.jester.api.RunOnOpenShift;
@@ -45,10 +46,11 @@ public class OpenShiftExtensionBootstrap implements ExtensionBootstrap {
         // keep all resources in order to allow you to debug by yourself
         context.setDebug(!configuration.isDeleteProjectAfterAll() && !configuration.isEphemeralProjectEnabled());
 
+        client = new OpenshiftClient();
         if (configuration.isEphemeralProjectEnabled()) {
-            client = OpenshiftClient.createClientUsingANewNamespace();
+            client.initializeClientUsingANewNamespace();
         } else {
-            client = OpenshiftClient.createClientUsingCurrentNamespace();
+            client.initializeClientUsingNamespace(new DefaultKubernetesClient().getNamespace());
         }
 
         if (configuration.getAdditionalResources() != null) {
@@ -137,7 +139,7 @@ public class OpenShiftExtensionBootstrap implements ExtensionBootstrap {
         return context.getLogFolder().resolve(context.getRunningTestClassName());
     }
 
-    public static final boolean isEnabled(JesterContext context) {
+    public static boolean isEnabled(JesterContext context) {
         return context.isAnnotationPresent(RunOnOpenShift.class)
                 || TARGET_OPENSHIFT.equals(context.getConfigurationAs(JesterConfiguration.class).getTarget());
     }
