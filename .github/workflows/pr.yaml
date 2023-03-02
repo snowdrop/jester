@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ 11 ]
+        java: [ 17 ]
     steps:
       - uses: actions/checkout@v3
       - name: Install JDK {{ matrix.java }}
@@ -26,7 +26,7 @@ jobs:
     needs: validate-format
     strategy:
       matrix:
-        java: [ 11 ]
+        java: [ 17 ]
     steps:
       - uses: actions/checkout@v3
       - name: Reclaim Disk Space
@@ -76,7 +76,7 @@ jobs:
     needs: validate-format
     strategy:
       matrix:
-        java: [ 11 ]
+        java: [ 17 ]
     steps:
       - uses: actions/checkout@v3
       - name: Install JDK {{ matrix.java }}
@@ -115,9 +115,16 @@ jobs:
       fail-fast: false
       matrix:
         openshift: [v3.11.0]
-        java: [ 8 ]
+        java: [ 17 ]
     steps:
       - uses: actions/checkout@v3
+      - name: Install JDK {{ matrix.java }}
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix.java }}
+          check-latest: true
+          cache: 'maven'
       - name: Reclaim Disk Space
         run: .github/ci-prerequisites.sh
       - id: registry
@@ -128,11 +135,6 @@ jobs:
           oc version: ${{ matrix.openshift }}
           dns ip: 1.1.1.1
           enable: 'service-catalog,registry,-web-console,router,-persistent-volumes,-sample-templates'
-      - name: Install JDK {{ matrix.java }}
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'adopt'
-          java-version: '11'
       - name: Generate Images
         run: |
           oc project myproject

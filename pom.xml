@@ -34,8 +34,8 @@
     <source-plugin.version>3.2.1</source-plugin.version>
     <javadoc-plugin.version>3.5.0</javadoc-plugin.version>
     <maven.compiler.parameters>true</maven.compiler.parameters>
-    <maven.compiler.source>11</maven.compiler.source>
-    <maven.compiler.target>11</maven.compiler.target>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
     <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -59,7 +59,7 @@
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
     <quarkus.version>2.16.2.Final</quarkus.version>
-    <spring.version>2.7.5</spring.version>
+    <spring.version>3.0.3</spring.version>
     <!-- Format Settings -->
     <src.format.goal>format</src.format.goal>
     <src.sort.goal>sort</src.sort.goal>
@@ -165,16 +165,37 @@
         <groupId>io.fabric8</groupId>
         <artifactId>kubernetes-client</artifactId>
         <version>${kubernetes-client.version}</version>
+        <exclusions>
+          <!-- we need to exclude slf4j as it causes deployment issues in Spring services -->
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>io.fabric8</groupId>
         <artifactId>openshift-client</artifactId>
         <version>${kubernetes-client.version}</version>
+        <exclusions>
+          <!-- we need to exclude slf4j as it causes deployment issues in Spring services -->
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>io.fabric8</groupId>
         <artifactId>openshift-model-operatorhub</artifactId>
         <version>${kubernetes-client.version}</version>
+        <exclusions>
+          <!-- we need to exclude slf4j as it causes deployment issues in Spring services -->
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <!-- SMELL: This version is required by Fabric8 dependency... -->
       <dependency>
@@ -370,6 +391,7 @@
         <module>examples/quarkus-grpc</module>
         <module>examples/quarkus-reactive-mysql</module>
         <module>examples/spring-greetings</module>
+        <module>examples/spring-jersey</module>
         <module>examples/spring-ssl</module>
         <module>examples/apps-benchmark</module>
       </modules>

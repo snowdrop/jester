@@ -20,6 +20,7 @@ import io.jester.utils.PropertiesUtils;
 
 public class SpringResource {
     private static final List<String> ERRORS = Arrays.asList("Application run failed");
+    private static final String SOURCES = "-sources";
     private static final String JVM_RUNNER = ".jar";
 
     private final ServiceContext context;
@@ -65,7 +66,7 @@ public class SpringResource {
     }
 
     private Optional<String> findRunner() {
-        return findFile(location.resolve(TARGET), JVM_RUNNER);
+        return findFile(location.resolve(TARGET), f -> f.endsWith(JVM_RUNNER) && !f.endsWith(SOURCES + JVM_RUNNER));
     }
 
     private Path tryToBuildRunner() {
