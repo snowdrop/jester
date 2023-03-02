@@ -8,7 +8,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
@@ -102,9 +105,16 @@ public final class FileUtils {
     }
 
     public static Optional<String> findFile(Path basePath, String endsWith) {
+        return findFile(basePath, f -> f.endsWith(endsWith));
+    }
+
+    public static Optional<String> findFile(Path basePath, Predicate<String> filter) {
         try (Stream<Path> binariesFound = Files.find(basePath, NO_RECURSIVE,
-                (path, basicFileAttributes) -> path.toFile().getName().endsWith(endsWith))) {
-            return binariesFound.map(path -> path.normalize().toString()).findFirst();
+                (path, basicFileAttributes) -> filter.test(path.toFile().getName()))) {
+            List<String> found = binariesFound.map(path -> path.normalize().toString()).collect(Collectors.toList());
+            if (found.size() == 1) {
+                return Optional.of(found.get(0));
+            }
         } catch (IOException ex) {
             // ignored
         }

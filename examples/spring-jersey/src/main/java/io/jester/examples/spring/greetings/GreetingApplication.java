@@ -1,4 +1,4 @@
-package io.jester.examples.benchmark.apps.spring;
+package io.jester.examples.spring.greetings;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
