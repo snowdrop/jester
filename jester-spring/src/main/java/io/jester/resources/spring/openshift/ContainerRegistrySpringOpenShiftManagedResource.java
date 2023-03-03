@@ -1,14 +1,14 @@
-package io.jester.resources.spring.kubernetes;
+package io.jester.resources.spring.openshift;
 
 import static io.jester.utils.SpringUtils.HTTP_PORT_DEFAULT;
 import static io.jester.utils.SpringUtils.SERVER_HTTP_PORT;
 
 import io.jester.core.ServiceContext;
-import io.jester.resources.kubernetes.KubernetesManagedResource;
+import io.jester.resources.openshift.OpenShiftManagedResource;
 import io.jester.resources.spring.common.SpringResource;
 import io.jester.utils.DockerUtils;
 
-public class ContainerRegistrySpringManagedResource extends KubernetesManagedResource {
+public class ContainerRegistrySpringOpenShiftManagedResource extends OpenShiftManagedResource {
 
     private final String location;
     private final boolean forceBuild;
@@ -17,7 +17,8 @@ public class ContainerRegistrySpringManagedResource extends KubernetesManagedRes
     private SpringResource resource;
     private String image;
 
-    public ContainerRegistrySpringManagedResource(String location, boolean forceBuild, String[] buildCommands) {
+    public ContainerRegistrySpringOpenShiftManagedResource(String location, boolean forceBuild,
+            String[] buildCommands) {
         this.location = location;
         this.forceBuild = forceBuild;
         this.buildCommands = buildCommands;
