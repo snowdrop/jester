@@ -1,5 +1,6 @@
 package io.jester.core;
 
+import static io.jester.utils.InjectUtils.isAnnotatedWithInject;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.lang.annotation.Annotation;
@@ -10,8 +11,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.ServiceLoader.Provider;
-
-import javax.inject.Inject;
 
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.AfterAllCallback;
@@ -177,7 +176,7 @@ public class JesterExtension implements BeforeAllCallback, AfterAllCallback, Bef
         } else if (Service.class.isAssignableFrom(field.getType())) {
             Service service = ReflectionUtils.getFieldValue(findTestInstance(context, field), field);
             initService(service, field.getName(), field.getAnnotations());
-        } else if (field.isAnnotationPresent(Inject.class)) {
+        } else if (isAnnotatedWithInject(field)) {
             injectDependency(context, field);
         }
     }

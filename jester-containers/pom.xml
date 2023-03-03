@@ -13,6 +13,8 @@
   <properties>
     <!-- Declared Dependencies -->
     <testcontainers.version>1.17.6</testcontainers.version>
+    <!-- Test Dependencies -->
+    <javax.version>1</javax.version>
   </properties>
   <dependencies>
     <dependency>
@@ -23,6 +25,12 @@
       <groupId>org.testcontainers</groupId>
       <artifactId>testcontainers</artifactId>
       <version>${testcontainers.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+      <version>${javax.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>
