@@ -95,6 +95,11 @@ public final class ReflectionUtils {
         throw new RuntimeException("Method " + methodName + " not found in " + instance.getClass());
     }
 
+    public static Object invokeStaticMethod(String className, String methodName, Object... args) {
+        return loadClass(className).map(cl -> invokeStaticMethod(cl, methodName, args))
+                .orElseThrow(() -> new RuntimeException("Class " + className + " not found"));
+    }
+
     public static Object invokeStaticMethod(Class<?> clazz, String methodName, Object... args) {
         for (Method method : clazz.getMethods()) {
             if (methodName.equals(method.getName()) && isStatic(method)) {
@@ -103,5 +108,13 @@ public final class ReflectionUtils {
         }
 
         throw new RuntimeException("Method " + methodName + " not found in " + clazz);
+    }
+
+    public static Optional<Class> loadClass(String className) {
+        try {
+            return Optional.of(Class.forName(className));
+        } catch (ClassNotFoundException e) {
+            return Optional.empty();
+        }
     }
 }

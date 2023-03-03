@@ -42,21 +42,18 @@ public final class QuarkusUtils {
             .collect(toSet());
 
     private static final String VERSION;
-    private static final String JAR_NAME;
     private static final String DOCKERFILE_TEMPLATE = "/Dockerfile.%s";
 
     static {
         String versionString = "(unknown)";
-        String jarName = "(unknown)";
 
         try {
-            versionString = (String) Class.forName("io.quarkus.builder.Version").getMethod("getVersion").invoke(null);
+            versionString = (String) ReflectionUtils.invokeStaticMethod("io.quarkus.builder.Version", "getVersion");
         } catch (Exception ex) {
 
         }
 
         VERSION = versionString;
-        JAR_NAME = jarName;
     }
 
     private QuarkusUtils() {
@@ -106,11 +103,6 @@ public final class QuarkusUtils {
     }
 
     public static boolean isBootstrapDependencyAdded() {
-        try {
-            Class.forName("io.quarkus.bootstrap.app.QuarkusBootstrap");
-            return true;
-        } catch (ClassNotFoundException ex) {
-            return false;
-        }
+        return ReflectionUtils.loadClass("io.quarkus.bootstrap.app.QuarkusBootstrap").isPresent();
     }
 }

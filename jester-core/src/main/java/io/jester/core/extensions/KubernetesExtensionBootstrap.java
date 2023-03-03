@@ -1,13 +1,13 @@
 package io.jester.core.extensions;
 
+import static io.jester.utils.InjectUtils.getNamedValueFromDependencyContext;
+
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-
-import javax.inject.Named;
 
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.networking.v1.Ingress;
@@ -90,16 +90,19 @@ public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
             return Optional.of(client.underlyingClient());
         } else {
             // named parameters
-            Named named = dependency.findAnnotation(Named.class)
-                    .orElseThrow(() -> new RuntimeException(
-                            "To inject Kubernetes resources, need to provide the name using @Named. Problematic field: "
-                                    + dependency.getName()));
+            String named = getNamedValueFromDependencyContext(dependency);
+            if (named == null) {
+                throw new RuntimeException(
+                        "To inject Kubernetes resources, need to provide the name using @Named. Problematic field: "
+                                + dependency.getName());
+            }
+
             if (dependency.getType() == Deployment.class) {
-                return Optional.of(client.underlyingClient().apps().deployments().withName(named.value()).get());
+                return Optional.of(client.underlyingClient().apps().deployments().withName(named).get());
             } else if (dependency.getType() == io.fabric8.kubernetes.api.model.Service.class) {
-                return Optional.of(client.underlyingClient().services().withName(named.value()).get());
+                return Optional.of(client.underlyingClient().services().withName(named).get());
             } else if (dependency.getType() == Ingress.class) {
-                return Optional.of(client.underlyingClient().network().ingresses().withName(named.value()).get());
+                return Optional.of(client.underlyingClient().network().ingresses().withName(named).get());
             }
         }
 
