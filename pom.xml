@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.snowdrop.jester</groupId>
   <artifactId>jester-parent</artifactId>
-  <version>0.0.2-SNAPSHOT</version>
+  <version>0.0.2</version>
   <packaging>pom</packaging>
   <name>jester - Parent</name>
   <description>jester - Cloud Test Framework</description>
@@ -26,7 +25,7 @@
     <connection>scm:git:git@github.com:snowdrop/jester.git</connection>
     <developerConnection>scm:git:git@github.com:snowdrop/jester.git</developerConnection>
     <url>https://github.com/snowdrop/jester</url>
-    <tag>HEAD</tag>
+    <tag>0.0.2</tag>
   </scm>
   <url>https://github.com/snowdrop/jester/</url>
   <properties>
@@ -65,7 +64,7 @@
     <src.sort.goal>sort</src.sort.goal>
     <checkstyle.version>10.8.0</checkstyle.version>
     <!-- Code Coverage Properties-->
-    <jacoco.agent.argLine/>
+    <jacoco.agent.argLine />
     <!-- Samples -->
     <samples.container-image.registry>server.io</samples.container-image.registry>
     <!-- Testing -->
