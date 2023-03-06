@@ -1,13 +1,13 @@
 <p align="center">
-    <a href="https://github.com/Sgitario/jester/graphs/contributors" alt="Contributors">
-        <img src="https://img.shields.io/github/contributors/Sgitario/jester"/></a>
-    <a href="https://github.com/Sgitario/jester/pulse" alt="Activity">
-        <img src="https://img.shields.io/github/commit-activity/m/Sgitario/jester"/></a>
-    <a href="https://github.com/Sgitario/jester/actions/workflows/push.yaml" alt="Build Status">
-        <img src="https://github.com/Sgitario/jester/actions/workflows/push.yaml/badge.svg"></a>
-    <a href="https://github.com/Sgitario/jester" alt="Top Language">
-        <img src="https://img.shields.io/github/languages/top/Sgitario/jester"></a>
-    <a href="https://github.com/Sgitario/jester" alt="Coverage">
+    <a href="https://github.com/snowdrop/jester/graphs/contributors" alt="Contributors">
+        <img src="https://img.shields.io/github/contributors/snowdrop/jester"/></a>
+    <a href="https://github.com/snowdrop/jester/pulse" alt="Activity">
+        <img src="https://img.shields.io/github/commit-activity/m/snowdrop/jester"/></a>
+    <a href="https://github.com/snowdrop/jester/actions/workflows/push.yaml" alt="Build Status">
+        <img src="https://github.com/snowdrop/jester/actions/workflows/push.yaml/badge.svg"></a>
+    <a href="https://github.com/snowdrop/jester" alt="Top Language">
+        <img src="https://img.shields.io/github/languages/top/snowdrop/jester"></a>
+    <a href="https://github.com/snowdrop/jester" alt="Coverage">
         <img src=".github/badges/jacoco.svg"></a>
 </p>
 

@@ -23,12 +23,12 @@
     </developer>
   </developers>
   <scm>
-    <connection>scm:git:git@github.com:Sgitario/jester.git</connection>
-    <developerConnection>scm:git:git@github.com:Sgitario/jester.git</developerConnection>
-    <url>https://github.com/Sgitario/jester</url>
+    <connection>scm:git:git@github.com:snowdrop/jester.git</connection>
+    <developerConnection>scm:git:git@github.com:snowdrop/jester.git</developerConnection>
+    <url>https://github.com/snowdrop/jester</url>
     <tag>HEAD</tag>
   </scm>
-  <url>https://github.com/Sgitario/jester/</url>
+  <url>https://github.com/snowdrop/jester/</url>
   <properties>
     <compiler-plugin.version>3.11.0</compiler-plugin.version>
     <source-plugin.version>3.2.1</source-plugin.version>
