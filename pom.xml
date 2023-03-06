@@ -46,6 +46,8 @@
     <formatter-maven-plugin.version>2.22.0</formatter-maven-plugin.version>
     <impsort-maven-plugin.version>1.8.0</impsort-maven-plugin.version>
     <nexus.version>1.6.13</nexus.version>
+    <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
+    <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
     <!-- Declared Dependencies -->
     <junit.version>5.9.2</junit.version>
     <rest-assured.version>4.5.1</rest-assured.version>
@@ -467,6 +469,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-release-plugin</artifactId>
+            <version>${maven-release-plugin.version}</version>
             <configuration>
               <autoVersionSubmodules>true</autoVersionSubmodules>
               <tagNameFormat>@{project.version}</tagNameFormat>
@@ -479,6 +482,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
+            <version>${maven-gpg-plugin.version}</version>
             <configuration>
               <gpgArguments>
                 <arg>--pinentry-mode</arg>
