@@ -42,10 +42,10 @@ jobs:
       - name: Maven release ${{steps.metadata.outputs.current-version}}
         run: |
           git checkout -b release
-          mvn -X -Prelease -B release:clean release:prepare -DreleaseVersion=${{steps.metadata.outputs.current-version}} -DdevelopmentVersion=${{steps.metadata.outputs.next-version}}
+          mvn -X -Prelease,framework,examples -B release:clean release:prepare -DreleaseVersion=${{steps.metadata.outputs.current-version}} -DdevelopmentVersion=${{steps.metadata.outputs.next-version}}
           git checkout ${{github.base_ref}}
           git rebase release
-          mvn -X -Prelease -B release:perform -DskipTests
+          mvn -X -Prelease,framework,quickly -B release:perform -DskipTests
         env:
           MAVEN_USERNAME: ${{ secrets.OSS_SONATYPE_USERNAME }}
           MAVEN_CENTRAL_TOKEN: ${{ secrets.OSS_SONATYPE_PASSWORD }}
