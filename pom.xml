@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.snowdrop.jester</groupId>
   <artifactId>jester-parent</artifactId>
-  <version>0.0.0-SNAPSHOT</version>
+  <version>0.0.2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>jester - Parent</name>
   <description>jester - Cloud Test Framework</description>
