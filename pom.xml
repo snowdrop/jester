@@ -45,7 +45,7 @@
     <maven-checkstyle-plugin.version>3.2.1</maven-checkstyle-plugin.version>
     <formatter-maven-plugin.version>2.22.0</formatter-maven-plugin.version>
     <impsort-maven-plugin.version>1.8.0</impsort-maven-plugin.version>
-    <nexus-staging-maven-plugin.version>1.6.12</nexus-staging-maven-plugin.version>
+    <nexus.version>1.6.13</nexus.version>
     <!-- Declared Dependencies -->
     <junit.version>5.9.2</junit.version>
     <rest-assured.version>4.5.1</rest-assured.version>
