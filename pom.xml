@@ -16,10 +16,10 @@
   </licenses>
   <developers>
     <developer>
-      <id>snowdrop</id>
-      <name>Snowdrop</name>
+      <id>jcarvaja</id>
+      <name>Jose Carvajal</name>
+      <email>josecarvajalhilario@gmail.com</email>
       <organization>Snowdrop</organization>
-      <url>https://github.com/snowdrop</url>
     </developer>
   </developers>
   <scm>
