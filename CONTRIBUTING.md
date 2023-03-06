@@ -47,7 +47,7 @@ If you are interested in having more details, refer to the [Build section](#buil
 Just do the following:
 
 ```
-git clone git@github.com:Sgitario/jester.git
+git clone git@github.com:snowdrop/jester.git
 cd jester
 mvn clean install -Pframework
 ```
@@ -75,7 +75,7 @@ All submissions, including submissions by project members, need to be reviewed b
 
 * We decided to disallow `@author` tags in the JavaDoc: they are hard to maintain, especially in a very active project, and we
   use the Git history to track authorship. GitHub also
-  has [this nice page with your contributions](https://github.com/Sgitario/jester/graphs/contributors).
+  has [this nice page with your contributions](https://github.com/snowdrop/jester/graphs/contributors).
 * Commits should be atomic and semantic. Please properly squash your pull requests before submitting them. Fixup commits can be
   used temporarily during the review process but things should be squashed at the end to have meaningful commits. We use merge
   commits so the GitHub Merge button cannot do that for us. If you don't know how to do that, just ask in your pull request, we

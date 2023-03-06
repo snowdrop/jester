@@ -33,7 +33,7 @@ public class GitRemoteProjectLifecycleIT {
     private static final String MY_PROPERTY = "my.property";
     private static final String MY_PROPERTY_EXPECTED_VALUE = "this is a custom property";
 
-    @GitRemoteProject(repo = "https://github.com/Sgitario/jester", branch = "main", contextDir = QUARKUS_REST_LOCATION, buildCommands = {
+    @GitRemoteProject(repo = "https://github.com/snowdrop/jester", branch = "main", contextDir = QUARKUS_REST_LOCATION, buildCommands = {
             "mvn", "clean", "install", "-DskipTests",
             "-Dquarkus.container-image.build=false" }, dockerfile = QUARKUS_REST_LOCATION
                     + "/src/main/docker/Dockerfile.jvm", ports = SAMPLES_DEFAULT_PORT, expectedLog = QUARKUS_STARTUP_EXPECTED_LOG)

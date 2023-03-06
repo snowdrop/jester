@@ -1,7 +1,7 @@
 package io.jester.test.samples;
 
 /**
- * Sources of samples in <a href="https://github.com/Sgitario/jester/samples">here</a> If you don't have installed the
+ * Sources of samples in <a href="https://github.com/snowdrop/jester/samples">here</a> If you don't have installed the
  * samples in your local machine, execute: `mvn clean install` at ../samples.
  */
 public final class ContainerSamples {
