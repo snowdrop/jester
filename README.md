@@ -89,7 +89,7 @@ Let's start by adding the jester containers dependency into the Maven pom file:
 ```xml
 <dependencies>
   <dependency>
-    <groupId>io.jester</groupId>
+    <groupId>io.github.jester</groupId>
     <artifactId>jester-containers</artifactId>
     <scope>test</scope>
   </dependency>
@@ -99,9 +99,9 @@ Let's start by adding the jester containers dependency into the Maven pom file:
 And add the test that will run the above image and map the container port 8080 to a local port:
 
 ```java
-import io.jester.api.Container;
-import io.jester.api.RestService;
-import io.jester.api.Jester;
+import Container;
+import RestService;
+import Jester;
 
 @Jester
 public class ContainerTest {
@@ -195,7 +195,7 @@ OpenShift will try to pull the image from a container registry (by default, it's
 When running the OpenShift test, we should see the app logs again and also the OpenShift commands that the framework used:
 
 ```
-INFO] Running io.jester.test.OpenShiftServiceLifecycleIT
+INFO] Running OpenShiftServiceLifecycleIT
 [11:03:02.216] [INFO] Running command: oc create namespace ts-hjagudinyk 
 [11:03:02.897] [INFO] oc: namespace/ts-hjagudinyk created 
 [11:03:02.916] [INFO] [greetings] Initialize service (quay.io/antcosta/quarkus-rest:latest) 
@@ -239,9 +239,9 @@ INFO] Running io.jester.test.OpenShiftServiceLifecycleIT
 If your service can be shipped within a container and the sources are in a local folder, we can use the annotation `@LocalProject`. Let's see how to use the same services from the previous example but using this annotation:
 
 ```java
-import io.jester.api.LocalProject;
-import io.jester.api.RestService;
-import io.jester.api.Jester;
+import LocalProject;
+import RestService;
+import Jester;
 
 @Jester
 public class LocalProjectTest {
@@ -275,7 +275,7 @@ Then, we need to add the jester Quarkus dependency into the Maven pom file:
 ```xml
 <dependencies>
   <dependency>
-    <groupId>io.jester</groupId>
+    <groupId>io.github.jester</groupId>
     <artifactId>jester-quarkus</artifactId>
     <scope>test</scope>
   </dependency>
@@ -577,7 +577,7 @@ Then, we need to add the Jester Spring dependency into the Maven pom file:
 ```xml
 <dependencies>
   <dependency>
-    <groupId>io.jester</groupId>
+    <groupId>io.github.jester</groupId>
     <artifactId>jester-spring</artifactId>
     <scope>test</scope>
   </dependency>
@@ -646,7 +646,7 @@ First, we need to add the Jester Operators dependency into the Maven pom file:
 ```xml
 <dependencies>
   <dependency>
-    <groupId>io.jester</groupId>
+    <groupId>io.github.jester</groupId>
     <artifactId>jester-operators</artifactId>
     <scope>test</scope>
   </dependency>
@@ -725,7 +725,7 @@ First, we need to add the Jester Benchmark dependency into the Maven pom file:
 ```xml
 <dependencies>
   <dependency>
-    <groupId>io.jester</groupId>
+    <groupId>io.github.jester</groupId>
     <artifactId>jester-benchmark</artifactId>
     <scope>test</scope>
   </dependency>
@@ -765,7 +765,7 @@ Output:
 # Timeout: 10 min per iteration
 # Threads: 50 threads, will synchronize iterations
 # Benchmark mode: Throughput, ops/time
-# Benchmark: io.jester.examples.benchmark.apps.GreetingApplicationBenchmark.helloEndpointThroughput
+# Benchmark: io.github.jester.examples.benchmark.apps.GreetingApplicationBenchmark.helloEndpointThroughput
 
 # Run progress: 0,00% complete, ETA 00:00:40
 # Fork: N/A, test runs in the host VM
@@ -779,7 +779,7 @@ Iteration   1: 942,183 ops/s
 Iteration   2: 1783,304 ops/s
 Iteration   3: 3037,837 ops/s
 
-Result "io.jester.examples.benchmark.apps.GreetingApplicationBenchmark.helloEndpointThroughput":
+Result "io.github.jester.examples.benchmark.apps.GreetingApplicationBenchmark.helloEndpointThroughput":
   1921,108 ±(99.9%) 19239,854 ops/s [Average]
   (min, avg, max) = (942,183, 1921,108, 3037,837), stdev = 1054,601
   CI (99.9%): [≈ 0, 21160,962] (assumes normal distribution)
@@ -1023,7 +1023,7 @@ To use the Kafka Operator service, you need first to add the Jester Service Kafk
 ```xml
 <dependencies>
   <dependency>
-    <groupId>io.jester</groupId>
+    <groupId>io.github.jester</groupId>
     <artifactId>jester-service-kafka</artifactId>
     <scope>test</scope>
   </dependency>
@@ -1062,7 +1062,7 @@ To use any of these services, you need first to add the Jester Service Kafka ext
 ```xml
 <dependencies>
   <dependency>
-    <groupId>io.jester</groupId>
+    <groupId>io.github.jester</groupId>
     <artifactId>jester-service-database</artifactId>
     <scope>test</scope>
   </dependency>
@@ -1226,20 +1226,20 @@ The framework has been designed to fully extend new features and/or customize th
 
 Extension API:
 
-- `Extension bootstrap point` - to set up common things along all the services. For example, [the Kubernetes extension bootstrap](jester-core/src/main/java/io/jester/core/extensions/KubernetesExtensionBootstrap.java) is used to create the Kubernetes namespace before running the tests and inject the Kubernetes client to all the services and tests. This extension is registered in [META-INF/services/io.jester.api.extensions.ExtensionBootstrap](jester-core/src/main/resources/META-INF/services/io.jester.api.extensions.ExtensionBootstrap).
-- `Extension binding point` - create your custom annotations to deploy custom resources. For example, the [Container annotation](jester-containers/src/main/java/io/jester/api/Container.java) is registered in [META-INF/services/io.jester.api.extensions.AnnotationBinding](jester-containers/src/main/resources/META-INF/services/io.jester.api.extensions.AnnotationBinding) using the binding [ContainerAnnotationBinding.java](jester-containers/src/main/java/io/jester/resources/containers/ContainerAnnotationBinding.java)
+- `Extension bootstrap point` - to set up common things along all the services. For example, [the Kubernetes extension bootstrap](jester-core/src/main/java/io/jester/core/extensions/KubernetesExtensionBootstrap.java) is used to create the Kubernetes namespace before running the tests and inject the Kubernetes client to all the services and tests. This extension is registered in [META-INF/services/ExtensionBootstrap](jester-core/src/main/resources/META-INF/services/ExtensionBootstrap).
+- `Extension binding point` - create your custom annotations to deploy custom resources. For example, the [Container annotation](jester-containers/src/main/java/io/jester/api/Container.java) is registered in [META-INF/services/AnnotationBinding](jester-containers/src/main/resources/META-INF/services/AnnotationBinding) using the binding [ContainerAnnotationBinding.java](jester-containers/src/main/java/io/jester/resources/containers/ContainerAnnotationBinding.java)
 - `Extension Managed Resources point` - deploy your resources into the target environment. Each extension binding point will deploy the resources locally, though we can easily extend it to deploy services in any kind of target environment. For example, for containers, we provide the [ContainerManagedResourceBinding.java](jester-containers/src/main/java/io/jester/api/extensions/ContainerManagedResourceBinding.java) extension point that we can provide to support other environments as we have done for [Kubernetes](jester-containers/src/main/java/io/jester/resources/containers/kubernetes/KubernetesContainerManagedResourceBinding.java).
 
 ### Packages Convention
 
 Modules within the testing framework must conform to the following package naming conventions:
 
-- `io.jester.api` - the API to use services and resources
-- `io.jester.configuration` - configure the services and test configuration
-- `io.jester.core` - the core functionality of the framework
-- `io.jester.logging` - logging facilities and handlers
-- `io.jester.resources` - the supported resources within the current jester dependency
-- `io.jester.utils` - more utilities
+- `io.github.jester.api` - the API to use services and resources
+- `io.github.jester.configuration` - configure the services and test configuration
+- `io.github.jester.core` - the core functionality of the framework
+- `io.github.jester.logging` - logging facilities and handlers
+- `io.github.jester.resources` - the supported resources within the current jester dependency
+- `io.github.jester.utils` - more utilities
 - 
 ## Contributing
 

@@ -2,7 +2,7 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>io.jester</groupId>
+  <groupId>io.github.jester</groupId>
   <artifactId>jester-parent</artifactId>
   <version>0.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
@@ -85,42 +85,42 @@
     <dependencies>
       <!-- Project Dependencies -->
       <dependency>
-        <groupId>io.jester</groupId>
+        <groupId>io.github.jester</groupId>
         <artifactId>jester-core</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>io.jester</groupId>
+        <groupId>io.github.jester</groupId>
         <artifactId>jester-benchmark</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>io.jester</groupId>
+        <groupId>io.github.jester</groupId>
         <artifactId>jester-containers</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>io.jester</groupId>
+        <groupId>io.github.jester</groupId>
         <artifactId>jester-operators</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>io.jester</groupId>
+        <groupId>io.github.jester</groupId>
         <artifactId>jester-quarkus</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>io.jester</groupId>
+        <groupId>io.github.jester</groupId>
         <artifactId>jester-spring</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>io.jester</groupId>
+        <groupId>io.github.jester</groupId>
         <artifactId>jester-service-kafka</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>io.jester</groupId>
+        <groupId>io.github.jester</groupId>
         <artifactId>jester-service-database</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -450,7 +450,7 @@
                 </goals>
                 <configuration>
                   <includes>
-                    <include>io.jester*</include>
+                    <include>io.github.jester*</include>
                   </includes>
                   <propertyName>jacoco.generated.agent.argLine</propertyName>
                 </configuration>

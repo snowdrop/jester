@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>io.jester</groupId>
+    <groupId>io.github.jester</groupId>
     <artifactId>jester-parent</artifactId>
     <version>0.0.0-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
@@ -34,7 +34,7 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>io.jester</groupId>
+      <groupId>io.github.jester</groupId>
       <artifactId>jester-quarkus</artifactId>
       <scope>test</scope>
     </dependency>

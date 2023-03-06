@@ -1,0 +1,2 @@
+io.github.jester.resources.quarkus.kubernetes.KubernetesQuarkusManagedResourceBinding
+io.github.jester.resources.quarkus.openshift.OpenShiftQuarkusManagedResourceBinding
