@@ -1,0 +1,2 @@
+io.github.snowdrop.jester.resources.spring.kubernetes.KubernetesSpringManagedResourceBinding
+io.github.snowdrop.jester.resources.spring.openshift.OpenShiftSpringManagedResourceBinding

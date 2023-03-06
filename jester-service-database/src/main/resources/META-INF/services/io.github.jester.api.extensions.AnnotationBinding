@@ -1,5 +1,0 @@
-io.github.jester.resources.containers.database.MariaDbContainerAnnotationBinding
-io.github.jester.resources.containers.database.MongoDbContainerAnnotationBinding
-io.github.jester.resources.containers.database.MySqlContainerAnnotationBinding
-io.github.jester.resources.containers.database.PostgresqlContainerAnnotationBinding
-io.github.jester.resources.containers.database.SqlServerContainerAnnotationBinding

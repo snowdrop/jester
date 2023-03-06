@@ -1,0 +1,5 @@
+io.github.snowdrop.jester.resources.containers.database.MariaDbContainerAnnotationBinding
+io.github.snowdrop.jester.resources.containers.database.MongoDbContainerAnnotationBinding
+io.github.snowdrop.jester.resources.containers.database.MySqlContainerAnnotationBinding
+io.github.snowdrop.jester.resources.containers.database.PostgresqlContainerAnnotationBinding
+io.github.snowdrop.jester.resources.containers.database.SqlServerContainerAnnotationBinding
