@@ -1,0 +1,2 @@
+io.github.snowdrop.jester.resources.gitremoteproject.kubernetes.KubernetesGitRemoteProjectManagedResourceBinding
+io.github.snowdrop.jester.resources.gitremoteproject.openshift.OpenShiftGitRemoteProjectManagedResourceBinding

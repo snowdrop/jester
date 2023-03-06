@@ -1,0 +1,3 @@
+io.github.snowdrop.jester.resources.containers.ContainerAnnotationBinding
+io.github.snowdrop.jester.resources.localproject.LocalProjectAnnotationBinding
+io.github.snowdrop.jester.resources.gitremoteproject.GitRemoteProjectAnnotationBinding

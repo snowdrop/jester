@@ -1,0 +1,2 @@
+io.github.snowdrop.jester.resources.localproject.kubernetes.KubernetesLocalProjectManagedResourceBinding
+io.github.snowdrop.jester.resources.localproject.openshift.OpenShiftLocalProjectManagedResourceBinding

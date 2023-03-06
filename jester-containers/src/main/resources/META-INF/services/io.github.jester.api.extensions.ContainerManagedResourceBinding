@@ -1,2 +1,0 @@
-io.github.jester.resources.containers.kubernetes.KubernetesContainerManagedResourceBinding
-io.github.jester.resources.containers.openshift.OpenShiftContainerManagedResourceBinding

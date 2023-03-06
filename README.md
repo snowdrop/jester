@@ -89,7 +89,7 @@ Let's start by adding the jester containers dependency into the Maven pom file:
 ```xml
 <dependencies>
   <dependency>
-    <groupId>io.github.jester</groupId>
+    <groupId>io.github.snowdrop.jester</groupId>
     <artifactId>jester-containers</artifactId>
     <scope>test</scope>
   </dependency>
@@ -275,7 +275,7 @@ Then, we need to add the jester Quarkus dependency into the Maven pom file:
 ```xml
 <dependencies>
   <dependency>
-    <groupId>io.github.jester</groupId>
+    <groupId>io.github.snowdrop.jester</groupId>
     <artifactId>jester-quarkus</artifactId>
     <scope>test</scope>
   </dependency>
@@ -577,7 +577,7 @@ Then, we need to add the Jester Spring dependency into the Maven pom file:
 ```xml
 <dependencies>
   <dependency>
-    <groupId>io.github.jester</groupId>
+    <groupId>io.github.snowdrop.jester</groupId>
     <artifactId>jester-spring</artifactId>
     <scope>test</scope>
   </dependency>
@@ -646,7 +646,7 @@ First, we need to add the Jester Operators dependency into the Maven pom file:
 ```xml
 <dependencies>
   <dependency>
-    <groupId>io.github.jester</groupId>
+    <groupId>io.github.snowdrop.jester</groupId>
     <artifactId>jester-operators</artifactId>
     <scope>test</scope>
   </dependency>
@@ -725,7 +725,7 @@ First, we need to add the Jester Benchmark dependency into the Maven pom file:
 ```xml
 <dependencies>
   <dependency>
-    <groupId>io.github.jester</groupId>
+    <groupId>io.github.snowdrop.jester</groupId>
     <artifactId>jester-benchmark</artifactId>
     <scope>test</scope>
   </dependency>
@@ -765,7 +765,7 @@ Output:
 # Timeout: 10 min per iteration
 # Threads: 50 threads, will synchronize iterations
 # Benchmark mode: Throughput, ops/time
-# Benchmark: io.github.jester.examples.benchmark.apps.GreetingApplicationBenchmark.helloEndpointThroughput
+# Benchmark: io.github.snowdrop.jester.examples.benchmark.apps.GreetingApplicationBenchmark.helloEndpointThroughput
 
 # Run progress: 0,00% complete, ETA 00:00:40
 # Fork: N/A, test runs in the host VM
@@ -779,7 +779,7 @@ Iteration   1: 942,183 ops/s
 Iteration   2: 1783,304 ops/s
 Iteration   3: 3037,837 ops/s
 
-Result "io.github.jester.examples.benchmark.apps.GreetingApplicationBenchmark.helloEndpointThroughput":
+Result "io.github.snowdrop.jester.examples.benchmark.apps.GreetingApplicationBenchmark.helloEndpointThroughput":
   1921,108 ±(99.9%) 19239,854 ops/s [Average]
   (min, avg, max) = (942,183, 1921,108, 3037,837), stdev = 1054,601
   CI (99.9%): [≈ 0, 21160,962] (assumes normal distribution)
@@ -1023,7 +1023,7 @@ To use the Kafka Operator service, you need first to add the Jester Service Kafk
 ```xml
 <dependencies>
   <dependency>
-    <groupId>io.github.jester</groupId>
+    <groupId>io.github.snowdrop.jester</groupId>
     <artifactId>jester-service-kafka</artifactId>
     <scope>test</scope>
   </dependency>
@@ -1062,7 +1062,7 @@ To use any of these services, you need first to add the Jester Service Kafka ext
 ```xml
 <dependencies>
   <dependency>
-    <groupId>io.github.jester</groupId>
+    <groupId>io.github.snowdrop.jester</groupId>
     <artifactId>jester-service-database</artifactId>
     <scope>test</scope>
   </dependency>
@@ -1234,12 +1234,12 @@ Extension API:
 
 Modules within the testing framework must conform to the following package naming conventions:
 
-- `io.github.jester.api` - the API to use services and resources
-- `io.github.jester.configuration` - configure the services and test configuration
-- `io.github.jester.core` - the core functionality of the framework
-- `io.github.jester.logging` - logging facilities and handlers
-- `io.github.jester.resources` - the supported resources within the current jester dependency
-- `io.github.jester.utils` - more utilities
+- `io.github.snowdrop.jester.api` - the API to use services and resources
+- `io.github.snowdrop.jester.configuration` - configure the services and test configuration
+- `io.github.snowdrop.jester.core` - the core functionality of the framework
+- `io.github.snowdrop.jester.logging` - logging facilities and handlers
+- `io.github.snowdrop.jester.resources` - the supported resources within the current jester dependency
+- `io.github.snowdrop.jester.utils` - more utilities
 - 
 ## Contributing
 
