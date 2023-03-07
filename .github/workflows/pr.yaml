@@ -51,14 +51,9 @@ jobs:
           java-version: ${{ matrix.java }}
           check-latest: true
           cache: 'maven'
-      - name: Generate Images
-        run: |
-          cd images
-          mvn -s ../.github/mvn-settings.xml clean install -Dsamples.container-image.registry=$KIND_REGISTRY -Dsamples.container-image.push=true
       - name: Build
         run: |
           mvn -s .github/mvn-settings.xml clean install -Pframework -Dexamples -Dcoverage \
-            -Dsamples.container-image.registry=$KIND_REGISTRY \
             -Dts.services.all.image.registry=$KIND_REGISTRY \
             -Denvironment.ci=true \
             -Dexclude.kubernetes.tests=no
@@ -135,17 +130,10 @@ jobs:
           oc version: ${{ matrix.openshift }}
           dns ip: 1.1.1.1
           enable: 'service-catalog,registry,-web-console,router,-persistent-volumes,-sample-templates'
-      - name: Generate Images
-        run: |
-          oc project myproject
-          echo "${{ env.ocp_registry_address }}"
-          cd images
-          mvn -s ../.github/mvn-settings.xml clean install -Dsamples.container-image.registry=$CONTAINER_REGISTRY_URL -Dsamples.container-image.push=true
       - name: Build
         run: |
           mvn -s .github/mvn-settings.xml clean install -Pframework -Dexamples -Dcoverage \
             -Denvironment.ci=true \
-            -Dsamples.container-image.registry=$CONTAINER_REGISTRY_URL \
             -Dts.services.all.image.registry=$CONTAINER_REGISTRY_URL \
             -Dexclude.openshift.tests=no
       - name: Zip Artifacts

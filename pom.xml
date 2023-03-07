@@ -66,7 +66,7 @@
     <!-- Code Coverage Properties-->
     <jacoco.agent.argLine />
     <!-- Samples -->
-    <samples.container-image.registry>server.io</samples.container-image.registry>
+    <samples.container-image.registry>quay.io/snowdrop</samples.container-image.registry>
     <!-- Testing -->
     <include.tests>**/*IT.java</include.tests>
     <exclude.openshift.tests>**/OpenShift*IT.java</exclude.openshift.tests>
@@ -327,12 +327,9 @@
               </excludes>
               <systemProperties>
                 <!-- Samples mapping -->
-                <sample.quarkus-rest.image>${samples.container-image.registry}/test/quarkus-rest:latest
-                </sample.quarkus-rest.image>
-                <sample.quarkus-json.image>${samples.container-image.registry}/test/quarkus-json:latest
-                </sample.quarkus-json.image>
-                <sample.messaging-kafka.image>${samples.container-image.registry}/test/quarkus-messaging-kafka:latest
-                </sample.messaging-kafka.image>
+                <sample.quarkus-rest.image>${samples.container-image.registry}/quarkus-rest:latest</sample.quarkus-rest.image>
+                <sample.quarkus-json.image>${samples.container-image.registry}/quarkus-json:latest</sample.quarkus-json.image>
+                <sample.messaging-kafka.image>${samples.container-image.registry}/quarkus-messaging-kafka:latest</sample.messaging-kafka.image>
               </systemProperties>
             </configuration>
           </execution>
