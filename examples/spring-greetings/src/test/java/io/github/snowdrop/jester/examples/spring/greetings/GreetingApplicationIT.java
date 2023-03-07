@@ -5,10 +5,8 @@ import static org.hamcrest.Matchers.is;
 
 import org.junit.jupiter.api.Test;
 
-import io.github.snowdrop.jester.api.Jester;
 import io.github.snowdrop.jester.api.Spring;
 
-@Jester
 @Spring
 public class GreetingApplicationIT {
 

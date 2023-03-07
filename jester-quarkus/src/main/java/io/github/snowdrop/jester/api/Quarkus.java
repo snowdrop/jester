@@ -1,12 +1,19 @@
 package io.github.snowdrop.jester.api;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import io.github.snowdrop.jester.core.JesterExtension;
+
 @Target({ ElementType.FIELD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
+@ExtendWith(JesterExtension.class)
+@Inherited
 public @interface Quarkus {
 
     /**

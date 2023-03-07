@@ -1,7 +1,6 @@
 package io.github.snowdrop.jester.examples.quarkus.greetings;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.apache.http.HttpStatus;
@@ -11,11 +10,9 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import io.github.snowdrop.jester.api.Jester;
 import io.github.snowdrop.jester.api.Quarkus;
 import io.github.snowdrop.jester.api.RestService;
 
-@Jester
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class FailAtStartupIT {
 

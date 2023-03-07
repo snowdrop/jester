@@ -587,7 +587,7 @@ Then, we need to add the Jester Spring dependency into the Maven pom file:
 And now, let's write our first test:
 
 ```java
-@Jester @Spring
+@Spring
 public class GreetingResourceTest {
 
     @Test
@@ -735,7 +735,7 @@ First, we need to add the Jester Benchmark dependency into the Maven pom file:
 And now, we need to extend our test class with the interface `EnableBenchmark`:
 
 ```java
-@Jester @Spring
+@Spring
 public class GreetingResourceBenchmark implements EnableBenchmark {
 
     @Benchmark // Annotations from JMH tool

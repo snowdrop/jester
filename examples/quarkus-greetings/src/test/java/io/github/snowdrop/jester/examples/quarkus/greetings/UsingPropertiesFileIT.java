@@ -5,11 +5,9 @@ import static org.hamcrest.Matchers.is;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
-import io.github.snowdrop.jester.api.Jester;
 import io.github.snowdrop.jester.api.Quarkus;
 import io.github.snowdrop.jester.api.RestService;
 
-@Jester
 public class UsingPropertiesFileIT {
 
     static final String JOSE_NAME = "jose";
