@@ -1,0 +1,31 @@
+name: "Generate images"
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'images/**'
+jobs:
+  generate-images:
+    name: Generate Images
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ 17 ]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install JDK {{ matrix.java }}
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix.java }}
+          check-latest: true
+          cache: 'maven'
+      - name: Quay.io Login
+        run: docker login quay.io -u="${{secrets.QUAY_USER}}" -p="${{secrets.QUAY_TOKEN}}"
+      - name: Generate Images
+        run: |
+          cd images
+          CONTAINER_REGISTRY=quay.io/snowdrop
+          mvn clean install -Dsamples.container-image.registry=$CONTAINER_REGISTRY -Dsamples.container-image.push=true
