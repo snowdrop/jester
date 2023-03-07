@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ 17 ]
+        java: [ 11, 17 ]
     steps:
       - uses: actions/checkout@v3
       - name: Install JDK {{ matrix.java }}
@@ -26,7 +26,7 @@ jobs:
     needs: validate-format
     strategy:
       matrix:
-        java: [ 17 ]
+        java: [ 11, 17 ]
     steps:
       - uses: actions/checkout@v3
       - name: Reclaim Disk Space
@@ -76,7 +76,7 @@ jobs:
     needs: validate-format
     strategy:
       matrix:
-        java: [ 17 ]
+        java: [ 11, 17 ]
     steps:
       - uses: actions/checkout@v3
       - name: Install JDK {{ matrix.java }}
