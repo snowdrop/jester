@@ -57,7 +57,7 @@
     <!-- Provided Dependencies -->
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-    <quarkus.version>2.16.4.Final</quarkus.version>
+    <quarkus.version>3.0.0.Alpha4</quarkus.version>
     <spring.version>3.0.4</spring.version>
     <!-- Format Settings -->
     <src.format.goal>format</src.format.goal>
@@ -270,7 +270,6 @@
         <version>${maven-checkstyle-plugin.version}</version>
         <configuration>
           <configLocation>coding/checkstyle.xml</configLocation>
-          <encoding>UTF-8</encoding>
           <consoleOutput>true</consoleOutput>
           <failsOnError>true</failsOnError>
           <linkXRef>true</linkXRef>
@@ -376,6 +375,7 @@
         <module>examples/quarkus-jdbc-mysql</module>
         <module>examples/quarkus-grpc</module>
         <module>examples/quarkus-reactive-mysql</module>
+        <module>examples/apps-benchmark</module>
       </modules>
     </profile>
     <profile>

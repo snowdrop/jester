@@ -23,11 +23,6 @@
   <dependencies>
     <!-- Test Dependencies -->
     <dependency>
-      <groupId>org.jboss.spec.javax.ws.rs</groupId>
-      <artifactId>jboss-jaxrs-api_2.1_spec</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-test-common</artifactId>
       <scope>test</scope>
@@ -35,6 +30,11 @@
     <dependency>
       <groupId>io.github.snowdrop.jester</groupId>
       <artifactId>jester-quarkus</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.ws.rs</groupId>
+      <artifactId>jakarta.ws.rs-api</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

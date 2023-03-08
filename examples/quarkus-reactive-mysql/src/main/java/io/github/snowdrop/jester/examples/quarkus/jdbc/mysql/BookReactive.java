@@ -1,10 +1,9 @@
 package io.github.snowdrop.jester.examples.quarkus.jdbc.mysql;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.validation.constraints.NotBlank;
-
 import io.quarkus.hibernate.reactive.panache.PanacheEntity;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "book")
