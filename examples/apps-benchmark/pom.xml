@@ -4,14 +4,11 @@
   <parent>
     <groupId>io.github.snowdrop.jester</groupId>
     <artifactId>jester-parent</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.4-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <artifactId>examples-apps-benchmark</artifactId>
   <name>Jester - Examples - Apps - Benchmark</name>
-  <properties>
-    <jboss-jaxrs-api_2.1_spec.version>2.0.2.Final</jboss-jaxrs-api_2.1_spec.version>
-  </properties>
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -25,9 +22,8 @@
   </dependencyManagement>
   <dependencies>
     <dependency>
-      <groupId>org.jboss.spec.javax.ws.rs</groupId>
-      <artifactId>jboss-jaxrs-api_2.1_spec</artifactId>
-      <version>${jboss-jaxrs-api_2.1_spec.version}</version>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-resteasy-reactive</artifactId>
     </dependency>
     <dependency>
       <groupId>io.github.snowdrop.jester</groupId>

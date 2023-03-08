@@ -2,14 +2,14 @@ package io.github.snowdrop.jester.examples.quarkus.jdbc.mysql;
 
 import java.util.logging.Logger;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import org.jboss.resteasy.reactive.server.jaxrs.RestResponseBuilderImpl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.MediaType;
 
 public class ApplicationExceptionMapper {
     @ServerExceptionMapper

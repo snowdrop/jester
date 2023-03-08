@@ -1,11 +1,10 @@
 package io.github.snowdrop.jester.examples.quarkus.greetings.samples;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-
 import org.jboss.logmanager.Logger;
 
 import io.quarkus.runtime.StartupEvent;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 
 @ApplicationScoped
 public class AppLifecycleBean {
