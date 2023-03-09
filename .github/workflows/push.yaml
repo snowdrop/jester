@@ -9,13 +9,18 @@ on:
       - '.github/project.yml'
 jobs:
   linux-build-jvm:
-    name: Daily - Linux - JVM build
+    name: Linux - JVM build
     runs-on: ubuntu-latest
     strategy:
       matrix:
         java: [ 17 ]
     steps:
       - uses: actions/checkout@v3
+      - name: Check dead links in documentation
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'yes'
+          config-file: '.github/markdown-link-check.json'
       - name: Reclaim Disk Space
         run: .github/ci-prerequisites.sh
       - name: Kubernetes KinD Cluster
