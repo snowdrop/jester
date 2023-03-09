@@ -1045,7 +1045,7 @@ public class KubernetesKafkaOperatorIT {
 
 **Note:** The default version of the Kafka resource that will be installed is compatible with the Strimzi Kafka operator 0.31.x.
 
-See an example in [here](jester-service-kafka/src/test/java/io/jester/test/KubernetesKafkaOperatorIT.java).
+See an example in [here](jester-service-kafka/src/test/java/io/github/snowdrop/jester/test/KubernetesKafkaOperatorIT.java).
 
 #### Database Services
 
@@ -1226,9 +1226,9 @@ The framework has been designed to fully extend new features and/or customize th
 
 Extension API:
 
-- `Extension bootstrap point` - to set up common things along all the services. For example, [the Kubernetes extension bootstrap](jester-core/src/main/java/io/jester/core/extensions/KubernetesExtensionBootstrap.java) is used to create the Kubernetes namespace before running the tests and inject the Kubernetes client to all the services and tests. This extension is registered in [META-INF/services/ExtensionBootstrap](jester-core/src/main/resources/META-INF/services/ExtensionBootstrap).
-- `Extension binding point` - create your custom annotations to deploy custom resources. For example, the [Container annotation](jester-containers/src/main/java/io/jester/api/Container.java) is registered in [META-INF/services/AnnotationBinding](jester-containers/src/main/resources/META-INF/services/AnnotationBinding) using the binding [ContainerAnnotationBinding.java](jester-containers/src/main/java/io/jester/resources/containers/ContainerAnnotationBinding.java)
-- `Extension Managed Resources point` - deploy your resources into the target environment. Each extension binding point will deploy the resources locally, though we can easily extend it to deploy services in any kind of target environment. For example, for containers, we provide the [ContainerManagedResourceBinding.java](jester-containers/src/main/java/io/jester/api/extensions/ContainerManagedResourceBinding.java) extension point that we can provide to support other environments as we have done for [Kubernetes](jester-containers/src/main/java/io/jester/resources/containers/kubernetes/KubernetesContainerManagedResourceBinding.java).
+- `Extension bootstrap point` - to set up common things along all the services. For example, [the Kubernetes extension bootstrap](jester-core/src/main/java/io/github/snowdrop/jester/core/extensions/KubernetesExtensionBootstrap.java) is used to create the Kubernetes namespace before running the tests and inject the Kubernetes client to all the services and tests. This extension is registered in [META-INF/services/ExtensionBootstrap](jester-core/src/main/resources/META-INF/services/io.github.snowdrop.jester.api.extensions.ExtensionBootstrap).
+- `Extension binding point` - create your custom annotations to deploy custom resources. For example, the [Container annotation](jester-containers/src/main/java/io/github/snowdrop/jester/api/Container.java) is registered in [META-INF/services/AnnotationBinding](jester-containers/src/main/resources/META-INF/services/io.github.snowdrop.jester.api.extensions.AnnotationBinding) using the binding [ContainerAnnotationBinding.java](jester-containers/src/main/java/io/github/snowdrop/jester/resources/containers/ContainerAnnotationBinding.java)
+- `Extension Managed Resources point` - deploy your resources into the target environment. Each extension binding point will deploy the resources locally, though we can easily extend it to deploy services in any kind of target environment. For example, for containers, we provide the [ContainerManagedResourceBinding.java](jester-containers/src/main/java/io/github/snowdrop/jester/api/extensions/ContainerManagedResourceBinding.java) extension point that we can provide to support other environments as we have done for [Kubernetes](jester-containers/src/main/java/io/github/snowdrop/jester/resources/containers/kubernetes/KubernetesContainerManagedResourceBinding.java).
 
 ### Packages Convention
 
