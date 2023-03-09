@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ 11, 17 ]
+        java: [ 11 ]
     steps:
       - uses: actions/checkout@v3
       - name: Install JDK {{ matrix.java }}
@@ -17,6 +17,11 @@ jobs:
           java-version: ${{ matrix.java }}
           check-latest: true
           cache: 'maven'
+      - name: Check dead links in documentation
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'yes'
+          config-file: '.github/markdown-link-check.json'
       - name: Build with Maven
         run: |
           mvn -V -B -s .github/mvn-settings.xml verify -Pframework -Dexamples -Dvalidate-format -DskipTests -DskipITs
