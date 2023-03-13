@@ -6,6 +6,7 @@ import java.util.stream.IntStream;
 
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
+import io.fabric8.kubernetes.client.okhttp.OkHttpClientFactory;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.github.snowdrop.jester.api.Service;
@@ -22,7 +23,8 @@ public final class OpenshiftClient extends BaseKubernetesClient<OpenShiftClient>
 
     @Override
     public OpenShiftClient initializeClient(Config config) {
-        return new KubernetesClientBuilder().withConfig(config).build().adapt(OpenShiftClient.class);
+        return new KubernetesClientBuilder().withConfig(config).withHttpClientFactory(new OkHttpClientFactory()).build()
+                .adapt(OpenShiftClient.class);
     }
 
     @Override
