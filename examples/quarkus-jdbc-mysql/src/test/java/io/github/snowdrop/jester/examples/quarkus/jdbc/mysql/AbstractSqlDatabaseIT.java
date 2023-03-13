@@ -16,7 +16,6 @@ import io.restassured.http.ContentType;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public abstract class AbstractSqlDatabaseIT {
 
-    private static final int VALID_ID = 8;
     private static final int INVALID_ID = 999;
 
     @Test
@@ -36,12 +35,12 @@ public abstract class AbstractSqlDatabaseIT {
     @Order(3)
     public void create() {
         Book book = new Book();
+        book.id = 8;
         book.title = "Neuromancer";
         book.author = "William Gibson";
 
         given().contentType(ContentType.JSON).body(book).post("/book").then().statusCode(HttpStatus.SC_CREATED)
-                .body("id", equalTo(VALID_ID)).body("title", equalTo("Neuromancer"))
-                .body("author", equalTo("William Gibson"));
+                .body("id", equalTo(8)).body("title", equalTo("Neuromancer")).body("author", equalTo("William Gibson"));
 
         given().get("/book/8").then().statusCode(HttpStatus.SC_OK).body("title", equalTo("Neuromancer")).body("author",
                 equalTo("William Gibson"));
@@ -57,39 +56,24 @@ public abstract class AbstractSqlDatabaseIT {
 
     @Test
     @Order(5)
-    public void createBadPayload() {
+    public void update() {
         Book book = new Book();
-        book.id = Long.valueOf(INVALID_ID);
-        book.title = "foo";
-        book.author = "bar";
+        book.id = 8;
+        book.title = "Schismatrix";
+        book.author = "Bruce Sterling";
 
-        given().contentType(ContentType.JSON).body(book).post("/book").then()
-                .statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-                .body("code", equalTo(HttpStatus.SC_UNPROCESSABLE_ENTITY))
-                .body("error", equalTo("unexpected ID in request"));
+        given().contentType(ContentType.JSON).body(book).put("/book/" + 8).then().statusCode(HttpStatus.SC_OK)
+                .body("id", equalTo(8)).body("title", equalTo("Schismatrix")).body("author", equalTo("Bruce Sterling"));
+
+        given().get("/book/" + 8).then().statusCode(HttpStatus.SC_OK).body("title", equalTo("Schismatrix"))
+                .body("author", equalTo("Bruce Sterling"));
     }
 
     @Test
     @Order(6)
-    public void update() {
-        Book book = new Book();
-        book.id = Long.valueOf(VALID_ID);
-        book.title = "Schismatrix";
-        book.author = "Bruce Sterling";
-
-        given().contentType(ContentType.JSON).body(book).put("/book/8").then().statusCode(HttpStatus.SC_OK)
-                .body("id", equalTo(VALID_ID)).body("title", equalTo("Schismatrix"))
-                .body("author", equalTo("Bruce Sterling"));
-
-        given().get("/book/" + VALID_ID).then().statusCode(HttpStatus.SC_OK).body("title", equalTo("Schismatrix"))
-                .body("author", equalTo("Bruce Sterling"));
-    }
-
-    @Test
-    @Order(7)
     public void updateWithUnknownId() {
         Book book = new Book();
-        book.id = Long.valueOf(INVALID_ID);
+        book.id = INVALID_ID;
         book.title = "foo";
         book.author = "bar";
 
@@ -98,7 +82,7 @@ public abstract class AbstractSqlDatabaseIT {
     }
 
     @Test
-    @Order(8)
+    @Order(7)
     public void updateInvalidPayload() {
         given().contentType(ContentType.TEXT).body("").put("/book/8").then()
                 .statusCode(HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE)
@@ -106,7 +90,7 @@ public abstract class AbstractSqlDatabaseIT {
     }
 
     @Test
-    @Order(9)
+    @Order(8)
     public void updateBadPayload() {
         Book book = new Book();
 
@@ -117,7 +101,7 @@ public abstract class AbstractSqlDatabaseIT {
     }
 
     @Test
-    @Order(10)
+    @Order(9)
     public void delete() {
         given().delete("/book/8").then().statusCode(HttpStatus.SC_NO_CONTENT);
 
@@ -126,7 +110,7 @@ public abstract class AbstractSqlDatabaseIT {
     }
 
     @Test
-    @Order(11)
+    @Order(10)
     public void deleteWithUnknownId() {
         given().delete("/book/999").then().statusCode(HttpStatus.SC_NOT_FOUND)
                 .body("code", equalTo(HttpStatus.SC_NOT_FOUND)).body("error", equalTo("book '999' not found"));
