@@ -5,7 +5,6 @@ import java.util.List;
 import io.quarkus.panache.common.Sort;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -41,10 +40,6 @@ public class BookResource {
     @POST
     @Transactional
     public Response create(@Valid Book book) {
-        if (book.id != null) {
-            throw new ClientErrorException("unexpected ID in request", ValidationExceptionMapper.UNPROCESSABLE_ENTITY);
-        }
-
         book.persist();
         return Response.ok(book).status(Response.Status.CREATED).build();
     }
