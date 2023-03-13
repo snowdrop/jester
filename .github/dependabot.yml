@@ -5,9 +5,6 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-    ignore:
-      # It needs to be synced with the version in Quarkus: https://github.com/quarkusio/quarkus/blob/main/bom/application/pom.xml#L129
-      - dependency-name: io.rest-assured:rest-assured-bom
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
