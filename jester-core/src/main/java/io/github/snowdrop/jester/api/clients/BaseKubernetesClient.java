@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
+import io.fabric8.kubernetes.api.model.ConfigMapBuilder;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
@@ -27,6 +28,7 @@ import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.fabric8.kubernetes.client.LocalPortForward;
+import io.fabric8.kubernetes.client.okhttp.OkHttpClientFactory;
 import io.github.snowdrop.jester.api.Service;
 import io.github.snowdrop.jester.logging.Log;
 import io.github.snowdrop.jester.utils.AwaitilitySettings;
@@ -35,7 +37,7 @@ import io.github.snowdrop.jester.utils.KeyValueEntry;
 import io.github.snowdrop.jester.utils.ManifestsUtils;
 import io.github.snowdrop.jester.utils.SocketUtils;
 
-abstract class BaseKubernetesClient<T extends KubernetesClient> {
+public abstract class BaseKubernetesClient<T extends KubernetesClient> {
 
     protected static final String PORT_FORWARD_HOST = "localhost";
 
@@ -110,8 +112,8 @@ abstract class BaseKubernetesClient<T extends KubernetesClient> {
             }
             client.services()
                     .resource(new ServiceBuilder().withNewMetadata().withNamespace(currentNamespace)
-                            .withName(service.getName()).endMetadata().withNewSpec()
-                            .withSelector(deployment.getSpec().getTemplate().getMetadata().getLabels())
+                            .withName(service.getName()).withLabels(deployment.getMetadata().getLabels()).endMetadata()
+                            .withNewSpec().withSelector(deployment.getSpec().getTemplate().getMetadata().getLabels())
                             .withPorts(servicePorts).endSpec().build())
                     .create();
         } catch (Exception e) {
@@ -309,6 +311,36 @@ abstract class BaseKubernetesClient<T extends KubernetesClient> {
     }
 
     /**
+     * Create secret from file.
+     */
+    public void createSecretFromFile(String secretName, String filePath) {
+        if (client.secrets().withName(secretName).get() == null) {
+            try {
+                client.secrets().load(new FileInputStream(filePath));
+            } catch (Exception e) {
+                throw new RuntimeException("Could not create secret.", e);
+            }
+        }
+    }
+
+    /**
+     * Create or update a config map from file.
+     */
+    public void createOrUpdateConfigMap(String configMapName, String key, String value) {
+        if (client.configMaps().withName(configMapName).get() != null) {
+            // update existing config map by adding new file
+            client.configMaps().withName(configMapName).edit(configMap -> {
+                configMap.getData().put(key, value);
+                return configMap;
+            });
+        } else {
+            // create new one
+            client.configMaps().createOrReplace(new ConfigMapBuilder().withNewMetadata().withName(configMapName)
+                    .endMetadata().addToData(key, value).build());
+        }
+    }
+
+    /**
      * Delete test resources.
      */
     public void deleteResourcesByLabel(String labelName, String labelValue) {
@@ -400,7 +432,8 @@ abstract class BaseKubernetesClient<T extends KubernetesClient> {
     private static boolean doCreateNamespace(String namespaceName) {
         boolean created = false;
         Config config = new ConfigBuilder().withTrustCerts(true).build();
-        try (KubernetesClient client = new KubernetesClientBuilder().withConfig(config).build()) {
+        try (KubernetesClient client = new KubernetesClientBuilder().withHttpClientFactory(new OkHttpClientFactory())
+                .withConfig(config).build()) {
             client.namespaces()
                     .resource(new NamespaceBuilder().withNewMetadata().withName(namespaceName).endMetadata().build())
                     .create();

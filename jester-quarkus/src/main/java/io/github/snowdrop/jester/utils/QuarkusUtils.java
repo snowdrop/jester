@@ -40,6 +40,8 @@ public final class QuarkusUtils {
     public static final String BUILD_TIME_PROPERTIES = "/build-time-list";
     public static final Set<String> BUILD_PROPERTIES = FileUtils.loadFile(BUILD_TIME_PROPERTIES).lines()
             .collect(toSet());
+    public static final String KUBERNETES_OUTPUT_DIRECTORY = "quarkus.kubernetes.output-directory";
+    public static final String KUBERNETES_OUTPUT_DIRECTORY_DEFAULT = "kubernetes";
 
     private static final String VERSION;
     private static final String DOCKERFILE_TEMPLATE = "/Dockerfile.%s";
@@ -104,5 +106,9 @@ public final class QuarkusUtils {
 
     public static boolean isBootstrapDependencyAdded() {
         return ReflectionUtils.loadClass("io.quarkus.bootstrap.app.QuarkusBootstrap").isPresent();
+    }
+
+    public static String getKubernetesFolder(Service service) {
+        return service.getProperty(KUBERNETES_OUTPUT_DIRECTORY, KUBERNETES_OUTPUT_DIRECTORY_DEFAULT);
     }
 }
