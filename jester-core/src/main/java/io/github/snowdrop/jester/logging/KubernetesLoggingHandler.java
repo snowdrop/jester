@@ -4,13 +4,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import io.github.snowdrop.jester.api.Service;
-import io.github.snowdrop.jester.api.clients.KubectlClient;
+import io.github.snowdrop.jester.api.clients.KubernetesClient;
 import io.github.snowdrop.jester.core.ServiceContext;
 import io.github.snowdrop.jester.core.extensions.KubernetesExtensionBootstrap;
 
 public class KubernetesLoggingHandler extends ServiceLoggingHandler {
 
-    private final KubectlClient client;
+    private final KubernetesClient client;
     private final Service service;
 
     private Map<String, String> oldLogs;

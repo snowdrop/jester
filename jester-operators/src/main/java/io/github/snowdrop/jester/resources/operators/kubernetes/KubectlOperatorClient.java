@@ -12,7 +12,7 @@ import io.fabric8.openshift.api.model.operatorhub.v1.OperatorGroupSpec;
 import io.fabric8.openshift.api.model.operatorhub.v1alpha1.ClusterServiceVersion;
 import io.fabric8.openshift.api.model.operatorhub.v1alpha1.Subscription;
 import io.fabric8.openshift.api.model.operatorhub.v1alpha1.SubscriptionSpec;
-import io.github.snowdrop.jester.api.clients.KubectlClient;
+import io.github.snowdrop.jester.api.clients.KubernetesClient;
 import io.github.snowdrop.jester.api.model.CustomResourceSpec;
 import io.github.snowdrop.jester.api.model.CustomResourceStatus;
 import io.github.snowdrop.jester.configuration.OperatorServiceConfiguration;
@@ -28,10 +28,10 @@ public class KubectlOperatorClient {
     private static final String CUSTOM_RESOURCE_EXPECTED_TYPE = "Ready";
     private static final String CUSTOM_RESOURCE_EXPECTED_STATUS = "True";
 
-    private final KubectlClient kubectlClient;
+    private final KubernetesClient kubernetesClient;
 
-    public KubectlOperatorClient(KubectlClient kubectlClient) {
-        this.kubectlClient = kubectlClient;
+    public KubectlOperatorClient(KubernetesClient kubernetesClient) {
+        this.kubernetesClient = kubernetesClient;
     }
 
     public void installOperator(ServiceContext service, String subscriptionName, String channel, String source,
@@ -41,14 +41,14 @@ public class KubectlOperatorClient {
         groupModel.setMetadata(new ObjectMeta());
         groupModel.getMetadata().setName(service.getName());
         groupModel.setSpec(new OperatorGroupSpec());
-        groupModel.getSpec().setTargetNamespaces(List.of(kubectlClient.namespace()));
-        kubectlClient.underlyingClient().resource(groupModel).createOrReplace();
+        groupModel.getSpec().setTargetNamespaces(List.of(kubernetesClient.namespace()));
+        kubernetesClient.underlyingClient().resource(groupModel).createOrReplace();
 
         // Install the subscription
         Subscription subscriptionModel = new Subscription();
         subscriptionModel.setMetadata(new ObjectMeta());
         subscriptionModel.getMetadata().setName(service.getName());
-        subscriptionModel.getMetadata().setNamespace(kubectlClient.namespace());
+        subscriptionModel.getMetadata().setNamespace(kubernetesClient.namespace());
 
         subscriptionModel.setSpec(new SubscriptionSpec());
         subscriptionModel.getSpec().setChannel(channel);
@@ -57,12 +57,12 @@ public class KubectlOperatorClient {
         subscriptionModel.getSpec().setSourceNamespace(sourceNamespace);
 
         Log.info(service.getOwner(), "Installing operator... " + subscriptionName);
-        kubectlClient.underlyingClient().resource(subscriptionModel).createOrReplace();
+        kubernetesClient.underlyingClient().resource(subscriptionModel).createOrReplace();
 
         // Wait for the operator to be installed
         AwaitilityUtils.untilIsTrue(() -> {
             // Get Cluster Service Version
-            Subscription subscription = kubectlClient.underlyingClient().resources(Subscription.class)
+            Subscription subscription = kubernetesClient.underlyingClient().resources(Subscription.class)
                     .withName(service.getName()).get();
             String installedCsv = subscription.getStatus().getInstalledCSV();
             if (StringUtils.isEmpty(installedCsv)) {
@@ -70,7 +70,7 @@ public class KubectlOperatorClient {
             }
 
             // Check Cluster Service Version status
-            ClusterServiceVersion operatorService = kubectlClient.underlyingClient()
+            ClusterServiceVersion operatorService = kubernetesClient.underlyingClient()
                     .resources(ClusterServiceVersion.class).withName(installedCsv).get();
             if (operatorService == null || operatorService.getStatus() == null) {
                 return false;
@@ -85,16 +85,16 @@ public class KubectlOperatorClient {
     }
 
     public void apply(Path file) {
-        kubectlClient.apply(file);
+        kubernetesClient.apply(file);
     }
 
     public void delete(Path file) {
-        kubectlClient.delete(file);
+        kubernetesClient.delete(file);
     }
 
     public boolean isCustomResourceReady(String name,
             Class<? extends CustomResource<CustomResourceSpec, CustomResourceStatus>> crdType) {
-        CustomResource<?, ? extends CustomResourceStatus> customResource = kubectlClient.underlyingClient()
+        CustomResource<?, ? extends CustomResourceStatus> customResource = kubernetesClient.underlyingClient()
                 .resources(crdType).withName(name).get();
         if (customResource == null || customResource.getStatus() == null
                 || customResource.getStatus().getConditions() == null) {
@@ -107,8 +107,8 @@ public class KubectlOperatorClient {
     }
 
     public void deleteOperator(ServiceContext service, String name) {
-        kubectlClient.underlyingClient().resources(OperatorGroup.class).withName(service.getName()).delete();
-        kubectlClient.underlyingClient().resources(Subscription.class).withName(name).delete();
-        kubectlClient.deleteResourcesByLabel(ManifestsUtils.LABEL_TO_WATCH_FOR_LOGS, service.getName());
+        kubernetesClient.underlyingClient().resources(OperatorGroup.class).withName(service.getName()).delete();
+        kubernetesClient.underlyingClient().resources(Subscription.class).withName(name).delete();
+        kubernetesClient.deleteResourcesByLabel(ManifestsUtils.LABEL_TO_WATCH_FOR_LOGS, service.getName());
     }
 }

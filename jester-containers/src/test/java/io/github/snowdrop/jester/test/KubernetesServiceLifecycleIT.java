@@ -6,18 +6,17 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
-import io.fabric8.kubernetes.client.KubernetesClient;
 import io.github.snowdrop.jester.api.RunOnKubernetes;
-import io.github.snowdrop.jester.api.clients.KubectlClient;
+import io.github.snowdrop.jester.api.clients.KubernetesClient;
 
 @RunOnKubernetes
 public class KubernetesServiceLifecycleIT extends ServiceLifecycleIT {
 
     @Inject
-    static KubectlClient clientAsStaticInstance;
+    static KubernetesClient clientAsStaticInstance;
 
     @Inject
-    static KubernetesClient fabric8KubernetesClient;
+    static io.fabric8.kubernetes.client.KubernetesClient fabric8KubernetesClient;
 
     @Test
     public void shouldInjectKubernetesClientsAsStaticInstance() {
@@ -26,7 +25,7 @@ public class KubernetesServiceLifecycleIT extends ServiceLifecycleIT {
     }
 
     @Test
-    public void shouldInjectKubernetesClientAsField(KubectlClient clientAsField) {
+    public void shouldInjectKubernetesClientAsField(KubernetesClient clientAsField) {
         assertNotNull(clientAsField);
     }
 }
