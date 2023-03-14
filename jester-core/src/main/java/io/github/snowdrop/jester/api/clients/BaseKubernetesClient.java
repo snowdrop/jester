@@ -128,13 +128,17 @@ abstract class BaseKubernetesClient<T extends KubernetesClient> {
     public void scaleTo(Service service, int replicas) {
         try {
             String serviceName = service.getName();
-            Log.info(service, "Scaling deployment '%s' in namespace '%s' to '%s'", serviceName, currentNamespace,
-                    replicas);
-            client.apps().deployments().withName(serviceName).scale(replicas);
 
-            AwaitilityUtils.untilIsTrue(
-                    () -> client.apps().deployments().withName(serviceName).get().getSpec().getReplicas() == replicas,
-                    AwaitilitySettings.defaults().withService(service));
+            Deployment deployment = client.apps().deployments().withName(serviceName).get();
+            if (deployment.getSpec().getReplicas() != replicas) {
+                Log.info(service, "Scaling deployment '%s' in namespace '%s' to '%s'", serviceName, currentNamespace,
+                        replicas);
+                deployment.getSpec().setReplicas(replicas);
+                client.apps().deployments().withName(serviceName).patch(deployment);
+                AwaitilityUtils.untilIsTrue(() -> client.apps().deployments().withName(serviceName).get().getSpec()
+                        .getReplicas() == replicas, AwaitilitySettings.defaults().withService(service));
+            }
+
         } catch (Exception e) {
             throw new RuntimeException("Service failed to be scaled.", e);
         }
@@ -344,8 +348,6 @@ abstract class BaseKubernetesClient<T extends KubernetesClient> {
             client.batch().v1beta1().cronjobs().inNamespace(currentNamespace).withLabel(labelName, labelValue).delete();
         } catch (Exception e) {
             throw new RuntimeException("Resources failed to be deleted.", e);
-        } finally {
-            client.close();
         }
     }
 
