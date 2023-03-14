@@ -52,7 +52,7 @@
     <rest-assured.version>5.3.0</rest-assured.version>
     <awaitility.version>4.2.0</awaitility.version>
     <apache.commons-io.version>2.11.0</apache.commons-io.version>
-    <kubernetes-client.version>6.4.1</kubernetes-client.version>
+    <kubernetes-client.version>6.5.0</kubernetes-client.version>
     <jackson-annotations.version>2.14.2</jackson-annotations.version>
     <!-- Provided Dependencies -->
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
@@ -152,32 +152,10 @@
       </dependency>
       <dependency>
         <groupId>io.fabric8</groupId>
-        <artifactId>kubernetes-client</artifactId>
+        <artifactId>kubernetes-client-bom</artifactId>
         <version>${kubernetes-client.version}</version>
-        <exclusions>
-          <!-- we need to exclude slf4j as it causes deployment issues in Spring services -->
-          <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>io.fabric8</groupId>
-        <artifactId>openshift-client</artifactId>
-        <version>${kubernetes-client.version}</version>
-        <exclusions>
-          <!-- we need to exclude slf4j as it causes deployment issues in Spring services -->
-          <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>io.fabric8</groupId>
-        <artifactId>openshift-model-operatorhub</artifactId>
-        <version>${kubernetes-client.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
         <exclusions>
           <!-- we need to exclude slf4j as it causes deployment issues in Spring services -->
           <exclusion>

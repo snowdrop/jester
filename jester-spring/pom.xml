@@ -13,6 +13,13 @@
     <dependency>
       <groupId>io.github.snowdrop.jester</groupId>
       <artifactId>jester-core</artifactId>
+      <exclusions>
+        <!-- we need to exclude slf4j as it causes deployment issues in Spring services -->
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <!-- Provided dependencies -->
     <dependency>
