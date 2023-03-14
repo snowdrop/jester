@@ -15,7 +15,7 @@ import io.fabric8.kubernetes.api.model.PodTemplateSpec;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentSpec;
 import io.fabric8.kubernetes.client.utils.Serialization;
-import io.github.snowdrop.jester.api.clients.KubectlClient;
+import io.github.snowdrop.jester.api.clients.KubernetesClient;
 import io.github.snowdrop.jester.configuration.KubernetesServiceConfiguration;
 import io.github.snowdrop.jester.configuration.KubernetesServiceConfigurationBuilder;
 import io.github.snowdrop.jester.core.ManagedResource;
@@ -30,7 +30,7 @@ public abstract class KubernetesManagedResource extends ManagedResource {
 
     private static final String DEPLOYMENT = "kubernetes.yml";
 
-    private KubectlClient client;
+    private KubernetesClient client;
     private LoggingHandler loggingHandler;
     private boolean init;
     private boolean running;

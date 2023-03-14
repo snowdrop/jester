@@ -4,22 +4,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.fabric8.kubernetes.client.okhttp.OkHttpClientFactory;
 import io.fabric8.openshift.api.model.Route;
+import io.fabric8.openshift.api.model.RouteBuilder;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.github.snowdrop.jester.api.Service;
-import io.github.snowdrop.jester.utils.Command;
 
 public final class OpenshiftClient extends BaseKubernetesClient<OpenShiftClient> {
-
-    private static final String OC = "oc";
-
-    @Override
-    public String command() {
-        return OC;
-    }
 
     @Override
     public OpenShiftClient initializeClient(Config config) {
@@ -55,8 +49,12 @@ public final class OpenshiftClient extends BaseKubernetesClient<OpenShiftClient>
         List portList = IntStream.of(ports).mapToObj(Integer::toString).collect(Collectors.toList());
         portList.forEach(port -> {
             try {
-                new Command(OC, "expose", "svc", service.getName(), "--port=" + port, "--name=" + service.getName(),
-                        "-n", namespace()).runAndWait();
+                underlyingClient().routes()
+                        .resource(new RouteBuilder().withNewMetadata().withName(service.getName() + "-" + port)
+                                .withNamespace(namespace()).endMetadata().withNewSpec().withNewTo().withKind("Service")
+                                .withName(service.getName()).endTo().withNewPort().withTargetPort(new IntOrString(port))
+                                .endPort().endSpec().build())
+                        .createOrReplace();
             } catch (Exception e) {
                 throw new RuntimeException("Route failed to be exposed.", e);
             }

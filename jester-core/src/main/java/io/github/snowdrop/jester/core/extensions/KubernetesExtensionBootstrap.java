@@ -12,9 +12,8 @@ import java.util.Optional;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.networking.v1.Ingress;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClient;
 import io.github.snowdrop.jester.api.RunOnKubernetes;
-import io.github.snowdrop.jester.api.clients.KubectlClient;
+import io.github.snowdrop.jester.api.clients.KubernetesClient;
 import io.github.snowdrop.jester.api.extensions.ExtensionBootstrap;
 import io.github.snowdrop.jester.configuration.JesterConfiguration;
 import io.github.snowdrop.jester.configuration.KubernetesConfiguration;
@@ -29,7 +28,7 @@ public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
     public static final String CLIENT = "kubectl-client";
     public static final String TARGET_KUBERNETES = "kubernetes";
 
-    private KubectlClient client;
+    private KubernetesClient client;
 
     @Override
     public boolean appliesFor(JesterContext context) {
@@ -45,7 +44,7 @@ public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
         // keep all resources in order to allow you to debug by yourself
         context.setDebug(!configuration.isDeleteNamespaceAfterAll() && !configuration.isEphemeralNamespaceEnabled());
 
-        client = new KubectlClient();
+        client = new KubernetesClient();
         if (configuration.isEphemeralNamespaceEnabled()) {
             client.initializeClientUsingANewNamespace();
         } else {
@@ -78,15 +77,15 @@ public class KubernetesExtensionBootstrap implements ExtensionBootstrap {
 
     @Override
     public List<Class<?>> supportedParameters() {
-        return Arrays.asList(KubectlClient.class, KubernetesClient.class, Deployment.class,
-                io.fabric8.kubernetes.api.model.Service.class, Ingress.class);
+        return Arrays.asList(KubernetesClient.class, io.fabric8.kubernetes.client.KubernetesClient.class,
+                Deployment.class, io.fabric8.kubernetes.api.model.Service.class, Ingress.class);
     }
 
     @Override
     public Optional<Object> getParameter(DependencyContext dependency) {
-        if (dependency.getType() == KubectlClient.class) {
+        if (dependency.getType() == KubernetesClient.class) {
             return Optional.of(client);
-        } else if (dependency.getType() == KubernetesClient.class) {
+        } else if (dependency.getType() == io.fabric8.kubernetes.client.KubernetesClient.class) {
             return Optional.of(client.underlyingClient());
         } else {
             // named parameters

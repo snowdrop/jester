@@ -1,5 +1,6 @@
 package io.github.snowdrop.jester.api.clients;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -11,21 +12,25 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.StringUtils;
 
+import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServicePort;
+import io.fabric8.kubernetes.api.model.ServicePortBuilder;
+import io.fabric8.kubernetes.api.model.apps.Deployment;
+import io.fabric8.kubernetes.api.model.events.v1.Event;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.fabric8.kubernetes.client.LocalPortForward;
 import io.github.snowdrop.jester.api.Service;
 import io.github.snowdrop.jester.logging.Log;
 import io.github.snowdrop.jester.utils.AwaitilitySettings;
 import io.github.snowdrop.jester.utils.AwaitilityUtils;
-import io.github.snowdrop.jester.utils.Command;
 import io.github.snowdrop.jester.utils.KeyValueEntry;
 import io.github.snowdrop.jester.utils.ManifestsUtils;
 import io.github.snowdrop.jester.utils.SocketUtils;
@@ -43,8 +48,6 @@ abstract class BaseKubernetesClient<T extends KubernetesClient> {
 
     private String currentNamespace;
     private T client;
-
-    public abstract String command();
 
     public abstract T initializeClient(Config config);
 
@@ -68,9 +71,9 @@ abstract class BaseKubernetesClient<T extends KubernetesClient> {
      * @param file
      */
     public void apply(Path file) {
-        try {
-            new Command(command(), "apply", "-f", file.toAbsolutePath().toString(), "-n", currentNamespace)
-                    .runAndWait();
+        try (FileInputStream is = new FileInputStream(file.toFile())) {
+            Log.info("Applying file at '%s' in namespace '%s'", file.toAbsolutePath().toString(), currentNamespace);
+            client.load(is).createOrReplace();
         } catch (Exception e) {
             throw new RuntimeException("Failed to apply resource " + file.toAbsolutePath(), e);
         }
@@ -82,9 +85,9 @@ abstract class BaseKubernetesClient<T extends KubernetesClient> {
      * @param file
      */
     public void delete(Path file) {
-        try {
-            new Command(command(), "delete", "-f", file.toAbsolutePath().toString(), "-n", currentNamespace)
-                    .runAndWait();
+        try (FileInputStream is = new FileInputStream(file.toFile())) {
+            Log.info("Deleting file at '%s' in namespace '%s'", file.toAbsolutePath().toString(), currentNamespace);
+            client.load(is).delete();
         } catch (Exception e) {
             throw new RuntimeException("Failed to apply resource " + file.toAbsolutePath(), e);
         }
@@ -98,9 +101,19 @@ abstract class BaseKubernetesClient<T extends KubernetesClient> {
      */
     public void expose(Service service, int... ports) {
         try {
-            new Command(command(), "expose", "deployment", service.getName(),
-                    "--port=" + IntStream.of(ports).mapToObj(Integer::toString).collect(Collectors.joining(",")),
-                    "--name=" + service.getName(), "-n", currentNamespace).runAndWait();
+            Log.info(service, "Exposing deployment '%s' in namespace '%s'", service.getName(), currentNamespace);
+            Deployment deployment = client.apps().deployments().withName(service.getName()).get();
+
+            List<ServicePort> servicePorts = new ArrayList<>();
+            for (int port : ports) {
+                servicePorts.add(new ServicePortBuilder().withName("" + port).withPort(port).build());
+            }
+            client.services()
+                    .resource(new ServiceBuilder().withNewMetadata().withNamespace(currentNamespace)
+                            .withName(service.getName()).endMetadata().withNewSpec()
+                            .withSelector(deployment.getSpec().getTemplate().getMetadata().getLabels())
+                            .withPorts(servicePorts).endSpec().build())
+                    .create();
         } catch (Exception e) {
             throw new RuntimeException("Service failed to be exposed.", e);
         }
@@ -114,11 +127,14 @@ abstract class BaseKubernetesClient<T extends KubernetesClient> {
      */
     public void scaleTo(Service service, int replicas) {
         try {
-            new Command(command(), "scale", "deployment/" + service.getName(), "--replicas=" + replicas, "-n",
-                    currentNamespace).runAndWait();
+            String serviceName = service.getName();
+            Log.info(service, "Scaling deployment '%s' in namespace '%s' to '%s'", serviceName, currentNamespace,
+                    replicas);
+            client.apps().deployments().withName(serviceName).scale(replicas);
 
-            AwaitilityUtils.untilIsTrue(() -> client.apps().deployments().withName(service.getName()).get().getSpec()
-                    .getReplicas() == replicas, AwaitilitySettings.defaults().withService(service));
+            AwaitilityUtils.untilIsTrue(
+                    () -> client.apps().deployments().withName(serviceName).get().getSpec().getReplicas() == replicas,
+                    AwaitilitySettings.defaults().withService(service));
         } catch (Exception e) {
             throw new RuntimeException("Service failed to be scaled.", e);
         }
@@ -243,7 +259,10 @@ abstract class BaseKubernetesClient<T extends KubernetesClient> {
     public String getEvents() {
         List<String> output = new ArrayList<>();
         try {
-            new Command(command(), "get", "events", "-n", currentNamespace).outputToLines(output).runAndWait();
+            for (Event event : client.events().v1().events().inNamespace(currentNamespace).list().getItems()) {
+                output.add(event.toString());
+            }
+
         } catch (Exception ex) {
             Log.warn("Failed to get namespace events", ex);
         }
@@ -256,12 +275,15 @@ abstract class BaseKubernetesClient<T extends KubernetesClient> {
      */
     public void deleteNamespace() {
         portForwardsByService.values().forEach(this::closePortForward);
-        try {
-            new Command(command(), "delete", "namespace", currentNamespace).runAndWait();
-        } catch (Exception e) {
-            throw new RuntimeException("Project failed to be deleted.", e);
-        } finally {
-            client.close();
+        if (client != null) {
+            Log.info("Deleting namespace '%s'", currentNamespace);
+            try {
+                client.namespaces().withName(currentNamespace).delete();
+            } catch (Exception e) {
+                throw new RuntimeException("Project failed to be deleted.", e);
+            } finally {
+                client.close();
+            }
         }
     }
 
@@ -287,8 +309,39 @@ abstract class BaseKubernetesClient<T extends KubernetesClient> {
      */
     public void deleteResourcesByLabel(String labelName, String labelValue) {
         try {
-            String label = String.format("%s=%s", labelName, labelValue);
-            new Command(command(), "delete", "-n", currentNamespace, "all", "-l", label).runAndWait();
+            // Deployments
+            client.apps().deployments().inNamespace(currentNamespace).withLabel(labelName, labelValue).delete();
+            // Revisions
+            client.apps().controllerRevisions().inNamespace(currentNamespace).withLabel(labelName, labelValue).delete();
+            // Daemons
+            client.apps().daemonSets().inNamespace(currentNamespace).withLabel(labelName, labelValue).delete();
+            // Replicas
+            client.apps().replicaSets().inNamespace(currentNamespace).withLabel(labelName, labelValue).delete();
+            // Stateful Sets
+            client.apps().statefulSets().inNamespace(currentNamespace).withLabel(labelName, labelValue).delete();
+            // CRDs
+            client.resourceList().inNamespace(currentNamespace).resources().forEach(r -> {
+                if (labelValue.equals(r.get().getMetadata().getLabels().get(labelName))) {
+                    r.delete();
+                }
+            });
+            // Services
+            client.services().inNamespace(currentNamespace).withLabel(labelName, labelValue).delete();
+            // Pods
+            client.pods().inNamespace(currentNamespace).withLabel(labelName, labelValue).delete();
+            // Secrets
+            client.secrets().inNamespace(currentNamespace).withLabel(labelName, labelValue).delete();
+            // ConfigMap
+            client.configMaps().inNamespace(currentNamespace).withLabel(labelName, labelValue).delete();
+            // Claims
+            client.persistentVolumeClaims().inNamespace(currentNamespace).withLabel(labelName, labelValue).delete();
+            // Service Accounts
+            client.serviceAccounts().inNamespace(currentNamespace).withLabel(labelName, labelValue).delete();
+            // Jobs
+            client.batch().v1().jobs().inNamespace(currentNamespace).withLabel(labelName, labelValue).delete();
+            // CronJobs
+            client.batch().v1().cronjobs().inNamespace(currentNamespace).withLabel(labelName, labelValue).delete();
+            client.batch().v1beta1().cronjobs().inNamespace(currentNamespace).withLabel(labelName, labelValue).delete();
         } catch (Exception e) {
             throw new RuntimeException("Resources failed to be deleted.", e);
         } finally {
@@ -310,14 +363,6 @@ abstract class BaseKubernetesClient<T extends KubernetesClient> {
             } catch (IOException ex) {
                 Log.warn("Failed to close port forward " + localPort, ex);
             }
-        }
-    }
-
-    private void printServiceInfo(Service service) {
-        try {
-            new Command(command(), "get", "svc", service.getName(), "-n", currentNamespace).outputToConsole()
-                    .runAndWait();
-        } catch (Exception ignored) {
         }
     }
 
@@ -344,15 +389,19 @@ abstract class BaseKubernetesClient<T extends KubernetesClient> {
     }
 
     public void initializeClientUsingNamespace(String namespace) {
+        Log.info("Using namespace '%s'", namespace);
         currentNamespace = namespace;
         Config config = new ConfigBuilder().withTrustCerts(true).withNamespace(currentNamespace).build();
         client = (T) initializeClient(config);
     }
 
-    private boolean doCreateNamespace(String namespaceName) {
+    private static boolean doCreateNamespace(String namespaceName) {
         boolean created = false;
-        try {
-            new Command(command(), "create", "namespace", namespaceName).runAndWait();
+        Config config = new ConfigBuilder().withTrustCerts(true).build();
+        try (KubernetesClient client = new KubernetesClientBuilder().withConfig(config).build()) {
+            client.namespaces()
+                    .resource(new NamespaceBuilder().withNewMetadata().withName(namespaceName).endMetadata().build())
+                    .create();
             created = true;
         } catch (Exception e) {
             Log.warn("Namespace " + namespaceName + " failed to be created. Caused by: " + e.getMessage()
