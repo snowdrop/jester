@@ -4,25 +4,13 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 
-import io.fabric8.kubernetes.api.model.Capabilities;
-import io.fabric8.kubernetes.api.model.Container;
-import io.fabric8.kubernetes.api.model.ContainerPortBuilder;
-import io.fabric8.kubernetes.api.model.PodSecurityContext;
-import io.fabric8.kubernetes.api.model.PodSpec;
-import io.fabric8.kubernetes.api.model.PodTemplateSpec;
-import io.fabric8.kubernetes.api.model.SecurityContext;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
-import io.fabric8.kubernetes.api.model.apps.DeploymentSpec;
-import io.fabric8.kubernetes.client.utils.Serialization;
 import io.github.snowdrop.jester.api.clients.OpenshiftClient;
 import io.github.snowdrop.jester.configuration.OpenShiftServiceConfiguration;
 import io.github.snowdrop.jester.configuration.OpenShiftServiceConfigurationBuilder;
@@ -33,12 +21,10 @@ import io.github.snowdrop.jester.logging.LoggingHandler;
 import io.github.snowdrop.jester.logging.OpenShiftLoggingHandler;
 import io.github.snowdrop.jester.utils.AwaitilitySettings;
 import io.github.snowdrop.jester.utils.AwaitilityUtils;
+import io.github.snowdrop.jester.utils.DeploymentResourceUtils;
 import io.github.snowdrop.jester.utils.FileUtils;
-import io.github.snowdrop.jester.utils.ManifestsUtils;
 
 public abstract class OpenShiftManagedResource extends ManagedResource {
-
-    private static final String DEPLOYMENT = "openshift.yml";
 
     private OpenshiftClient client;
     private LoggingHandler loggingHandler;
@@ -155,6 +141,10 @@ public abstract class OpenShiftManagedResource extends ManagedResource {
         applyDeployment();
     }
 
+    protected Optional<Deployment> loadDeploymentFromFolder() {
+        return Optional.empty();
+    }
+
     private void waitForRoute() {
         HttpClient client = HttpClient.newHttpClient();
         AwaitilityUtils.untilIsTrue(() -> {
@@ -171,68 +161,17 @@ public abstract class OpenShiftManagedResource extends ManagedResource {
     }
 
     private void applyDeployment() {
-        Deployment deployment = Optional
-                .ofNullable(context.getConfigurationAs(OpenShiftServiceConfiguration.class).getTemplate())
-                .filter(StringUtils::isNotEmpty)
-                .map(f -> Serialization.unmarshal(FileUtils.loadFile(f), Deployment.class)).orElseGet(Deployment::new);
+        Deployment deployment = loadDeploymentFromConfiguration().or(this::loadDeploymentFromFolder)
+                .orElseGet(Deployment::new);
 
-        // Set service data
-        initDeployment(deployment);
-        Container container = deployment.getSpec().getTemplate().getSpec().getContainers().get(0);
-        container.setName(context.getName());
-        if (StringUtils.isEmpty(container.getImage())) {
-            container.setImage(getImage());
-        }
-
-        if (container.getCommand() != null && container.getCommand().size() > 0 && getCommand() != null
-                && getCommand().length > 0) {
-            container.setCommand(Arrays.asList(getCommand()));
-        }
-
-        for (int port : getEffectivePorts()) {
-            if (container.getPorts().stream().noneMatch(p -> p.getContainerPort() == port)) {
-                container.getPorts()
-                        .add(new ContainerPortBuilder().withName("port-" + port).withContainerPort(port).build());
-            }
-        }
-
-        // Enrich it
-        ManifestsUtils.enrichDeployment(client.underlyingClient(), deployment, context.getOwner());
-
-        // Apply it
-        Path target = context.getServiceFolder().resolve(DEPLOYMENT);
-        ManifestsUtils.writeFile(target, deployment);
-        client.apply(target);
+        DeploymentResourceUtils.adaptDeployment(context, client, deployment, getImage(), getCommand(),
+                getEffectivePorts());
     }
 
-    private void initDeployment(Deployment deployment) {
-        if (deployment.getSpec() == null) {
-            deployment.setSpec(new DeploymentSpec());
-        }
-        if (deployment.getSpec().getTemplate() == null) {
-            deployment.getSpec().setTemplate(new PodTemplateSpec());
-        }
-        if (deployment.getSpec().getTemplate().getSpec() == null) {
-            deployment.getSpec().getTemplate().setSpec(new PodSpec());
-        }
-        if (deployment.getSpec().getTemplate().getSpec().getSecurityContext() == null) {
-            deployment.getSpec().getTemplate().getSpec().setSecurityContext(new PodSecurityContext());
-            deployment.getSpec().getTemplate().getSpec().getSecurityContext().setRunAsNonRoot(true);
-        }
-        if (deployment.getSpec().getTemplate().getSpec().getContainers() == null) {
-            deployment.getSpec().getTemplate().getSpec().setContainers(new ArrayList<>());
-        }
-        if (deployment.getSpec().getTemplate().getSpec().getContainers().isEmpty()) {
-            deployment.getSpec().getTemplate().getSpec().getContainers().add(new Container());
-            deployment.getSpec().getTemplate().getSpec().getContainers().get(0)
-                    .setSecurityContext(new SecurityContext());
-            deployment.getSpec().getTemplate().getSpec().getContainers().get(0).getSecurityContext()
-                    .setAllowPrivilegeEscalation(false);
-            Capabilities capabilities = new Capabilities();
-            capabilities.setDrop(Arrays.asList("ALL"));
-            deployment.getSpec().getTemplate().getSpec().getContainers().get(0).getSecurityContext()
-                    .setCapabilities(capabilities);
-        }
+    private Optional<Deployment> loadDeploymentFromConfiguration() {
+        return Optional.ofNullable(context.getConfigurationAs(OpenShiftServiceConfiguration.class).getTemplate())
+                .filter(StringUtils::isNotEmpty).map(FileUtils::loadFile)
+                .map(DeploymentResourceUtils::loadDeploymentFromString);
     }
 
     private boolean useInternalServiceAsUrl() {

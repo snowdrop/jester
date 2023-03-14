@@ -1,18 +1,26 @@
 package io.github.snowdrop.jester.resources.quarkus.kubernetes;
 
+import static io.github.snowdrop.jester.utils.DeploymentResourceUtils.loadDeploymentFromString;
+
+import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.github.snowdrop.jester.api.Dependency;
 import io.github.snowdrop.jester.core.ServiceContext;
 import io.github.snowdrop.jester.resources.kubernetes.KubernetesManagedResource;
 import io.github.snowdrop.jester.resources.quarkus.common.BootstrapQuarkusResource;
 import io.github.snowdrop.jester.utils.DockerUtils;
+import io.github.snowdrop.jester.utils.FileUtils;
 import io.github.snowdrop.jester.utils.QuarkusUtils;
 
 public class ContainerRegistryProdModeBootstrapQuarkusKubernetesManagedResource extends KubernetesManagedResource {
 
+    private static final String TARGET = "target";
+    private static final String DEPLOYMENT = "kubernetes.yml";
     private final String location;
     private final Class<?>[] classes;
     private final Dependency[] forcedDependencies;
@@ -64,6 +72,16 @@ public class ContainerRegistryProdModeBootstrapQuarkusKubernetesManagedResource 
 
         resource = new BootstrapQuarkusResource(context, location, classes, forcedDependencies, forceBuild, version);
         image = createImageAndPush();
+    }
+
+    @Override
+    protected Optional<Deployment> loadDeploymentFromFolder() {
+        File file = Path.of(TARGET, QuarkusUtils.getKubernetesFolder(context.getOwner()), DEPLOYMENT).toFile();
+        if (file.exists()) {
+            return Optional.ofNullable(loadDeploymentFromString(FileUtils.loadFile(file)));
+        }
+
+        return Optional.empty();
     }
 
     private String createImageAndPush() {

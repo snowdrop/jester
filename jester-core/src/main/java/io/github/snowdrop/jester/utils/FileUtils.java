@@ -63,11 +63,11 @@ public final class FileUtils {
         }
     }
 
-    public static String loadFile(String file) {
+    public static String loadFile(String location) {
         try {
-            return IOUtils.toString(FileUtils.class.getResourceAsStream(file), StandardCharsets.UTF_8);
+            return IOUtils.toString(FileUtils.class.getResourceAsStream(location), StandardCharsets.UTF_8);
         } catch (IOException e) {
-            throw new RuntimeException("Could not load file " + file, e);
+            throw new RuntimeException("Could not load file " + location, e);
         }
     }
 

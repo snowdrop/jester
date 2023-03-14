@@ -6,7 +6,6 @@ import static io.github.snowdrop.jester.utils.PropertiesUtils.SLASH;
 import static io.github.snowdrop.jester.utils.PropertiesUtils.TARGET;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,7 +20,6 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 
-import io.fabric8.kubernetes.api.model.ConfigMapBuilder;
 import io.fabric8.kubernetes.api.model.ConfigMapVolumeSourceBuilder;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.EnvVar;
@@ -34,9 +32,9 @@ import io.fabric8.kubernetes.api.model.Volume;
 import io.fabric8.kubernetes.api.model.VolumeBuilder;
 import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
-import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.utils.Serialization;
 import io.github.snowdrop.jester.api.Service;
+import io.github.snowdrop.jester.api.clients.BaseKubernetesClient;
 
 public final class ManifestsUtils {
 
@@ -68,18 +66,18 @@ public final class ManifestsUtils {
         }
     }
 
-    public static void enrichDeployment(KubernetesClient client, Deployment deployment, Service service) {
+    public static void enrichDeployment(BaseKubernetesClient client, Deployment deployment, Service service) {
         enrichDeployment(client, deployment, service, Collections.emptyMap());
     }
 
-    public static void enrichDeployment(KubernetesClient client, Deployment deployment, Service service,
+    public static void enrichDeployment(BaseKubernetesClient client, Deployment deployment, Service service,
             Map<String, String> extraTemplateProperties) {
         if (deployment.getMetadata() == null) {
             deployment.setMetadata(new ObjectMeta());
         }
 
         // set namespace
-        deployment.getMetadata().setNamespace(client.getNamespace());
+        deployment.getMetadata().setNamespace(client.namespace());
         Map<String, String> objMetadataLabels = Optional.ofNullable(deployment.getMetadata().getLabels())
                 .orElse(new HashMap<>());
 
@@ -94,7 +92,7 @@ public final class ManifestsUtils {
         if (deployment.getSpec().getTemplate().getMetadata() == null) {
             deployment.getSpec().getTemplate().setMetadata(new ObjectMeta());
         }
-        deployment.getSpec().getTemplate().getMetadata().setNamespace(client.getNamespace());
+        deployment.getSpec().getTemplate().getMetadata().setNamespace(client.namespace());
 
         // add selector
         if (deployment.getSpec().getSelector() == null) {
@@ -129,7 +127,7 @@ public final class ManifestsUtils {
                 }));
     }
 
-    private static Map<String, String> enrichProperties(KubernetesClient client, Map<String, String> properties,
+    private static Map<String, String> enrichProperties(BaseKubernetesClient client, Map<String, String> properties,
             Deployment deployment) {
         // mount path x volume
         Map<String, Volume> volumes = new HashMap<>();
@@ -144,7 +142,7 @@ public final class ManifestsUtils {
                 String configMapName = normalizeName(mountPath);
 
                 // Update config map
-                createOrUpdateConfigMap(client, configMapName, filename, getFileContent(path));
+                client.createOrUpdateConfigMap(configMapName, filename, getFileContent(path));
 
                 // Add the volume
                 if (!volumes.containsKey(mountPath)) {
@@ -161,7 +159,7 @@ public final class ManifestsUtils {
                 String secretName = normalizeName(path);
 
                 // Push secret file
-                doCreateSecretFromFile(client, secretName, getFilePath(path));
+                client.createSecretFromFile(secretName, getFilePath(path));
 
                 // Add the volume
                 Volume volume = new VolumeBuilder().withName(secretName)
@@ -245,30 +243,5 @@ public final class ManifestsUtils {
 
     private static String normalizeName(String name) {
         return StringUtils.removeStart(name, SLASH).replaceAll(Pattern.quote("."), "-").replaceAll(SLASH, "-");
-    }
-
-    private static void createOrUpdateConfigMap(KubernetesClient client, String configMapName, String key,
-            String value) {
-        if (client.configMaps().withName(configMapName).get() != null) {
-            // update existing config map by adding new file
-            client.configMaps().withName(configMapName).edit(configMap -> {
-                configMap.getData().put(key, value);
-                return configMap;
-            });
-        } else {
-            // create new one
-            client.configMaps().createOrReplace(new ConfigMapBuilder().withNewMetadata().withName(configMapName)
-                    .endMetadata().addToData(key, value).build());
-        }
-    }
-
-    private static void doCreateSecretFromFile(KubernetesClient client, String name, String filePath) {
-        if (client.secrets().withName(name).get() == null) {
-            try {
-                client.secrets().load(new FileInputStream(filePath));
-            } catch (Exception e) {
-                throw new RuntimeException("Could not create secret.", e);
-            }
-        }
     }
 }
