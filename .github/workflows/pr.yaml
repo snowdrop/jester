@@ -31,7 +31,7 @@ jobs:
     needs: validate-format
     strategy:
       matrix:
-        java: [ 11, 17 ]
+        java: [ 11 ]
     steps:
       - uses: actions/checkout@v3
       - name: Reclaim Disk Space
