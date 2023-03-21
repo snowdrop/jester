@@ -52,7 +52,7 @@
     <rest-assured.version>5.3.0</rest-assured.version>
     <awaitility.version>4.2.0</awaitility.version>
     <apache.commons-io.version>2.11.0</apache.commons-io.version>
-    <kubernetes-client.version>6.5.0</kubernetes-client.version>
+    <kubernetes-client.version>6.5.1</kubernetes-client.version>
     <jackson-annotations.version>2.14.2</jackson-annotations.version>
     <!-- Provided Dependencies -->
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
