@@ -130,7 +130,7 @@ jobs:
       - id: registry
         uses: Sgitario/setup-container-registry@v1
       - name: Setup OpenShift
-        uses: manusa/actions-setup-openshift@v1.1.4
+        uses: manusa/actions-setup-openshift@v1.1.5
         with:
           oc version: ${{ matrix.openshift }}
           dns ip: 1.1.1.1
