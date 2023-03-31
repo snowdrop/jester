@@ -42,5 +42,9 @@
       <groupId>io.fabric8</groupId>
       <artifactId>kubernetes-httpclient-okhttp</artifactId>
     </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging-api</artifactId>
+    </dependency>
   </dependencies>
 </project>
