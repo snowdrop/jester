@@ -135,7 +135,7 @@ public abstract class KubernetesManagedResource extends ManagedResource {
                 .orElseGet(Deployment::new);
 
         DeploymentResourceUtils.adaptDeployment(context, client, deployment, getImage(), getCommand(),
-                getEffectivePorts());
+                getEffectivePorts(), getServiceAccount());
     }
 
     private Optional<Deployment> loadDeploymentFromConfiguration() {
@@ -146,6 +146,10 @@ public abstract class KubernetesManagedResource extends ManagedResource {
 
     private boolean useInternalServiceAsUrl() {
         return context.getConfigurationAs(KubernetesServiceConfiguration.class).isUseInternalService();
+    }
+
+    private String getServiceAccount() {
+        return context.getConfigurationAs(KubernetesServiceConfiguration.class).getServiceAccount();
     }
 
     private int[] getEffectivePorts() {

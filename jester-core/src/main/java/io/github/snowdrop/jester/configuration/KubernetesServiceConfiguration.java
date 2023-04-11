@@ -4,6 +4,7 @@ public final class KubernetesServiceConfiguration {
     private String template;
     private boolean useInternalService = false;
     private int[] additionalPorts;
+    private String serviceAccount;
 
     public String getTemplate() {
         return template;
@@ -27,5 +28,13 @@ public final class KubernetesServiceConfiguration {
 
     public void setAdditionalPorts(int[] additionalPorts) {
         this.additionalPorts = additionalPorts;
+    }
+
+    public String getServiceAccount() {
+        return serviceAccount;
+    }
+
+    public void setServiceAccount(String serviceAccount) {
+        this.serviceAccount = serviceAccount;
     }
 }

@@ -1171,6 +1171,7 @@ The configuration that is only available for Kubernetes deployments is:
 | Template | Template for the initial deployment resource. The custom template should be located at the `src/test/resources` folder |  | `ts.services.<SERVICE NAME>.kubernetes.template=/custom-deployment.yaml` | `@KubernetesServiceConfiguration(forService = "<SERVICE NAME>", template = "/custom-deployment.yaml")` |
 | Use as internal service | Use internal routing instead of exposed network interfaces. This is useful to integration several services that are running as part of the same namespace or network |  | `ts.services.<SERVICE NAME>.kubernetes.use-internal-service=false` | `@KubernetesServiceConfiguration(forService = "<SERVICE NAME>", useInternalService = false)` |
 | Custom additional ports | Add custom additional ports to be used during the tests |  | `ts.services.<SERVICE NAME>.kubernetes.additional-ports=8001,8002` | `@KubernetesServiceConfiguration(forService = "<SERVICE NAME>", additionalPorts = [8001, 8002])` |
+| Use a service account | Use a custom service account name. |  | `ts.services.<SERVICE NAME>.kubernetes.service-account=my-svc` | `@KubernetesServiceConfiguration(forService = "<SERVICE NAME>", serviceAccount = "my-svc")` |
 
 ### OpenShift Configuration
 
@@ -1186,7 +1187,7 @@ The configuration that is only available for OpenShift deployments is:
 | Use as internal service                                | Use internal routing instead of exposed network interfaces. This is useful to integration several services that are running as part of the same namespace or network |  | `ts.services.<SERVICE NAME>.openshift.use-internal-service=false`       | `@OpenShiftServiceConfiguration(forService = "<SERVICE NAME>", useInternalService = false)`           |
 | Custom additional ports                                | Add custom additional ports to be used during the tests                                                                                                              |  | `ts.services.<SERVICE NAME>.openshift.additional-ports=8001,8002`       | `@OpenShiftServiceConfiguration(forService = "<SERVICE NAME>", additionalPorts = [8001, 8002])`       |
 | Use route                                | Expose the service using OpenShift routes. Default is false.                                                                                                              |  | `ts.services.<SERVICE NAME>.openshift.use-route=true`       | `@OpenShiftServiceConfiguration(forService = "<SERVICE NAME>", useRoute = true)`       |
-
+| Use a service account | Use a custom service account name. |  | `ts.services.<SERVICE NAME>.openshift.service-account=my-svc` | `@OpenShiftServiceConfiguration(forService = "<SERVICE NAME>", serviceAccount = "my-svc")` |
 
 ### Docker Service Configuration
 

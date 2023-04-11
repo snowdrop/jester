@@ -4,6 +4,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.apache.commons.lang3.StringUtils;
+
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerPortBuilder;
 import io.fabric8.kubernetes.api.model.HasMetadata;
@@ -48,10 +50,11 @@ public final class DeploymentResourceUtils {
     }
 
     public static void adaptDeployment(ServiceContext context, BaseKubernetesClient client, Deployment deployment,
-            String image, String[] command, int[] ports) {
+            String image, String[] command, int[] ports, String serviceAccount) {
         // Set service data
         initDeployment(deployment);
-        Container container = deployment.getSpec().getTemplate().getSpec().getContainers().get(0);
+        PodSpec pod = deployment.getSpec().getTemplate().getSpec();
+        Container container = pod.getContainers().get(0);
         container.setName(context.getName());
         container.setImage(image);
         if (command != null) {
@@ -63,6 +66,10 @@ public final class DeploymentResourceUtils {
                 container.getPorts()
                         .add(new ContainerPortBuilder().withName("port-" + port).withContainerPort(port).build());
             }
+        }
+
+        if (StringUtils.isNotEmpty(serviceAccount)) {
+            pod.setServiceAccountName(serviceAccount);
         }
 
         // Enrich it

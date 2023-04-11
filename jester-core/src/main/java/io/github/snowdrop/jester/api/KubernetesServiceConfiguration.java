@@ -31,4 +31,10 @@ public @interface KubernetesServiceConfiguration {
      * Map additional ports to be used during the tests.
      */
     int[] additionalPorts() default {};
+
+    /**
+     * Use this service account name. Fallback service property: "ts.services.<SERVICE
+     * NAME>.kubernetes.service-account".
+     */
+    String serviceAccount() default "";
 }
