@@ -5,6 +5,7 @@ public final class OpenShiftServiceConfiguration {
     private boolean useInternalService = false;
     private int[] additionalPorts;
     private boolean useRoute = false;
+    private String serviceAccount;
 
     public String getTemplate() {
         return template;
@@ -36,5 +37,13 @@ public final class OpenShiftServiceConfiguration {
 
     public void setUseRoute(boolean useRoute) {
         this.useRoute = useRoute;
+    }
+
+    public String getServiceAccount() {
+        return serviceAccount;
+    }
+
+    public void setServiceAccount(String serviceAccount) {
+        this.serviceAccount = serviceAccount;
     }
 }

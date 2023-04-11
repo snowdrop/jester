@@ -165,7 +165,7 @@ public abstract class OpenShiftManagedResource extends ManagedResource {
                 .orElseGet(Deployment::new);
 
         DeploymentResourceUtils.adaptDeployment(context, client, deployment, getImage(), getCommand(),
-                getEffectivePorts());
+                getEffectivePorts(), getServiceAccount());
     }
 
     private Optional<Deployment> loadDeploymentFromConfiguration() {
@@ -176,6 +176,10 @@ public abstract class OpenShiftManagedResource extends ManagedResource {
 
     private boolean useInternalServiceAsUrl() {
         return context.getConfigurationAs(OpenShiftServiceConfiguration.class).isUseInternalService();
+    }
+
+    private String getServiceAccount() {
+        return context.getConfigurationAs(OpenShiftServiceConfiguration.class).getServiceAccount();
     }
 
     private int[] getEffectivePorts() {

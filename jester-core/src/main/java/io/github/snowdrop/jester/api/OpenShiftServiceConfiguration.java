@@ -37,4 +37,9 @@ public @interface OpenShiftServiceConfiguration {
      * NAME>.openshift.use-route`.
      */
     boolean useRoute() default false;
+
+    /**
+     * Use this service account name. Fallback service property: "ts.services.<SERVICE NAME>.openshift.service-account".
+     */
+    String serviceAccount() default "";
 }

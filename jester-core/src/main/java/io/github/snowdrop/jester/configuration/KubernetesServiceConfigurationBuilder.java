@@ -10,6 +10,7 @@ public final class KubernetesServiceConfigurationBuilder extends
     private static final String DEPLOYMENT_TEMPLATE_PROPERTY = "kubernetes.template";
     private static final String USE_INTERNAL_SERVICE_PROPERTY = "kubernetes.use-internal-service";
     private static final String ADDITIONAL_PORTS_PROPERTY = "kubernetes.additional-ports";
+    private static final String SERVICE_ACCOUNT = "kubernetes.service-account";
 
     @Override
     public KubernetesServiceConfiguration build() {
@@ -19,6 +20,7 @@ public final class KubernetesServiceConfigurationBuilder extends
                 .ifPresent(serviceConfiguration::setUseInternalService);
         loadArrayOfIntegers(ADDITIONAL_PORTS_PROPERTY, a -> a.additionalPorts())
                 .ifPresent(serviceConfiguration::setAdditionalPorts);
+        loadString(SERVICE_ACCOUNT, a -> a.serviceAccount()).ifPresent(serviceConfiguration::setServiceAccount);
         return serviceConfiguration;
     }
 
