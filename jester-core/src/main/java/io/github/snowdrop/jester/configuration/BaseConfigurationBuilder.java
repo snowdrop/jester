@@ -34,55 +34,25 @@ public abstract class BaseConfigurationBuilder<T extends Annotation, C> {
     protected abstract Optional<T> getAnnotationConfig(String serviceName, JesterContext context);
 
     protected Optional<Duration> loadDuration(String propertyKey, Function<T, String> annotationMapper) {
-        // first annotation,
-        if (annotationConfig.isPresent()) {
-            String value = annotationMapper.apply(annotationConfig.get());
-            if (StringUtils.isNotBlank(value)) {
-                return Optional.of(DurationUtils.parse(value));
-            }
-        }
-
-        // it not found in annotation, then property
-        return PropertiesUtils.getAsDuration(properties, propertyKey);
+        return PropertiesUtils.getAsDuration(properties, propertyKey).or(() -> annotationConfig
+                .map(annotationMapper::apply).filter(StringUtils::isNotBlank).map(DurationUtils::parse));
     }
 
     protected Optional<Boolean> loadBoolean(String propertyKey, Function<T, Boolean> annotationMapper) {
-        // first annotation,
-        if (annotationConfig.isPresent()) {
-            return Optional.of(annotationMapper.apply(annotationConfig.get()));
-        }
-
-        // it not found in annotation, then property
-        return PropertiesUtils.getAsBoolean(properties, propertyKey);
+        return PropertiesUtils.getAsBoolean(properties, propertyKey)
+                .or(() -> annotationConfig.map(annotationMapper::apply));
     }
 
     protected Optional<String[]> loadArrayOfStrings(String propertyKey, Function<T, String[]> annotationMapper) {
-        // first annotation,
-        if (annotationConfig.isPresent()) {
-            return Optional.of(annotationMapper.apply(annotationConfig.get()));
-        }
-
-        // it not found in annotation, then property
-        return PropertiesUtils.get(properties, propertyKey).map(v -> v.trim().split(COMMA));
+        return PropertiesUtils.get(properties, propertyKey).map(v -> v.trim().split(COMMA))
+                .or(() -> annotationConfig.map(annotationMapper::apply));
     }
 
     protected Optional<String> loadString(String propertyKey, Function<T, String> annotationMapper) {
-        // first annotation,
-        if (annotationConfig.isPresent()) {
-            return Optional.of(annotationMapper.apply(annotationConfig.get()));
-        }
-
-        // it not found in annotation, then property
-        return PropertiesUtils.get(properties, propertyKey);
+        return PropertiesUtils.get(properties, propertyKey).or(() -> annotationConfig.map(annotationMapper::apply));
     }
 
     protected Optional<int[]> loadArrayOfIntegers(String propertyKey, Function<T, int[]> annotationMapper) {
-        // first annotation,
-        if (annotationConfig.isPresent()) {
-            return Optional.of(annotationMapper.apply(annotationConfig.get()));
-        }
-
-        // it not found in annotation, then property
         return PropertiesUtils.get(properties, propertyKey).map(v -> v.trim().split(COMMA)).map(arrayOfStrings -> {
             int[] arrayOfIntegers = new int[arrayOfStrings.length];
             for (int i = 0; i < arrayOfStrings.length; i++) {
@@ -90,26 +60,16 @@ public abstract class BaseConfigurationBuilder<T extends Annotation, C> {
             }
 
             return arrayOfIntegers;
-        });
+        }).or(() -> annotationConfig.map(annotationMapper::apply));
     }
 
     protected Optional<Integer> loadInteger(String propertyKey, Function<T, Integer> annotationMapper) {
-        // first annotation,
-        if (annotationConfig.isPresent()) {
-            return Optional.of(annotationMapper.apply(annotationConfig.get()));
-        }
-
-        // it not found in annotation, then property
-        return PropertiesUtils.get(properties, propertyKey).filter(StringUtils::isNotEmpty).map(Integer::parseInt);
+        return PropertiesUtils.get(properties, propertyKey).filter(StringUtils::isNotEmpty).map(Integer::parseInt)
+                .or(() -> annotationConfig.map(annotationMapper::apply));
     }
 
     protected Optional<Double> loadDouble(String propertyKey, Function<T, Double> annotationMapper) {
-        // first annotation,
-        if (annotationConfig.isPresent()) {
-            return Optional.of(annotationMapper.apply(annotationConfig.get()));
-        }
-
-        // it not found in annotation, then property
-        return PropertiesUtils.get(properties, propertyKey).filter(StringUtils::isNotEmpty).map(Double::parseDouble);
+        return PropertiesUtils.get(properties, propertyKey).filter(StringUtils::isNotEmpty).map(Double::parseDouble)
+                .or(() -> annotationConfig.map(annotationMapper::apply));
     }
 }
