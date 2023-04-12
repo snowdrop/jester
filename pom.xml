@@ -363,10 +363,7 @@
         <module>examples/quarkus-oidc</module>
         <module>examples/quarkus-jdbc-mysql</module>
         <module>examples/quarkus-grpc</module>
-        <!--
-        Hibernate Reactive does not work in Quarkus 3.0.0.Alpha5
         <module>examples/quarkus-reactive-mysql</module>
-        -->
         <module>examples/quarkus-with-kubernetes</module>
         <module>examples/apps-benchmark</module>
       </modules>
