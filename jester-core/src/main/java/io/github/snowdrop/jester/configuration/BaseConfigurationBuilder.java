@@ -52,6 +52,12 @@ public abstract class BaseConfigurationBuilder<T extends Annotation, C> {
         return PropertiesUtils.get(properties, propertyKey).or(() -> annotationConfig.map(annotationMapper::apply));
     }
 
+    protected <E extends Enum<E>> Optional<E> loadEnum(String propertyKey, Class<E> enumType,
+            Function<T, E> annotationMapper) {
+        return PropertiesUtils.get(properties, propertyKey).map(s -> Enum.valueOf(enumType, s))
+                .or(() -> annotationConfig.map(annotationMapper::apply));
+    }
+
     protected Optional<int[]> loadArrayOfIntegers(String propertyKey, Function<T, int[]> annotationMapper) {
         return PropertiesUtils.get(properties, propertyKey).map(v -> v.trim().split(COMMA)).map(arrayOfStrings -> {
             int[] arrayOfIntegers = new int[arrayOfStrings.length];

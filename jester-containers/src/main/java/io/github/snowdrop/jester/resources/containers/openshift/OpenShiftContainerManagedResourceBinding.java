@@ -1,5 +1,6 @@
 package io.github.snowdrop.jester.resources.containers.openshift;
 
+import io.github.snowdrop.jester.api.Service;
 import io.github.snowdrop.jester.api.extensions.ContainerManagedResourceBinding;
 import io.github.snowdrop.jester.core.JesterContext;
 import io.github.snowdrop.jester.core.ManagedResource;
@@ -12,7 +13,8 @@ public class OpenShiftContainerManagedResourceBinding implements ContainerManage
     }
 
     @Override
-    public ManagedResource init(String image, String expectedLog, String[] command, int[] ports) {
+    public ManagedResource init(JesterContext context, Service service, String image, String expectedLog,
+            String[] command, int[] ports) {
         return new OpenShiftContainerManagedResource(image, expectedLog, command, ports);
     }
 }

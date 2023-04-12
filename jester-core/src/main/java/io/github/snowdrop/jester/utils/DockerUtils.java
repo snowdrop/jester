@@ -54,7 +54,7 @@ public final class DockerUtils {
         }
     }
 
-    private static String getUniqueName(ServiceContext service) {
+    public static String getUniqueName(ServiceContext service) {
         String uniqueName = service.getTestContext().getRequiredTestClass().getName() + "." + service.getName();
         return uniqueName.toLowerCase();
     }

@@ -27,7 +27,7 @@ public class LocalProjectAnnotationBinding implements AnnotationBinding {
 
         for (LocalProjectManagedResourceBinding binding : bindings) {
             if (binding.appliesFor(context)) {
-                return binding.init(metadata);
+                return binding.init(context, service, metadata);
             }
         }
 

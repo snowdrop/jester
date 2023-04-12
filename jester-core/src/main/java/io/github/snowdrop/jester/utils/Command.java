@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -66,6 +67,11 @@ public class Command {
 
     public Command outputToLines(List<String> output) {
         outputConsumer = linesOutput(output);
+        return this;
+    }
+
+    public Command onDirectory(Path path) {
+        directory = path.toString();
         return this;
     }
 

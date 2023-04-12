@@ -8,11 +8,14 @@ public final class QuarkusServiceConfigurationBuilder extends
         BaseConfigurationBuilder<io.github.snowdrop.jester.api.QuarkusServiceConfiguration, QuarkusServiceConfiguration> {
 
     private static final String EXPECTED_OUTPUT = "quarkus.expected-log";
+    private static final String DEPLOYMENT_METHOD = "quarkus.deployment-method";
 
     @Override
     public QuarkusServiceConfiguration build() {
         QuarkusServiceConfiguration config = new QuarkusServiceConfiguration();
         loadString(EXPECTED_OUTPUT, a -> a.expectedLog()).ifPresent(config::setExpectedLog);
+        loadEnum(DEPLOYMENT_METHOD, DeploymentMethod.class, a -> a.deploymentMethod())
+                .ifPresent(config::setDeploymentMethod);
         return config;
     }
 

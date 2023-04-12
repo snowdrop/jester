@@ -1,5 +1,6 @@
 package io.github.snowdrop.jester.resources.containers.kubernetes;
 
+import io.github.snowdrop.jester.api.Service;
 import io.github.snowdrop.jester.api.extensions.ContainerManagedResourceBinding;
 import io.github.snowdrop.jester.core.JesterContext;
 import io.github.snowdrop.jester.core.ManagedResource;
@@ -12,7 +13,8 @@ public class KubernetesContainerManagedResourceBinding implements ContainerManag
     }
 
     @Override
-    public ManagedResource init(String image, String expectedLog, String[] command, int[] ports) {
+    public ManagedResource init(JesterContext context, Service service, String image, String expectedLog,
+            String[] command, int[] ports) {
         return new KubernetesContainerManagedResource(image, expectedLog, command, ports);
     }
 }

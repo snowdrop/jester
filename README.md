@@ -1204,6 +1204,7 @@ The configuration that is only available when running services annotated with `@
 | Name | Description | Default | Property | Annotation | 
 |------|-------------|---------|----------|------------| 
 | Expected Log | Configure the expected log for the Quarkus service | Installed features | `ts.services.<SERVICE NAME>.quarkus.expected-log=Installed features` | `@QuarkusServiceConfiguration(forService = "<SERVICE NAME>", expectedLog = "Installed features")` |
+| Kubernetes/OpenShift deployment strategy | Relevant only for Kubernetes/OpenShift deployments. By default, if the Kubernetes/OpenShift extensions are loaded, it will deploy the service using the generated resources by these extensions. Otherwise, it will use the auto generated resources by Jester. | AUTO | `ts.services.<SERVICE NAME>.quarkus.deployment-method=EMBEDDED` | `@QuarkusServiceConfiguration(forService = "<SERVICE NAME>", deploymentMethod = DeploymentMethod.EMBEDDED)` |
 
 ### Spring Service Configuration
 

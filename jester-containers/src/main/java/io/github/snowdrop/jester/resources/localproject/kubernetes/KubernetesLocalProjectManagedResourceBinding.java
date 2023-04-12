@@ -1,6 +1,7 @@
 package io.github.snowdrop.jester.resources.localproject.kubernetes;
 
 import io.github.snowdrop.jester.api.LocalProject;
+import io.github.snowdrop.jester.api.Service;
 import io.github.snowdrop.jester.api.extensions.LocalProjectManagedResourceBinding;
 import io.github.snowdrop.jester.core.JesterContext;
 import io.github.snowdrop.jester.core.ManagedResource;
@@ -13,7 +14,7 @@ public class KubernetesLocalProjectManagedResourceBinding implements LocalProjec
     }
 
     @Override
-    public ManagedResource init(LocalProject metadata) {
+    public ManagedResource init(JesterContext context, Service service, LocalProject metadata) {
         return new KubernetesLocalProjectManagedResource(metadata.location(), metadata.buildCommands(),
                 metadata.dockerfile(), metadata.expectedLog(), metadata.command(), metadata.ports());
     }

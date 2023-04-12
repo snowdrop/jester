@@ -1,6 +1,7 @@
 package io.github.snowdrop.jester.resources.operators.kubernetes;
 
 import io.github.snowdrop.jester.api.Operator;
+import io.github.snowdrop.jester.api.Service;
 import io.github.snowdrop.jester.api.extensions.OperatorManagedResourceBinding;
 import io.github.snowdrop.jester.core.JesterContext;
 import io.github.snowdrop.jester.core.ManagedResource;
@@ -13,7 +14,7 @@ public class KubernetesOperatorManagedResourceBinding implements OperatorManaged
     }
 
     @Override
-    public ManagedResource init(Operator metadata) {
+    public ManagedResource init(JesterContext context, Service service, Operator metadata) {
         return new KubernetesOperatorManagedResource(metadata.subscription(), metadata.channel(), metadata.source(),
                 metadata.sourceNamespace());
     }

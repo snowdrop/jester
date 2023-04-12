@@ -39,6 +39,6 @@ public class SqlServerContainerAnnotationBinding extends ContainerAnnotationBind
         // We need to accept the SQL Server End-User License Agreement (EULA):
         databaseService.withProperty("ACCEPT_EULA", "Y");
 
-        return doInit(context, metadata.image(), metadata.expectedLog(), metadata.command(), metadata.ports());
+        return doInit(context, service, metadata.image(), metadata.expectedLog(), metadata.command(), metadata.ports());
     }
 }

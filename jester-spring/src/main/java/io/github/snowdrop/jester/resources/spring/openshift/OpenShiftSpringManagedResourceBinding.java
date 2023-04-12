@@ -1,5 +1,6 @@
 package io.github.snowdrop.jester.resources.spring.openshift;
 
+import io.github.snowdrop.jester.api.Service;
 import io.github.snowdrop.jester.api.Spring;
 import io.github.snowdrop.jester.api.extensions.SpringManagedResourceBinding;
 import io.github.snowdrop.jester.core.JesterContext;
@@ -13,7 +14,7 @@ public class OpenShiftSpringManagedResourceBinding implements SpringManagedResou
     }
 
     @Override
-    public ManagedResource init(Spring metadata) {
+    public ManagedResource init(JesterContext context, Service service, Spring metadata) {
         return new ContainerRegistrySpringOpenShiftManagedResource(metadata.location(), metadata.forceBuild(),
                 metadata.buildCommands());
     }

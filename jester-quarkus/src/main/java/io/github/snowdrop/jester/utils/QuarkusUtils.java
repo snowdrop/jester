@@ -2,16 +2,23 @@ package io.github.snowdrop.jester.utils;
 
 import static java.util.stream.Collectors.toSet;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 
 import io.github.snowdrop.jester.api.Service;
 import io.github.snowdrop.jester.api.model.QuarkusLaunchMode;
+import io.github.snowdrop.jester.core.ServiceContext;
 
 public final class QuarkusUtils {
 
@@ -110,5 +117,50 @@ public final class QuarkusUtils {
 
     public static String getKubernetesFolder(Service service) {
         return service.getProperty(KUBERNETES_OUTPUT_DIRECTORY, KUBERNETES_OUTPUT_DIRECTORY_DEFAULT);
+    }
+
+    public static boolean isKubernetesExtensionLoaded() {
+        return ReflectionUtils.loadClass("io.quarkus.kubernetes.runtime.devui.KubernetesManifestService").isPresent();
+    }
+
+    public static void copyResourcesToServiceFolder(Path location, ServiceContext context) {
+        copyResourcesInFolderToAppFolder(location.resolve(RESOURCES_FOLDER), context);
+        copyResourcesInFolderToAppFolder(TEST_RESOURCES_FOLDER, context);
+        createComputedApplicationProperties(context);
+    }
+
+    private static void copyResourcesInFolderToAppFolder(Path folder, ServiceContext context) {
+        try (Stream<Path> binariesFound = Files.find(folder, Integer.MAX_VALUE,
+                (path, basicFileAttributes) -> !Files.isDirectory(path))) {
+            binariesFound.forEach(path -> {
+                File fileToCopy = path.toFile();
+
+                Path source = folder.relativize(path).getParent();
+                Path target = context.getServiceFolder();
+                if (source != null) {
+                    // Resource is in a sub-folder:
+                    target = target.resolve(source);
+                    // Create subdirectories if necessary
+                    target.toFile().mkdirs();
+                }
+
+                FileUtils.copyFileTo(fileToCopy, target);
+            });
+        } catch (IOException ex) {
+            // ignored
+        }
+    }
+
+    private static void createComputedApplicationProperties(ServiceContext context) {
+        Path generatedApplicationProperties = context.getServiceFolder().resolve(QuarkusUtils.APPLICATION_PROPERTIES);
+        Map<String, String> map = new HashMap<>();
+        // Add the content of the source application properties into the auto-generated application.properties
+        if (Files.exists(generatedApplicationProperties)) {
+            map.putAll(PropertiesUtils.toMap(generatedApplicationProperties));
+        }
+        // Then add the service properties
+        map.putAll(context.getOwner().getProperties());
+        // Then overwrite the application properties with the generated application.properties
+        PropertiesUtils.fromMap(map, generatedApplicationProperties);
     }
 }

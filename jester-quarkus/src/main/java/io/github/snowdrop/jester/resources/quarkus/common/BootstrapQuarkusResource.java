@@ -1,9 +1,9 @@
 package io.github.snowdrop.jester.resources.quarkus.common;
 
+import static io.github.snowdrop.jester.utils.QuarkusUtils.copyResourcesToServiceFolder;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -129,25 +129,6 @@ public class BootstrapQuarkusResource extends QuarkusResource {
         }
     }
 
-    private void copyResourcesToAppFolder() {
-        copyResourcesInFolderToAppFolder(location.resolve(QuarkusUtils.RESOURCES_FOLDER));
-        copyResourcesInFolderToAppFolder(QuarkusUtils.TEST_RESOURCES_FOLDER);
-        createComputedApplicationProperties();
-    }
-
-    private void createComputedApplicationProperties() {
-        Path generatedApplicationProperties = context.getServiceFolder().resolve(QuarkusUtils.APPLICATION_PROPERTIES);
-        Map<String, String> map = new HashMap<>();
-        // Add the content of the source application properties into the auto-generated application.properties
-        if (Files.exists(generatedApplicationProperties)) {
-            map.putAll(PropertiesUtils.toMap(generatedApplicationProperties));
-        }
-        // Then add the service properties
-        map.putAll(context.getOwner().getProperties());
-        // Then overwrite the application properties with the generated application.properties
-        PropertiesUtils.fromMap(map, generatedApplicationProperties);
-    }
-
     private boolean containsBuildProperties() {
         Map<String, String> differenceProperties = MapUtils.difference(context.getOwner().getProperties(),
                 propertiesSnapshot);
@@ -172,7 +153,7 @@ public class BootstrapQuarkusResource extends QuarkusResource {
         }
 
         try {
-            copyResourcesToAppFolder();
+            copyResourcesToServiceFolder(location, context);
             createSnapshotOfBuildProperties();
             Path appFolder = context.getServiceFolder();
 
@@ -234,28 +215,6 @@ public class BootstrapQuarkusResource extends QuarkusResource {
                 KubernetesCustomProjectBuildStep.class);
         additionalDeploymentArchive.as(ExplodedExporter.class).exportExplodedInto(additionalDeploymentDir.toFile());
         builder.addAdditionalDeploymentArchive(additionalDeploymentDir);
-    }
-
-    private void copyResourcesInFolderToAppFolder(Path folder) {
-        try (Stream<Path> binariesFound = Files.find(folder, Integer.MAX_VALUE,
-                (path, basicFileAttributes) -> !Files.isDirectory(path))) {
-            binariesFound.forEach(path -> {
-                File fileToCopy = path.toFile();
-
-                Path source = folder.relativize(path).getParent();
-                Path target = context.getServiceFolder();
-                if (source != null) {
-                    // Resource is in a sub-folder:
-                    target = target.resolve(source);
-                    // Create subdirectories if necessary
-                    target.toFile().mkdirs();
-                }
-
-                FileUtils.copyFileTo(fileToCopy, target);
-            });
-        } catch (IOException ex) {
-            // ignored
-        }
     }
 
     private void createSnapshotOfBuildProperties() {

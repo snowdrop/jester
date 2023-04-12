@@ -26,7 +26,7 @@ import io.github.snowdrop.jester.utils.FileUtils;
 
 public abstract class OpenShiftManagedResource extends ManagedResource {
 
-    private OpenshiftClient client;
+    protected OpenshiftClient client;
     private LoggingHandler loggingHandler;
     private boolean init;
     private boolean running;
@@ -48,6 +48,7 @@ public abstract class OpenShiftManagedResource extends ManagedResource {
             return;
         }
 
+        this.client = context.get(OpenShiftExtensionBootstrap.CLIENT);
         if (!init) {
             doInit();
             init = true;
@@ -124,8 +125,6 @@ public abstract class OpenShiftManagedResource extends ManagedResource {
     }
 
     protected void doInit() {
-        this.client = context.get(OpenShiftExtensionBootstrap.CLIENT);
-
         applyDeployment();
 
         client.expose(context.getOwner(), getEffectivePorts());
