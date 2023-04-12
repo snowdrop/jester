@@ -1,6 +1,7 @@
 package io.github.snowdrop.jester.api.extensions;
 
 import io.github.snowdrop.jester.api.LocalProject;
+import io.github.snowdrop.jester.api.Service;
 import io.github.snowdrop.jester.core.JesterContext;
 import io.github.snowdrop.jester.core.ManagedResource;
 
@@ -14,10 +15,6 @@ public interface LocalProjectManagedResourceBinding {
 
     /**
      * Init and return the managed resource for the current context.
-     *
-     * @param metadata
-     *
-     * @return
      */
-    ManagedResource init(LocalProject metadata);
+    ManagedResource init(JesterContext context, Service service, LocalProject metadata);
 }

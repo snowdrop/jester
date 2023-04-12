@@ -30,6 +30,6 @@ public class PostgresqlContainerAnnotationBinding extends ContainerAnnotationBin
         databaseService.withUserProperty(metadata.userProperty());
         databaseService.withPasswordProperty(metadata.passwordProperty());
 
-        return doInit(context, metadata.image(), metadata.expectedLog(), metadata.command(), metadata.ports());
+        return doInit(context, service, metadata.image(), metadata.expectedLog(), metadata.command(), metadata.ports());
     }
 }

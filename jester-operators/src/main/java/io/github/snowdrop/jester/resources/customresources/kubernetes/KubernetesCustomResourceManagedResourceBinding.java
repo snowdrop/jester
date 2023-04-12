@@ -1,6 +1,7 @@
 package io.github.snowdrop.jester.resources.customresources.kubernetes;
 
 import io.fabric8.kubernetes.client.CustomResource;
+import io.github.snowdrop.jester.api.Service;
 import io.github.snowdrop.jester.api.extensions.CustomResourceManagedResourceBinding;
 import io.github.snowdrop.jester.api.model.CustomResourceSpec;
 import io.github.snowdrop.jester.api.model.CustomResourceStatus;
@@ -15,7 +16,7 @@ public class KubernetesCustomResourceManagedResourceBinding implements CustomRes
     }
 
     @Override
-    public ManagedResource init(String resource,
+    public ManagedResource init(JesterContext context, Service service, String resource,
             Class<? extends CustomResource<CustomResourceSpec, CustomResourceStatus>> type) {
         return new KubernetesCustomResourceManagedResource(resource, type);
     }

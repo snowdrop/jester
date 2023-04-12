@@ -31,6 +31,6 @@ public class MongoDbContainerAnnotationBinding extends ContainerAnnotationBindin
         databaseService.withJdbcUrlPattern(URL_PATTERN);
         databaseService.withReactiveUrlPattern(URL_PATTERN);
 
-        return doInit(context, metadata.image(), metadata.expectedLog(), metadata.command(), metadata.ports());
+        return doInit(context, service, metadata.image(), metadata.expectedLog(), metadata.command(), metadata.ports());
     }
 }

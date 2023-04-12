@@ -55,6 +55,7 @@
     <apache.commons-logging-api.version>1.1</apache.commons-logging-api.version>
     <kubernetes-client.version>6.5.1</kubernetes-client.version>
     <jackson-annotations.version>2.14.2</jackson-annotations.version>
+    <maven-model.version>3.9.0</maven-model.version>
     <!-- Provided Dependencies -->
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
@@ -155,6 +156,11 @@
         <groupId>commons-logging</groupId>
         <artifactId>commons-logging-api</artifactId>
         <version>${apache.commons-logging-api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-model</artifactId>
+        <version>${maven-model.version}</version>
       </dependency>
       <dependency>
         <groupId>io.fabric8</groupId>
@@ -365,6 +371,7 @@
         <module>examples/quarkus-grpc</module>
         <module>examples/quarkus-reactive-mysql</module>
         <module>examples/quarkus-with-kubernetes</module>
+        <module>examples/quarkus-with-openshift</module>
         <module>examples/apps-benchmark</module>
       </modules>
     </profile>

@@ -12,7 +12,7 @@ import io.github.snowdrop.jester.utils.Ports;
 import io.github.snowdrop.jester.utils.QuarkusUtils;
 import io.github.snowdrop.jester.utils.SocketUtils;
 
-public class ProdModeBootstrapQuarkusManagedResourceJava extends JavaProcessManagedResource {
+public class ProdModeBootstrapQuarkusJavaProcessManagedResource extends JavaProcessManagedResource {
 
     private final String location;
     private final Class<?>[] classes;
@@ -22,7 +22,7 @@ public class ProdModeBootstrapQuarkusManagedResourceJava extends JavaProcessMana
 
     private BootstrapQuarkusResource resource;
 
-    public ProdModeBootstrapQuarkusManagedResourceJava(String location, Class<?>[] classes,
+    public ProdModeBootstrapQuarkusJavaProcessManagedResource(String location, Class<?>[] classes,
             Dependency[] forcedDependencies, boolean forceBuild, String version) {
         this.location = location;
         this.classes = classes;

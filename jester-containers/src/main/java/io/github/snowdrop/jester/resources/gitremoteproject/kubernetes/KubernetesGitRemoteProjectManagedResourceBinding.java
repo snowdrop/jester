@@ -1,6 +1,7 @@
 package io.github.snowdrop.jester.resources.gitremoteproject.kubernetes;
 
 import io.github.snowdrop.jester.api.GitRemoteProject;
+import io.github.snowdrop.jester.api.Service;
 import io.github.snowdrop.jester.api.extensions.GitRemoteProjectManagedResourceBinding;
 import io.github.snowdrop.jester.core.JesterContext;
 import io.github.snowdrop.jester.core.ManagedResource;
@@ -13,7 +14,7 @@ public class KubernetesGitRemoteProjectManagedResourceBinding implements GitRemo
     }
 
     @Override
-    public ManagedResource init(GitRemoteProject metadata) {
+    public ManagedResource init(JesterContext context, Service service, GitRemoteProject metadata) {
         return new KubernetesGitRemoteProjectManagedResource(metadata.repo(), metadata.branch(), metadata.contextDir(),
                 metadata.buildCommands(), metadata.dockerfile(), metadata.expectedLog(), metadata.command(),
                 metadata.ports());

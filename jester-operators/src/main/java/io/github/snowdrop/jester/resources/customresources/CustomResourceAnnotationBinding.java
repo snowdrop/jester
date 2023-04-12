@@ -26,7 +26,7 @@ public class CustomResourceAnnotationBinding implements AnnotationBinding {
 
         for (CustomResourceManagedResourceBinding binding : bindings) {
             if (binding.appliesFor(context)) {
-                return binding.init(metadata.resource(), metadata.type());
+                return binding.init(context, service, metadata.resource(), metadata.type());
             }
         }
 

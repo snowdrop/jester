@@ -134,7 +134,6 @@ jobs:
         with:
           oc version: ${{ matrix.openshift }}
           dns ip: 1.1.1.1
-          enable: 'service-catalog,registry,-web-console,router,-persistent-volumes,-sample-templates'
       - name: Build
         run: |
           mvn -s .github/mvn-settings.xml clean install -Pframework -Dexamples -Dcoverage \

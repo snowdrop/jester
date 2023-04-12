@@ -7,7 +7,7 @@ import io.github.snowdrop.jester.resources.local.JavaProcessManagedResource;
 import io.github.snowdrop.jester.resources.spring.common.SpringResource;
 import io.github.snowdrop.jester.utils.SpringUtils;
 
-public class LocalBootstrapSpringManagedResourceJava extends JavaProcessManagedResource {
+public class LocalBootstrapSpringJavaProcessManagedResource extends JavaProcessManagedResource {
 
     private final String location;
     private final boolean forceBuild;
@@ -15,7 +15,7 @@ public class LocalBootstrapSpringManagedResourceJava extends JavaProcessManagedR
 
     private SpringResource resource;
 
-    public LocalBootstrapSpringManagedResourceJava(String location, boolean forceBuild, String[] buildCommands) {
+    public LocalBootstrapSpringJavaProcessManagedResource(String location, boolean forceBuild, String[] buildCommands) {
         this.location = location;
         this.forceBuild = forceBuild;
         this.buildCommands = buildCommands;

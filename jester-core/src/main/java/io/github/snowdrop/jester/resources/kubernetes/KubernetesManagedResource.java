@@ -19,7 +19,7 @@ import io.github.snowdrop.jester.utils.FileUtils;
 
 public abstract class KubernetesManagedResource extends ManagedResource {
 
-    private KubernetesClient client;
+    protected KubernetesClient client;
     private LoggingHandler loggingHandler;
     private boolean init;
     private boolean running;
@@ -41,6 +41,7 @@ public abstract class KubernetesManagedResource extends ManagedResource {
             return;
         }
 
+        this.client = context.get(KubernetesExtensionBootstrap.CLIENT);
         if (!init) {
             doInit();
             init = true;
@@ -115,8 +116,6 @@ public abstract class KubernetesManagedResource extends ManagedResource {
     }
 
     protected void doInit() {
-        this.client = context.get(KubernetesExtensionBootstrap.CLIENT);
-
         applyDeployment();
 
         client.expose(context.getOwner(), getEffectivePorts());

@@ -25,14 +25,14 @@ public class ContainerAnnotationBinding implements AnnotationBinding {
     public ManagedResource getManagedResource(JesterContext context, Service service, Annotation... annotations) {
         Container metadata = findAnnotation(annotations, Container.class).get();
 
-        return doInit(context, metadata.image(), metadata.expectedLog(), metadata.command(), metadata.ports());
+        return doInit(context, service, metadata.image(), metadata.expectedLog(), metadata.command(), metadata.ports());
     }
 
-    protected ManagedResource doInit(JesterContext context, String image, String expectedLog, String[] command,
-            int[] ports) {
+    protected ManagedResource doInit(JesterContext context, Service service, String image, String expectedLog,
+            String[] command, int[] ports) {
         for (ContainerManagedResourceBinding binding : containerBindings) {
             if (binding.appliesFor(context)) {
-                return binding.init(image, expectedLog, command, ports);
+                return binding.init(context, service, image, expectedLog, command, ports);
             }
         }
 

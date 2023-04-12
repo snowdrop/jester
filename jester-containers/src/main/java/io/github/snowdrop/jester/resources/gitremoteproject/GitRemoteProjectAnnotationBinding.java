@@ -27,7 +27,7 @@ public class GitRemoteProjectAnnotationBinding implements AnnotationBinding {
 
         for (GitRemoteProjectManagedResourceBinding binding : bindings) {
             if (binding.appliesFor(context)) {
-                return binding.init(metadata);
+                return binding.init(context, service, metadata);
             }
         }
 

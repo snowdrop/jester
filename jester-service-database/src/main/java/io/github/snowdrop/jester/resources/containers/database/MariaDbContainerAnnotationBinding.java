@@ -32,6 +32,6 @@ public class MariaDbContainerAnnotationBinding extends ContainerAnnotationBindin
         // This property is necessary because we're not setting MARIADB_ROOT_PASSWORD
         databaseService.withProperty("ALLOW_EMPTY_PASSWORD", "yes");
 
-        return doInit(context, metadata.image(), metadata.expectedLog(), metadata.command(), metadata.ports());
+        return doInit(context, service, metadata.image(), metadata.expectedLog(), metadata.command(), metadata.ports());
     }
 }

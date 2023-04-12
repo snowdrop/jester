@@ -9,7 +9,7 @@ import io.github.snowdrop.jester.api.extensions.AnnotationBinding;
 import io.github.snowdrop.jester.api.extensions.QuarkusManagedResourceBinding;
 import io.github.snowdrop.jester.core.JesterContext;
 import io.github.snowdrop.jester.core.ManagedResource;
-import io.github.snowdrop.jester.resources.quarkus.local.ProdModeBootstrapQuarkusManagedResourceJava;
+import io.github.snowdrop.jester.resources.quarkus.local.ProdModeBootstrapQuarkusJavaProcessManagedResource;
 
 public class QuarkusAnnotationBinding implements AnnotationBinding {
 
@@ -27,12 +27,12 @@ public class QuarkusAnnotationBinding implements AnnotationBinding {
 
         for (QuarkusManagedResourceBinding binding : customBindings) {
             if (binding.appliesFor(context)) {
-                return binding.init(metadata);
+                return binding.init(context, service, metadata);
             }
         }
 
         // If none handler found, then the container will be running on localhost by default
-        return new ProdModeBootstrapQuarkusManagedResourceJava(metadata.location(), metadata.classes(),
+        return new ProdModeBootstrapQuarkusJavaProcessManagedResource(metadata.location(), metadata.classes(),
                 metadata.dependencies(), metadata.forceBuild(), metadata.version());
     }
 

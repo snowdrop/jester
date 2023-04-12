@@ -27,7 +27,7 @@ public class KafkaResourceAnnotationBinding implements AnnotationBinding {
 
         for (CustomResourceManagedResourceBinding binding : bindings) {
             if (binding.appliesFor(context)) {
-                return binding.init(metadata.resource(), KafkaInstanceCustomResource.class);
+                return binding.init(context, service, metadata.resource(), KafkaInstanceCustomResource.class);
             }
         }
 

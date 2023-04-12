@@ -39,7 +39,7 @@ public class OperatorAnnotationBinding implements AnnotationBinding {
 
         for (OperatorManagedResourceBinding binding : bindings) {
             if (binding.appliesFor(context)) {
-                return binding.init(metadata);
+                return binding.init(context, service, metadata);
             }
         }
 
