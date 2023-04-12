@@ -5,11 +5,11 @@ import java.util.List;
 import org.jboss.resteasy.reactive.RestResponse;
 
 import io.quarkus.hibernate.reactive.panache.PanacheEntityBase;
-import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
+import io.quarkus.hibernate.reactive.panache.common.WithSession;
+import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
 import io.quarkus.panache.common.Sort;
 import io.smallrye.mutiny.Uni;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -27,30 +27,29 @@ import jakarta.ws.rs.core.MediaType;
 public class BookReactiveResource {
 
     @GET
+    @WithSession
     public Uni<List<PanacheEntityBase>> getAll() {
         return BookReactive.listAll(Sort.by("title"));
     }
 
     @GET
     @Path("/{id}")
+    @WithSession
     public Uni<BookReactive> get(@PathParam("id") Long id) {
         return BookReactive.findById(id).onItem().ifNull()
                 .failWith(() -> new NotFoundException("book '" + id + "' not found")).map(book -> (BookReactive) book);
     }
 
     @POST
-    @ReactiveTransactional
+    @WithTransaction
     public Uni<RestResponse<BookReactive>> create(@Valid BookReactive bookReactive) {
-        if (bookReactive.id != null) {
-            throw new ClientErrorException("unexpected ID in request", ValidationExceptionMapper.UNPROCESSABLE_ENTITY);
-        }
-        return bookReactive.persist()
-                .map(dbBook -> RestResponse.status(RestResponse.Status.CREATED, (BookReactive) dbBook));
+        return BookReactive.getSession().flatMap(s -> s.merge(bookReactive))
+                .map(dbBook -> RestResponse.status(RestResponse.Status.CREATED, dbBook));
     }
 
     @PUT
     @Path("/{id}")
-    @ReactiveTransactional
+    @WithTransaction
     public Uni<BookReactive> update(@PathParam("id") Long id, @Valid BookReactive newBookReactive) {
         return BookReactive.findById(id).onItem().ifNull()
                 .failWith(() -> new NotFoundException("book '" + id + "' not found")).map(dbBook -> {
@@ -62,7 +61,7 @@ public class BookReactiveResource {
 
     @DELETE
     @Path("/{id}")
-    @ReactiveTransactional
+    @WithTransaction
     public Uni<RestResponse<Void>> delete(@PathParam("id") Long id) {
         return BookReactive.findById(id).onItem().ifNull()
                 .failWith(() -> new NotFoundException("book '" + id + "' not found")).flatMap(PanacheEntityBase::delete)
