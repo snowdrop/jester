@@ -43,7 +43,7 @@
     <jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
     <maven-checkstyle-plugin.version>3.2.2</maven-checkstyle-plugin.version>
     <formatter-maven-plugin.version>2.22.0</formatter-maven-plugin.version>
-    <impsort-maven-plugin.version>1.8.0</impsort-maven-plugin.version>
+    <impsort-maven-plugin.version>1.9.0</impsort-maven-plugin.version>
     <nexus.version>1.6.13</nexus.version>
     <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
     <maven-release-plugin.version>3.0.0</maven-release-plugin.version>
