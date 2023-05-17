@@ -54,7 +54,7 @@
     <apache.commons-io.version>2.11.0</apache.commons-io.version>
     <apache.commons-logging-api.version>1.1</apache.commons-logging-api.version>
     <kubernetes-client.version>6.5.1</kubernetes-client.version>
-    <jackson-annotations.version>2.15.0</jackson-annotations.version>
+    <jackson-annotations.version>2.15.1</jackson-annotations.version>
     <maven-model.version>3.9.2</maven-model.version>
     <!-- Provided Dependencies -->
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
