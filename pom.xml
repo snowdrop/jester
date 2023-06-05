@@ -46,7 +46,7 @@
     <impsort-maven-plugin.version>1.9.0</impsort-maven-plugin.version>
     <nexus.version>1.6.13</nexus.version>
     <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
-    <maven-release-plugin.version>3.0.0</maven-release-plugin.version>
+    <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
     <!-- Declared Dependencies -->
     <junit.version>5.9.3</junit.version>
     <rest-assured.version>5.3.0</rest-assured.version>
