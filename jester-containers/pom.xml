@@ -11,7 +11,7 @@
   <name>Jester - Containers</name>
   <properties>
     <!-- Declared Dependencies -->
-    <testcontainers.version>1.18.3</testcontainers.version>
+    <testcontainers.version>1.19.0</testcontainers.version>
     <!-- Test Dependencies -->
     <javax.version>1</javax.version>
   </properties>
