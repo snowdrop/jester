@@ -11,7 +11,7 @@
   <name>Jester - Examples - Quarkus - OIDC + Keycloak</name>
   <properties>
     <!-- For tests only -->
-    <keycloak-authz-client.version>21.0.2</keycloak-authz-client.version>
+    <keycloak-authz-client.version>22.0.3</keycloak-authz-client.version>
   </properties>
   <dependencyManagement>
     <dependencies>
